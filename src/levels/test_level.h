@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <flecs.h>
 #include "../core/game.h"
-
-void OnPlayerInput(Game* game, GameLevel* level, ecs_entity_t entity);
-void OnPlayerUpdate(Game* game, GameLevel* level, ecs_entity_t entity);
+#include "player.h"
 
 void TL_Run(Game* game, GameLevel* level);
 

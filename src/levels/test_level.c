@@ -3,45 +3,6 @@
 float rot = 0.0f;
 int scaleDir = 1;
 
-void OnPlayerInput(Game* game, GameLevel* level, ecs_entity_t entity)
-{
-	ECS_COMPONENT(level->world, C_Movement);
-
-	C_Movement* movement = ecs_get(level->world, entity, C_Movement);
-	if (movement == 0) return;
-
-	if (IsKeyDown(KEY_D))
-		movement->directionX = 1;
-	if (IsKeyDown(KEY_A))
-		movement->directionX = -1;
-	if (IsKeyDown(KEY_W))
-		movement->directionY = -1;
-	if (IsKeyDown(KEY_S))
-		movement->directionY = 1;
-
-	if (IsKeyReleased(KEY_D))
-		movement->directionX = 0;
-	if (IsKeyReleased(KEY_A))
-		movement->directionX = 0;
-	if (IsKeyReleased(KEY_W))
-		movement->directionY = 0;
-	if (IsKeyReleased(KEY_S))
-		movement->directionY = 0;
-}
-
-void OnPlayerUpdate(Game* game, GameLevel* level, ecs_entity_t entity)
-{
-	ECS_COMPONENT(level->world, C_Transfom);
-	ECS_COMPONENT(level->world, C_Movement);
-
-	C_Movement* movement = ecs_get(level->world, entity, C_Movement);
-	C_Transfom* transform = ecs_get(level->world, entity, C_Transfom);
-	if (movement == 0) return;
-
-	transform->positionX += (movement->speed * movement->directionX) * GetFrameTime();
-	transform->positionY += (movement->speed * movement->directionY) * GetFrameTime();
-}
-
 void TL_Run(Game* game, GameLevel* level)
 {
 	ECS_COMPONENT(level->world, C_Camera2D);
@@ -88,12 +49,12 @@ void TL_Run(Game* game, GameLevel* level)
 
 		ecs_entity_t ent2 = ecs_entity(level->world, { .name = "change"});
 		ecs_add(level->world, ent2, C_Info);
-		//ecs_add(level->world, ent2, C_SpriteRender);
+		ecs_add(level->world, ent2, C_SpriteRender);
 		ecs_add(level->world, ent2, C_Transfom);
 		ecs_add(level->world, ent2, C_Color);
 		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 120.0f, 3.0f, 3.0f, 0.0f });
 		ecs_set(level->world, ent2, C_Info, { "ent2", "test" });
-		//ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f});
+		ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f});
 		ecs_set(level->world, ent2, C_Color, {45, 255, 25});
 
 		level->isComponentsAdded = 1;

@@ -29,6 +29,7 @@ void InitGame(Game* game, GameConfig config)
 	game->levelStack = NULL;
 	game->levelCacheCount = 0;
 	game->levelStackCount = 0;
+	game->currentLevel = -1;
 }
 
 void RunGame(Game* game)
@@ -43,7 +44,15 @@ void RunGame(Game* game)
 		{
 			for (int i = 0; i < game->levelStackCount; i++)
 			{
-				game->levelStack[i]->Run(game, game->levelStack[i]);
+				if(i != game->currentLevel)
+				{
+					if (game->levelStack[i]->renderInStack)
+						game->levelStack[i]->Run(game, game->levelStack[i]);
+				}
+				else
+				{
+					game->levelStack[i]->Run(game, game->levelStack[i]);
+				}
 			}
 		}
 
@@ -318,6 +327,7 @@ int AddLevel(Game* game,
 
 	game->levelStack = levelsMemTemp;
 	game->levelStack[game->levelStackCount] = level;
+	game->currentLevel = game->levelStackCount;
 	game->levelStackCount += 1;
 
 	return 1;

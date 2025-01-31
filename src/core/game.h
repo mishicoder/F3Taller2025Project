@@ -45,6 +45,7 @@ typedef struct Game
 	/* Stack de niveles. */
 	struct GameLevel** levelStack;
 	unsigned int levelStackCount;
+	signed int currentLevel;
 } Game;
 
 /**

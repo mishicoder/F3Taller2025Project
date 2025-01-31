@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "core/game.h"
 #include "levels/test_level.h"
+#include "levels/menu.h"
 
 int main()
 {
@@ -27,7 +28,10 @@ int main()
 
 	Game game;
 	InitGame(&game, config);
+
 	AddLevel(&game, "test", 0, 0, 0, TL_Run);
+	AddLevel(&game, "menu", 0, 1, 0, Menu_Run);
+
 	RunGame(&game);
 	FreeGame(&game);
 

@@ -44,6 +44,12 @@
     <ClCompile Include="src\core\gametypes.h">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\levels\player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\levels\menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\resources_manager.h">
@@ -68,6 +74,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\levels\test_level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\levels\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\levels\menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
