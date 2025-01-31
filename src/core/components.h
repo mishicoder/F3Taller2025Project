@@ -18,6 +18,28 @@ typedef enum COMPONENT_TYPE
 * componentes generales
 **********************************************************/
 
+/* Componente para la gestión de cámaras en el juego. */
+typedef struct C_Camera2D
+{
+	// Determina si la cámara es la principal.
+	unsigned int isMain;
+	// Desplazamiento en x de la cámara.
+	float offsetX;
+	// Desplazamiento en y de la cámara.
+	float offsetY;
+
+	// Objetivo en x de la cámara.
+	float targetX;
+	// Objetivo en y de la cámara.
+	float targetY;
+
+	// Rotación de la cámara.
+	float rotation;
+
+	// Alejamiento de la cámara.
+	float zoom;
+}C_Camera2D;
+
 /* Permite que la entidad tenga nombre y etiqueta */
 typedef struct Info
 {

@@ -1,9 +1,11 @@
 #include "test_level.h"
 
 float rot = 0.0f;
+int scaleDir = 1;
 
 void TL_Run(Game* game, GameLevel* level)
 {
+	ECS_COMPONENT(level->world, C_Camera2D);
 	ECS_COMPONENT(level->world, C_Info);
 	ECS_COMPONENT(level->world, C_RenderLayer);
 	ECS_COMPONENT(level->world, C_Transfom);
@@ -46,7 +48,7 @@ void TL_Run(Game* game, GameLevel* level)
 		ecs_add(level->world, ent2, C_SpriteRender);
 		ecs_add(level->world, ent2, C_Transfom);
 		ecs_add(level->world, ent2, C_Color);
-		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 20.0f, 1.5f, 1.5f, -45.0f });
+		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 120.0f, 3.0f, 3.0f, 0.0f });
 		ecs_set(level->world, ent2, C_Info, { "ent2", "test" });
 		ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f});
 		ecs_set(level->world, ent2, C_Color, {45, 255, 25});
@@ -96,15 +98,24 @@ void TL_Run(Game* game, GameLevel* level)
 
 			if (spriteRender && transform)
 			{
-				transform->rotation = rot;
-				transform->positionX += 90.0f * GetFrameTime();
+				//transform->rotation = rot;
+				//transform->positionX += 50.0f * GetFrameTime();
+
+				// scale
+				//transform->scaleX += (1.0f * scaleDir) * GetFrameTime();
+				//transform->scaleY += (1.0f * scaleDir) * GetFrameTime();
+				if (transform->scaleX >= 3.0f)
+					scaleDir = -1;
+				else if (transform->scaleX <= 1.0f)
+					scaleDir = 1;
+
 				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
 				DrawTexturePro(
 					game->resourcesManager.textures[sprite->textureIndex],
 					(Rectangle){ sprite->x, sprite->y, sprite->width, sprite->height },
 					(Rectangle){ 
-						transform->positionX + (sprite->origin.x * transform->scaleX),
-						transform->positionY + (sprite->origin.y * transform->scaleY),
+						transform->positionX + (sprite->origin.x),
+						transform->positionY + (sprite->origin.y),
 						sprite->width * transform->scaleX, 
 						sprite->height * transform->scaleY
 					},
@@ -115,6 +126,7 @@ void TL_Run(Game* game, GameLevel* level)
 					transform->rotation,
 					color ? (Color){color->r, color->g, color->b, 255} : WHITE
 				);
+				DrawCircle(transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, 4, WHITE);
 			}
 		}
 	}
