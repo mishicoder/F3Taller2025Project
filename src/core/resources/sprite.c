@@ -1,6 +1,6 @@
 #include "sprite.h"
 
-Sprite* CreateSprite(const char* name, unsigned int textureIndex, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int framesCount)
+Sprite* CreateSprite(const char* name, unsigned int textureIndex, unsigned int x, unsigned int y, unsigned int width, unsigned int height, Vector2 origin, unsigned int framesCount)
 {
 	Sprite* sprite = (Sprite*)malloc(sizeof(Sprite));
 	if (!sprite)
@@ -15,6 +15,7 @@ Sprite* CreateSprite(const char* name, unsigned int textureIndex, unsigned int x
 	sprite->y = y;
 	sprite->width = width;
 	sprite->height = height;
+	sprite->origin = origin;
 	sprite->framesCount = framesCount;
 	sprite->animationsCount = 0;
 	sprite->frames = NULL;

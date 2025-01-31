@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <raylib.h>
 
 typedef struct Animation
 {
@@ -30,6 +31,7 @@ typedef struct Sprite
 	unsigned int y;
 	unsigned int width;
 	unsigned int height;
+	Vector2 origin;
 
 	unsigned int framesCount;
 	unsigned int nextFrame;
@@ -46,7 +48,7 @@ typedef struct SpriteNode
 	struct SpriteNode* right;
 }SpriteNode;
 
-Sprite* CreateSprite(const char* name, unsigned int textureIndex, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int framesCount);
+Sprite* CreateSprite(const char* name, unsigned int textureIndex, unsigned int x, unsigned int y, unsigned int width, unsigned int height, Vector2 origin, unsigned int framesCount);
 int AddSpriteFrame(Sprite* sprite, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 int AddSpriteAnimation(Sprite* sprite, const char* name, unsigned int fromIndex, unsigned int toIndex, unsigned int loop, unsigned int speed);
 SpriteNode* InsertSpriteNode(SpriteNode* node, Sprite* sprite);

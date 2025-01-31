@@ -1,5 +1,7 @@
 #include "test_level.h"
 
+float rot = 0.0f;
+
 void TL_Run(Game* game, GameLevel* level)
 {
 	ECS_COMPONENT(level->world, C_Info);
@@ -39,22 +41,47 @@ void TL_Run(Game* game, GameLevel* level)
 		ecs_set(level->world, ent, C_Info, { "ent", "test" });
 		ecs_set(level->world, ent, C_SpriteRender, {"test_sprite", 1, 1.0f});
 
-		ecs_entity_t ent2 = ecs_new(level->world);
+		ecs_entity_t ent2 = ecs_entity(level->world, { .name = "change"});
 		ecs_add(level->world, ent2, C_Info);
 		ecs_add(level->world, ent2, C_SpriteRender);
 		ecs_add(level->world, ent2, C_Transfom);
 		ecs_add(level->world, ent2, C_Color);
-		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 20.0f, 3.0f, 3.0f, 0.0f });
+		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 20.0f, 1.5f, 1.5f, -45.0f });
 		ecs_set(level->world, ent2, C_Info, { "ent2", "test" });
-		ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f });
-		ecs_set(level->world, ent2, C_Color, {33, 33, 33});
+		ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f});
+		ecs_set(level->world, ent2, C_Color, {45, 255, 25});
 
 		level->isComponentsAdded = 1;
+	}
+
+	if (IsKeyPressed(KEY_SPACE))
+	{
+		ecs_entity_t ent = ecs_lookup(level->world, "change");
+		if (ent != 0)
+		{
+			if(ecs_has(level->world, ent, C_Color))
+				ecs_remove(level->world, ent, C_Color);
+		}
+	}
+
+	if (IsKeyPressed(KEY_A))
+	{
+		ecs_entity_t ent = ecs_lookup(level->world, "change");
+		if (ent != 0)
+		{
+			if (!ecs_has(level->world, ent, C_Color))
+			{
+				ecs_add(level->world, ent, C_Color);
+				ecs_set(level->world, ent, C_Color, {25, 68, 201});
+			}
+		}
 	}
 
 	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = {{ .id = ecs_id(C_SpriteRender)}}
 	});
+
+	rot += 120.0f * GetFrameTime();
 
 	ecs_iter_t it = ecs_query_iter(level->world, query);
 	while (ecs_iter_next(&it))
@@ -66,15 +93,26 @@ void TL_Run(Game* game, GameLevel* level)
 			C_SpriteRender* spriteRender = ecs_get(level->world, entity, C_SpriteRender);
 			C_Transfom* transform = ecs_get(level->world, entity, C_Transfom);
 			C_Color* color = ecs_get(level->world, entity, C_Color);
+
 			if (spriteRender && transform)
 			{
+				transform->rotation = rot;
+				transform->positionX += 90.0f * GetFrameTime();
 				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
 				DrawTexturePro(
 					game->resourcesManager.textures[sprite->textureIndex],
 					(Rectangle){ sprite->x, sprite->y, sprite->width, sprite->height },
-					(Rectangle){ transform->positionX, transform->positionY, sprite->width * transform->scaleX, sprite->height * transform->scaleY},
-					(Vector2){0.0f, 0.0f },
-					0.0f,
+					(Rectangle){ 
+						transform->positionX + (sprite->origin.x * transform->scaleX),
+						transform->positionY + (sprite->origin.y * transform->scaleY),
+						sprite->width * transform->scaleX, 
+						sprite->height * transform->scaleY
+					},
+					(Vector2){
+						sprite->origin.x * transform->scaleX,
+						sprite->origin.y * transform->scaleY
+					},
+					transform->rotation,
 					color ? (Color){color->r, color->g, color->b, 255} : WHITE
 				);
 			}

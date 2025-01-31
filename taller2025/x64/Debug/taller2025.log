@@ -1,0 +1,9 @@
+﻿  test_level.c
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(104,25): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(104,36): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(104,47): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(104,62): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(93,20): warning C4090: 'initializing': different 'const' qualifiers
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(94,16): warning C4090: 'initializing': different 'const' qualifiers
+C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\src\levels\test_level.c(95,13): warning C4090: 'initializing': different 'const' qualifiers
+  taller2025.vcxproj -> C:\Users\mishi\OneDrive\Documentos\workspaces\GameDev\taller2025\x64\Debug\taller2025.exe

@@ -56,7 +56,7 @@ int LoadSprite(Game* game, const char* textureFilename, const char* name)
 	TextureResult result = AddTexture(&game->resourcesManager, textureFilename);
 	if (result.status == -1) return 0;
 
-	Sprite* sprite = CreateSprite(name, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, 0);
+	Sprite* sprite = CreateSprite(name, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2) { result.textureWidth/2.0f, result.textureHeight/2.0f }, 0);
 	if (!sprite) return 0;
 
 	AddSprite(&game->resourcesManager, sprite);
@@ -112,7 +112,7 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 								int sliceX = atoi(sxStr);
 								int sliceY = atoi(syStr);
 
-								sprite = CreateSprite(spriteName, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (sliceX * sliceY));
+								sprite = CreateSprite(spriteName, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2){ result.textureWidth/2.0f, result.textureHeight/2.0f }, (sliceX * sliceY));
 								if (sprite != NULL)
 								{
 									int frameWidth = result.textureWidth / sliceX;
@@ -230,6 +230,7 @@ int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFil
 								coords[1],
 								coords[2],
 								coords[3],
+								(Vector2){ result.textureWidth/2.0f, result.textureHeight/2.0f },
 								0
 							);
 
