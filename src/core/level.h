@@ -28,6 +28,9 @@ typedef struct GameLevel
 	unsigned int isComponentsAdded;
 
 	void(*Run)(struct Game* game, struct GameLevel* level);
+
+	void(*OnLoad)(struct Game* game, struct GameLevel* level);
+	void(*OnUpdate)(struct Game* game, struct GameLevel* level);
 } GameLevel;
 
 /**

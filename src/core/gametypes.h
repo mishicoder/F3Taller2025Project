@@ -7,8 +7,6 @@ typedef struct GameItem
 {
 	// Nombre del sprite que renderizará el item en el inventario.
 	const char* itemSprite;
-	// Cantidad actual del item en el inventario.
-	unsigned int inStack;
 	// Cantidad maxima que puede haber de este item en el slot.
 	unsigned int maxStack;
 	// Calidad del material (-1 si el material no posee calidad)

@@ -105,9 +105,9 @@ typedef struct C_MapRender
 /* En desarrollo */
 typedef struct C_Behaviour
 {
-	void(*OnInput)(struct Game* game, struct Level* level);
-	void(*OnCreate)(struct Game* game, struct Level* level);
-	void(*OnUpdate)(struct Game* game, struct Level* level);
+	void(*OnInput)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	void(*OnCreate)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	void(*OnUpdate)(struct Game* game, struct Level* level, ecs_entity_t entity);
 } C_Behaviour;
 
 /* Permite que la entidad tenga colisión en el mundo. */
@@ -200,7 +200,7 @@ typedef struct C_Movement
 typedef struct C_Action
 {
 	// Controlador de acciones (lo gestiona el usuario).
-	void (*OnAction)(InventorySlot* slot, ecs_entity_t playerID);
+	void (*OnAction)(InventorySlot* selectedSlot, ecs_entity_t playerID);
 } C_Action;
 
 /* Componente para las estadísticas del jugador */
@@ -303,6 +303,8 @@ typedef struct C_DropTable
 	unsigned int* items;
 	// Probabilidad de arrojar los objetos
 	unsigned int* dropProbability;
+	// Cantidad de cada drop
+	unsigned int* dropAmount;
 	// Experiencia que dropea
 	float exp;
 } C_DropTable;
