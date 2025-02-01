@@ -29,8 +29,29 @@ typedef struct GameLevel
 
 	void(*Run)(struct Game* game, struct GameLevel* level);
 
+	/**
+	* Funcion que se ejecuta cuando la escena es cargada (punto para agregar entidades o cargar datos).
+	* 
+	* @param[in] game Referencia de memoria de la instancia del juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
 	void(*OnLoad)(struct Game* game, struct GameLevel* level);
+
+	/**
+	* Funcion que se actualiza en cada frame del juego.
+	* 
+	* @param[in] game Referencia de memoria de la instancia del juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
 	void(*OnUpdate)(struct Game* game, struct GameLevel* level);
+
+	/**
+	* Funcion que se ejecuta cuando se des-cargar el nivel.
+	*
+	* @param[in] game Referencia de memoria de la instancia del juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
+	void(*OnUnload)(struct Game* game, struct GameLevel* level);
 } GameLevel;
 
 /**

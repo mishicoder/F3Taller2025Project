@@ -18,7 +18,7 @@
 
 int main()
 {
-	GameConfig config = { 0 };
+	GameConfig config = {0};
 	config.windowTitle = "My Farm Game";
 	config.windowWidth = 800;
 	config.windowHeight = 600;
@@ -30,7 +30,6 @@ int main()
 	InitGame(&game, config);
 
 	AddLevel(&game, "test", 0, 0, 0, TL_Run);
-	AddLevel(&game, "menu", 0, 1, 0, Menu_Run);
 
 	RunGame(&game);
 	FreeGame(&game);

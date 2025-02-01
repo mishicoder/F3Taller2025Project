@@ -1,5 +1,121 @@
 #include "tilemap.h"
 
+TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
+{
+	// Asigna bloque de memoria para el paquete.
+	TilesetPack* pack = (TilesetPack*)malloc(sizeof(TilesetPack));
+	// Verificar si la asignación ha sido correcta.
+	if (pack == NULL)
+	{
+		// Muestra el error.
+		printf("Error al crear el paquete de sets de mosaicos {%s}\n", name);
+		// returna NULL.
+		return NULL;
+	}
+
+	FILE* tilestsfile = fopen(filename, "r");
+	if (tilestsfile == NULL)
+	{
+		free(pack);
+		return NULL;
+	}
+
+	pack->name = name;
+	pack->nextTilesetIndex = 1;
+	pack->tilesetsCount = 0;
+	pack->tilesets = NULL;
+
+	char buffer[1024];
+	while (fgets(buffer, sizeof(buffer), tilestsfile) != NULL)
+	{
+		size_t len = strlen(buffer);
+		if (len > 0 && buffer[len - 1] == '\n')
+			buffer[len - 1] = '\0';
+
+		if (strlen(buffer) > 0 && buffer[0] != '#')
+		{
+			char* line = strdup(buffer);
+			if (line != NULL)
+			{
+				// si encuentra la palabra "@break" romperá el bucle
+				if (strcmp(line, "@break") == 0)
+				{
+					free(line);
+					break;
+				}
+
+				// leer datos
+			}
+		}
+	}
+
+	/*mxml_options_t* options = mxmlOptionsNew();
+	mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
+	mxml_node_t* root = mxmlLoadFile(NULL, options, tilesetsXMLFile);
+	fclose(tilesetsXMLFile);
+	if (root == NULL)
+	{
+		free(pack);
+		mxmlOptionsDelete(options);
+		return NULL;
+	}*/
+
+	
+
+	return NULL;
+}
+
+Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
+{
+	FILE* xmlFile = fopen(filename, "r");
+	if(xmlFile == NULL)
+	{
+		printf("Imposible cargar el archivo {%s}\n", filename);
+		return NULL;
+	}
+
+	Tileset* tileset = (Tileset*)malloc(sizeof(Tileset));
+	if (tileset == NULL)
+	{
+		printf("Error al asignar memoria para el tileset.\n");
+		fclose(xmlFile);
+		return NULL;
+	}
+
+	tileset->initialIndex = initialIndex;
+
+	mxml_options_t* options = mxmlOptionsNew();
+	mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
+	mxml_node_t* root = mxmlLoadFile(NULL, options, xmlFile);
+	fclose(xmlFile);
+	if (root == NULL)
+	{
+		printf("Error al leer los nodos del tileset.\n");
+		free(tileset);
+		mxmlOptionsDelete(options);
+		return NULL;
+	}
+
+	// obtener el nodo tileset
+	mxml_node_t* tsNode = mxmlFindElement(root, root, "tileset", NULL, NULL, MXML_DESCEND_ALL);
+	if (tsNode == NULL)
+	{
+		free(tileset);
+		mxmlOptionsDelete(options);
+		mxmlDelete(root);
+		return NULL;
+	}
+
+	// obtener atributos del tileset
+	unsigned int tileWidth = atoi(mxmlElementGetAttr(tsNode, "tilewidth"));
+	unsigned int tileHeight = atoi(mxmlElementGetAttr(tsNode, "tileheight"));
+	tileset->finalIndex = (tileset->initialIndex + atoi(mxmlElementGetAttr(tsNode, "tilecount"))) - 1;
+
+	return NULL;
+}
+
+
+/*
 TileMap* CreateMap(const char* name, const char* filename)
 {
 	TileMap* tmap = (TileMap*)malloc(sizeof(TileMap));
@@ -509,3 +625,4 @@ void UnloadTreeTileMapNode(TileMapNode* node)
 	free(node->tmap);
 	free(node);
 }
+*/

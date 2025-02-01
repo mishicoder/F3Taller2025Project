@@ -6,6 +6,6 @@
 #include <flecs.h>
 #include "../core/game.h"
 
-void Menu_Run(Game* game, GameLevel* level);
+void Menu_Run(Game* game, GameLevel* level, ecs_entity_t entity);
 
 #endif // !MENU_H

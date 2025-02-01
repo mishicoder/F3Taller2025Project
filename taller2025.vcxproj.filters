@@ -18,6 +18,7 @@
     <None Include="packages.config" />
     <None Include="flecs.dll" />
     <None Include="mxml4.dll" />
+    <None Include="assets\tilesets\pack_0.tspack" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.c">

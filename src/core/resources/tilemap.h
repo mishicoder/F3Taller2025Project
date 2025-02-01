@@ -23,6 +23,23 @@ typedef struct Tileset {
 	Texture2D texture; // textura del tileset (importante: no entra en el array de texturas del getor de recursos)
 } Tileset;
 
+/* Paquete de sets de mosaicos. */
+typedef struct TilesetPack
+{
+	// Nombre del pack.
+	char* name;
+	// Lista de todos los tiles (El índice cero es NULL porque se reserva como elemento vacío).
+	Tile** tiles;
+	// Cantidad de tiles cargados.
+	unsigned int tileCount;
+	// Lista de todos los tilesets.
+	Tileset** tilesets;
+	// Cantidad de sets cargados.
+	unsigned int tilesetsCount;
+	// Índice siguiente de cada tileset.
+	unsigned int nextTilesetIndex;
+} TilesetPack;
+
 typedef struct TiledLayer
 {
 	unsigned int width; // ancho de la capa (esto permite calcular el tamaño de la textura)
@@ -41,11 +58,8 @@ typedef struct TileMap
 	int mapHeight;
 	int nextTileIndex;
 	// Lista de todos los tilesets
-	int tilesetsCount;
-	Tileset** tilesets;
+	char* tilesetsPack;
 	// el indice 0 es NULL
-	// debido a que Tiled toma dicho índice como espacio vacío
-	Tile** tiles;
 	// lista de todas las capas cargadas
 	// la primera en cargar, será la primera en rendereizar
 	// por lo que en Tiled se debe colocar bien el orden de las capas
@@ -62,13 +76,109 @@ typedef struct TileMapNode
 	struct TileMapNode* right;
 } TileMapNode;
 
-TileMap* CreateMap(const char* name, const char* filename);
-Tileset* CreateTileset(mxml_node_t* node, TileMap* map);
-TiledLayer* AddLayer(mxml_node_t* data, TileMap* map);
-TileMapNode* InsertTileMapNode(TileMapNode* node, TileMap* tmap);
-TileMap* TreeTileMapSearch(TileMapNode* node, const char* name);
-Tileset* GetTileset(TileMap* tmap, unsigned int index);
+/**
+* Funcion para crear un paquete de sets de mosaicos.
+* Cada set tiene su propia textura.
+* 
+* @param[in] name Nombre del paquete.
+* @param[in] filename Ruta del arhcivo de donde se cargarán los sets de mosaicos.
+* 
+* @return Retorna un TilesetPack si todo funciona correctamente, de caso contrario retorna NULL.
+*/
+TilesetPack* CreateTilesetsPack(const char* name, const char* filename);
 
+/**
+* Función para agregar un set de mosaicos a un paquete de sets.
+* 
+* @param[in] tilesetsPackname Nombre del paquete donde se agregará el set.
+* @param[in] filename Ruta del archivo del set (.tsx).
+* 
+* @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
+*/
+int AddTilesetToPack(const char* tilesetsPackname, const char* filename);
+
+/**
+* Función que retorna un paquete de sets de mosaicos.
+* 
+* @param[in] name Nombre del paquete de sets de mosaicos.
+* 
+* @return Retorna TilesetPack si se encuentra, caso contrario, retorna NULL.
+*/
+TilesetPack* GetTilesetsPack(const char* name);
+
+/**
+* Funcion para crear un set de mosaicos.
+*
+* @param[in] filename Ruta al set de mosaicos (.tsx).
+* @param[in] initialIndex Índice incial de los mosaicos.
+*
+* @return Retorna Tileset si la carga ha sido existosa, caso contrario, retorna NULL.
+*/
+Tileset* CreateTileset(const char* filename, unsigned int initialIndex);
+
+/**
+* Función que busca un set de mosaicos en un pack a traves de un índice.
+* 
+* @param[in] packName Nombre del paquete de sets de mosaicos.
+* @param[in] index Indice del mosaico a buscar.
+* 
+* @return Retorna Tileset si el índice se encuentra en el rango de alguno de los sets del pack, caso contrario, retorna NULL.
+*/
+Tileset* GetTileset(const char* packName, unsigned int index);
+
+/**
+* Funcion para crear un mapa de mosaicos.
+*
+* @param[in] name Nombre del mapa
+* @param[in] filename Ruta al archivo del mapa (.tmx).
+* @param[in] pack Paquete de sets de mosaicos que se usará para el mapa.
+*
+* @return Retorna un TileMap si la carga ha sido exitosa, caso contrario, retorna NULL.
+*/
+TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack);
+
+/**
+* Funcion para crear una capa para un mapa.
+* 
+* @param[in] data Puntero al nodo de datos de la capa.
+* @param[in] map Puntero al mapa del cual se extraerán datos necesarios para la creación de la capa.
+* 
+* @return Retorna un TiledLayer si la creación ha tenido éxito, caso contrario, retorna NULL.
+*/
+TiledLayer* AddLayer(mxml_node_t* data, TileMap* map);
+
+/**
+* Función para insertar un nodo de mapa en un árbol binario.
+* 
+* @param[in] node Node raíz donde se agregará el nuevo nodo.
+* @param[in] map Referencia del mapa que se almacenará en el árbol.
+* 
+* @return Retorna TileMapNode si la inserción ha tenido éxito, caso contraio, retorna NULL.
+*/
+TileMapNode* InsertTileMapNode(TileMapNode* node, TileMap* map);
+
+/**
+* Función para buscar un mapa de mosaicos en un árbol binario.
+* 
+* @param[in] node Árbol binario donde se buscará el mapa.
+* @param[in] name Nombre del mapa que se está buscando.
+* 
+* @return Retorna TileMap si se encuentra en el árbol, caso contrario, retorna NULL.
+*/
+TileMap* TreeTileMapSearch(TileMapNode* node, const char* name);
+
+/**
+* Des-carga de memoria un paquete de sets de mosaicos.
+* 
+* @param[in] pack Bloque de memoria del pack que se des-cargará.
+*/
+void UnloadTilesetsPack(TilesetPack* pack);
+
+/**
+* Des-carga de memoria el árbol de los mapas de mosaicos.
+* 
+* @param[in] node Árbol que se des-cargará de memoria.
+*/
 void UnloadTreeTileMapNode(TileMapNode* node);
 
 #endif // !TILEMAP_H

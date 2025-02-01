@@ -322,7 +322,7 @@ int AddLevel(Game* game,
 	if (levelsMemTemp == NULL)
 	{
 		UnloadLevel(level);
-		return NULL;
+		return 0;
 	}
 
 	game->levelStack = levelsMemTemp;
