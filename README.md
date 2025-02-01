@@ -3,7 +3,7 @@
 Proyecto para el taller de verano 2025 por Family Error y UTP.
 
 Estos talleres tienen como finalidad enseñar a los estudiantes tecnologías nueva o reforzar sus conocimientos en ellas.  
-El proyecto **Family Error** es una iniciativa de un grupo de jóvenes que desean compartir su conocimiento, no solo en el área de ingeniería de sistemas, sino también, en otras como diseño gráfico y electrónica.
+El proyecto **Family Error** es una iniciativa de un grupo de jóvenes que desean compartir su conocimiento, no solo en el área de ingeniería de sistemas, sino también en otras como diseño gráfico y electrónica.
 
 #### Técnologías utilizadas en el taller ([Ctrl + Click] para abrir en otra pestaña):
 
