@@ -1,13 +1,15 @@
-# F3Taller2025Project
+﻿# F3Taller2025Project
 
 Proyecto para el taller de verano 2025 - Desarrollo de videojuego de granja con C.
 
-#### T�cnolog�as utilizadas en el taller:
+#### Técnologías utilizadas en el taller:
 
-
+| Tecnología | Versión | Web | Github |
+|------------|---------|-----|--------|
+| Lenguaje C | 5.0.0   | 🌐  | 🔗    |
 
 - Lenguaje C
-- Raylib [v. 5.0.0] [web](https://www.raylib.com/) [github](https://github.com/raysan5/raylib){:target="_blank"}
+- Raylib [v. 5.0.0] [web](https://www.raylib.com/) [github](https://github.com/raysan5/raylib)
 - Flecs  [v. 4.0] [web](https://www.flecs.dev/flecs/) [github](https://github.com/SanderMertens/flecs)
 - Visual Studio Community 22 [web](https://visualstudio.microsoft.com/es/vs/community/)
 - Tiled [v. 1.11.1] [web](https://www.mapeditor.org/)
