@@ -6,7 +6,7 @@ Cambios realizados en el proyecto para cada versión.
 
 ### Añadido
 
-- v1.1 Tipo de dato `TilesetPack` agregado.
+- v1.1 Tipo de dato `TilesetPack` agregado.  
   ```
   typedef struct TilesetPack
   {
@@ -24,3 +24,7 @@ Cambios realizados en el proyecto para cada versión.
   	unsigned int nextTilesetIndex;
   } TilesetPack;
   ```
+
+### Eliminado
+
+- v1.1 Propiedad `tiles` eliminada de `TileMap`.
