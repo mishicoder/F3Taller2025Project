@@ -1,7 +1,7 @@
 # comentario 1
-ts:assets/tilesets/World.tsx
+ts@assets/tilesets/World.tsx
 # comentario 2
-ts:assets/tilesets/forest.tsx
+ts@assets/tilesets/forest.tsx
 
 @break
 # comentarios

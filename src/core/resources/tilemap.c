@@ -45,24 +45,19 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 				}
 
 				// leer datos
+				char* key = strtok(line, "@");
+				char* val = strtok(NULL, "@");
+				if (key != NULL && val != NULL)
+				{
+					if (strcmp(key, "ts") == 0)
+					{
+					}
+				}
 			}
 		}
 	}
 
-	/*mxml_options_t* options = mxmlOptionsNew();
-	mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
-	mxml_node_t* root = mxmlLoadFile(NULL, options, tilesetsXMLFile);
-	fclose(tilesetsXMLFile);
-	if (root == NULL)
-	{
-		free(pack);
-		mxmlOptionsDelete(options);
-		return NULL;
-	}*/
-
-	
-
-	return NULL;
+	return pack;
 }
 
 Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
@@ -110,8 +105,18 @@ Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
 	unsigned int tileWidth = atoi(mxmlElementGetAttr(tsNode, "tilewidth"));
 	unsigned int tileHeight = atoi(mxmlElementGetAttr(tsNode, "tileheight"));
 	tileset->finalIndex = (tileset->initialIndex + atoi(mxmlElementGetAttr(tsNode, "tilecount"))) - 1;
+	tileset->tilesCount = atoi(mxmlElementGetAttr(tsNode, "tilecount"));
 
-	return NULL;
+	// obtener el nodo de la imagen del tileset
+	mxml_node_t* textureNode = mxmlFindElement(tsNode, root, "image", NULL, NULL, MXML_DESCEND_ALL);
+	const char* textureFilename = mxmlElementGetAttr(textureNode, "source");
+	tileset->texture = LoadTexture(textureFilename);
+
+	// descargar datos de memoria
+	mxmlOptionsDelete(options);
+	mxmlDelete(root);
+
+	return tileset;
 }
 
 

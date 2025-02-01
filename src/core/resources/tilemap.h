@@ -20,6 +20,8 @@ typedef struct Tileset {
 	// para controlar que textura se tomará
 	unsigned int initialIndex;
 	unsigned int finalIndex;
+	// cantidad de tiles en el tileset
+	unsigned int tilesCount;
 	Texture2D texture; // textura del tileset (importante: no entra en el array de texturas del getor de recursos)
 } Tileset;
 
