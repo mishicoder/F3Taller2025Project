@@ -66,7 +66,6 @@ typedef struct TileMap
 	int tileHeight;
 	int mapWidth;
 	int mapHeight;
-	int nextTileIndex;
 	// Lista de todos los tilesets
 	char* tilesetsPack;
 	// el indice 0 es NULL

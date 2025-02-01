@@ -4,11 +4,11 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 
 El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) y este proyecto se adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Próximos cambios
+## [Próximos cambios]
 
 ### Añadido
 
-- v1.1 Tipo de dato `TilesetPack` añadido. 
+- v1.1 Tipo de dato `TilesetPack` añadido.  
 
   ```
   typedef struct TilesetPack
@@ -34,20 +34,20 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Modificado
 
-- v1.1 Se modifica la función `GetTileset` para que ahora funcione con `TilesetPack`.
-- v1.1 Se modifica la función `CreateMap` para que ahora funcione con `TilesetPack`.
+- v1.1 Se modifica la función `GetTileset` para que ahora funcione con `TilesetPack`.  
+- v1.1 Se modifica la función `CreateMap` para que ahora funcione con `TilesetPack`.  
 
 ### Eliminado
 
-- v1.1 Propiedad `tiles` eliminada de `TileMap`.
+- v1.1 Propiedad `tiles` eliminada de `TileMap`.  
 
 ### Corregido
 
-- v1.1 Se corrige el error al momento de liberar de memoria el nombre de los sprites.
+- v1.1 Se corrige el error al momento de liberar de memoria el nombre de los sprites.  
 
-## [1.0] "Kikiriki" 2025 - 01 - 01
+## [1.0] "Kikiriki" - 2025-01-01
 
-### Añadido
+### Añadido  
 
 - Se añadió el tipo de dato `TextureResult` para la carga de texturas.  
 - Se agregó el tipo de dato `ResourcesManager` para la gestión de los recursos.  

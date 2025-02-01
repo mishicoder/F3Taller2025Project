@@ -235,3 +235,258 @@ Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
 
 	return tileset;
 }
+
+TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
+{
+	TileMap* tmap = (TileMap*)malloc(sizeof(TileMap));
+	if (tmap == NULL)
+	{
+		printf("Error al asignar memoria para el tilemap: %s\n", name);
+		return NULL;
+	}
+
+	tmap->name = name;
+	tmap->layers = NULL;
+	tmap->layerCount = 0;
+
+	// cargar el archivo del mapa
+	FILE* xmlFile = fopen(filename, "r");
+	if (xmlFile == NULL)
+	{
+		printf("Error al cargar el archivo para el mapa: %s\n", name);
+		free(tmap);
+		return NULL;
+	}
+
+	// cargar el nodo raíz
+	mxml_options_t* options = mxmlOptionsNew();
+	mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
+	mxml_node_t* tree = mxmlLoadFile(NULL, options, xmlFile);
+	fclose(xmlFile);
+	if (tree == NULL)
+	{
+		printf("Errro al cargar el nodo xml principal para el mapa: %s\n", name);
+		free(tmap);
+		mxmlOptionsDelete(options);
+		return NULL;
+	}
+
+	// leer los datos del mapa y los tiles
+	mxml_node_t* mapNode = mxmlFindElement(tree, tree, "map", NULL, NULL, MXML_DESCEND_ALL);
+	if (mapNode == NULL)
+	{
+		printf("Error al cargar el nodo map para el mapa: %s\n", name);
+		free(tmap);
+		mxmlOptionsDelete(options);
+		return NULL;
+	}
+
+	// Datos del mapa
+	tmap->tileWidth = atoi(mxmlElementGetAttr(mapNode, "tilewidth"));
+	tmap->tileHeight = atoi(mxmlElementGetAttr(mapNode, "tileheight"));
+	tmap->mapWidth = atoi(mxmlElementGetAttr(mapNode, "width"));
+	tmap->mapHeight = atoi(mxmlElementGetAttr(mapNode, "height"));
+
+	// cargar los tilesets
+	mxml_node_t* tilesetNode = mxmlFindElement(tree, tree, "tileset", NULL, NULL, MXML_DESCEND_ALL);
+	while (tilesetNode != NULL)
+	{
+		Tileset* tlst = CreateTileset(tilesetNode, tmap);
+
+		if (tlst == NULL)
+		{
+			printf("Error al crear un tileset para el mapa: %s\n", name);
+
+			if (tmap->tilesetsCount > 0)
+			{
+				for (int i = 0; i < tmap->tilesetsCount; i++)
+				{
+					UnloadTexture(tmap->tilesets[i]->texture);
+					free(tmap->tilesets[i]);
+				}
+			}
+
+			free(tmap->name);
+			free(tmap->tiles);
+			free(tmap);
+			mxmlOptionsDelete(options);
+			return NULL;
+		}
+
+		Tileset** tilesetsMemTemp = (Tileset**)realloc(tmap->tilesets, (size_t)(tmap->tilesetsCount + 1) * sizeof(Tileset*));
+		if (tilesetsMemTemp == NULL)
+		{
+			printf("Errro al asignar memoria para los tilesets del mapa: %s\n", name);
+
+			if (tmap->tilesetsCount > 0)
+			{
+				for (int i = 0; i < tmap->tilesetsCount; i++)
+				{
+					UnloadTexture(tmap->tilesets[i]->texture);
+					free(tmap->tilesets[i]);
+				}
+			}
+
+			free(tmap->name);
+			free(tmap->tiles);
+			free(tmap);
+			mxmlOptionsDelete(options);
+			return NULL;
+		}
+
+		tmap->tilesets = tilesetsMemTemp;
+		tmap->tilesets[tmap->tilesetsCount] = tlst;
+		tmap->tilesetsCount += 1;
+
+		tilesetNode = mxmlFindElement(tilesetNode, tree, "tileset", NULL, NULL, MXML_DESCEND_ALL);
+	}
+
+	// cargar las capas
+	mxml_node_t* layerNode = mxmlFindElement(tree, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
+	while (layerNode != NULL)
+	{
+		mxml_node_t* layerData = mxmlFindElement(layerNode, layerNode, "data", NULL, NULL, MXML_DESCEND_ALL);
+		if (layerData == NULL)
+		{
+			printf("Error al crear un tileset para el mapa: %s\n", name);
+
+			if (tmap->tilesetsCount > 0)
+			{
+				for (int i = 0; i < tmap->tilesetsCount; i++)
+				{
+					UnloadTexture(tmap->tilesets[i]->texture);
+					free(tmap->tilesets[i]);
+				}
+			}
+
+			free(tmap->name);
+			free(tmap->tiles);
+			free(tmap);
+			mxmlOptionsDelete(options);
+			return NULL;
+		}
+
+		TiledLayer* layer = AddLayer(layerData, tmap);
+		if (layer == NULL)
+		{
+			printf("Error al cargar una capa para el mapa: %s\n", name);
+
+			if (tmap->tilesetsCount > 0)
+			{
+				for (int i = 0; i < tmap->tilesetsCount; i++)
+				{
+					UnloadTexture(tmap->tilesets[i]->texture);
+					free(tmap->tilesets[i]);
+				}
+			}
+
+			if (tmap->layerCount > 0)
+			{
+				for (int i = 0; i < tmap->layerCount; i++)
+				{
+					free(tmap->layers[i]->data);
+				}
+			}
+
+			free(tmap->name);
+			free(tmap->tiles);
+			free(tmap);
+			mxmlOptionsDelete(options);
+			return NULL;
+		}
+
+		TiledLayer** layersMemTemp = (TiledLayer**)malloc((size_t)(tmap->layerCount + 1) * sizeof(TiledLayer*));
+		if (layersMemTemp == NULL)
+		{
+			printf("Error al asignar memoria de capas para el mapa: %s\n", name);
+
+			if (tmap->tilesetsCount > 0)
+			{
+				for (int i = 0; i < tmap->tilesetsCount; i++)
+				{
+					UnloadTexture(tmap->tilesets[i]->texture);
+					free(tmap->tilesets[i]);
+				}
+			}
+
+			if (tmap->layerCount > 0)
+			{
+				for (int i = 0; i < tmap->layerCount; i++)
+				{
+					free(tmap->layers[i]->data);
+				}
+			}
+
+			free(tmap->name);
+			free(tmap->tiles);
+			free(tmap);
+			mxmlOptionsDelete(options);
+			return NULL;
+		}
+
+		tmap->layers = layersMemTemp;
+		tmap->layers[tmap->layerCount] = layer;
+		tmap->layerCount += 1; // hacer a visual studio feliz
+
+		layerNode = mxmlFindElement(layerNode, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
+	}
+
+	// crear textura
+	tmap->mapTexture = LoadRenderTexture(
+		tmap->tileWidth * tmap->mapWidth,
+		tmap->tileHeight * tmap->mapHeight
+	);
+
+	// dibujar las capas
+	BeginTextureMode(tmap->mapTexture);
+	ClearBackground(BLANK);
+
+	if (tmap->layerCount > 0 && tmap->tiles != NULL)
+	{
+		for (int i = 0; i < tmap->layerCount; i++)
+		{
+			int tileIndex = 0;
+			for (int ty = 0; ty < tmap->mapHeight; ty++)
+			{
+				int destY = ty * tmap->tileHeight;
+				int destX = 0;
+				for (int tx = 0; tx < tmap->mapWidth; tx++)
+				{
+					destX = tx * tmap->tileWidth;
+					if (tmap->layers[i]->data[tileIndex] != 0)
+					{
+						Tileset* tilesetForTexture = GetTileset(tmap, tmap->layers[i]->data[tileIndex]);
+						if (tilesetForTexture != NULL)
+						{
+							if (tmap->tiles[tmap->layers[i]->data[tileIndex]] != NULL)
+							{
+								Rectangle src = {
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->x,
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->y,
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->width,
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->height
+								};
+
+								Rectangle dst = {
+									destX, destY,
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->width,
+									tmap->tiles[tmap->layers[i]->data[tileIndex]]->height
+								};
+
+								Vector2 origin = { 0.0f, 0.0f };
+								DrawTexturePro(tilesetForTexture->texture, src, dst, origin, 0.0f, WHITE);
+							}
+						}
+					}
+					tileIndex++;
+				}
+			}
+		}
+	}
+
+	EndTextureMode();
+
+	mxmlOptionsDelete(options);
+	mxmlDelete(tree);
+	return tmap;
+}
