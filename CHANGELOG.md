@@ -7,7 +7,7 @@ Cambios realizados en el proyecto para cada versión.
 ### Añadido
 
 - v1.1 Tipo de dato `TilesetPack` agregado.
-```
+- ```
 typedef struct TilesetPack
 {
 	// Nombre del pack.
