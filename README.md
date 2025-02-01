@@ -2,7 +2,7 @@
 
 Proyecto para el taller de verano 2025 - Desarrollo de videojuego de granja con C.
 
-#### Técnologías utilizadas en el taller:
+#### Técnologías utilizadas en el taller ([Ctrl + Click] para abrir en otra pestaña):
 
 | Tecnología   | Versión | Web | Github |
 |--------------|---------|-----|--------|
