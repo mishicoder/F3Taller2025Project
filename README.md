@@ -4,13 +4,11 @@ Proyecto para el taller de verano 2025 - Desarrollo de videojuego de granja con 
 
 #### Técnologías utilizadas en el taller:
 
-| Tecnología | Versión | Web | Github |
-|------------|---------|-----|--------|
-| Lenguaje C | 5.0.0   | [🌐](https://www.raylib.com/)  | [🔗](https://github.com/raysan5/raylib)    |
-
-- Lenguaje C
-- Raylib [v. 5.0.0] [web](https://www.raylib.com/) [github](https://github.com/raysan5/raylib)
-- Flecs  [v. 4.0] [web](https://www.flecs.dev/flecs/) [github](https://github.com/SanderMertens/flecs)
-- Visual Studio Community 22 [web](https://visualstudio.microsoft.com/es/vs/community/)
-- Tiled [v. 1.11.1] [web](https://www.mapeditor.org/)
-- Libre Sprite [v. 1.1] [web](https://libresprite.github.io/#!/) [github](https://github.com/LibreSprite/LibreSprite)
+| Tecnología   | Versión | Web | Github |
+|--------------|---------|-----|--------|
+| Lenguaje C   |   C17   | [🌐](https://www.raylib.com/) | [🔗](https://github.com/raysan5/raylib) |
+| Raylib       |  5.0.0  | [🌐](https://www.raylib.com/) | [🔗](https://github.com/raysan5/raylib) |
+| Flecs        |   4.0   | [🌐](https://www.flecs.dev/flecs/) | [🔗](https://github.com/SanderMertens/flecs) |
+| VS22         |   C22   | [🌐](https://visualstudio.microsoft.com/es/vs/community/) | ❌ |
+| Tiled        | 1.11.1  | [🌐](https://www.mapeditor.org/) | [🔗](https://github.com/mapeditor/tiled) |
+| Libre Sprite |   1.1   | [🌐](https://libresprite.github.io/#!/) | [🔗](https://github.com/LibreSprite/LibreSprite) |
