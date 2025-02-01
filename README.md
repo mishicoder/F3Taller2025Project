@@ -6,7 +6,7 @@ Proyecto para el taller de verano 2025 - Desarrollo de videojuego de granja con 
 
 | Tecnología | Versión | Web | Github |
 |------------|---------|-----|--------|
-| Lenguaje C | 5.0.0   | 🌐  | 🔗    |
+| Lenguaje C | 5.0.0   | [🌐](https://www.raylib.com/)  | [🔗](https://github.com/raysan5/raylib)    |
 
 - Lenguaje C
 - Raylib [v. 5.0.0] [web](https://www.raylib.com/) [github](https://github.com/raysan5/raylib)
