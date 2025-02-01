@@ -26,7 +26,20 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
   	unsigned int nextTilesetIndex;
   } TilesetPack;
   ```
+- v1.1 Función `CreateTilesetsPack` agregada.
+- v1.1 Función `AddTilesetToPack` agregada.
+- v1.1 Función `GetTilesetsPack` agregada.
+- v1.1 Función `UnloadTilesetsPack` agregada.
+
+### Modificado
+
+- v1.1 Se modifica la función `GetTileset` para que ahora funcione con `TilesetPack`.
+- v1.1 Se modifica la versión ``
 
 ### Eliminado
 
 - v1.1 Propiedad `tiles` eliminada de `TileMap`.
+
+### Corregido
+
+- v1.1 Se corrige el error al momento de liberar de memoria el nombre de los sprites.
