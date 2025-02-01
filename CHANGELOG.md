@@ -8,7 +8,8 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Añadido
 
-- v1.1 Tipo de dato `TilesetPack` agregado.  
+- v1.1 Tipo de dato `TilesetPack` agregado. 
+
   ```
   typedef struct TilesetPack
   {
@@ -26,15 +27,15 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
   	unsigned int nextTilesetIndex;
   } TilesetPack;
   ```
-- v1.1 Función `CreateTilesetsPack` agregada.
-- v1.1 Función `AddTilesetToPack` agregada.
-- v1.1 Función `GetTilesetsPack` agregada.
-- v1.1 Función `UnloadTilesetsPack` agregada.
+- v1.1 Función `CreateTilesetsPack` agregada.  
+- v1.1 Función `AddTilesetToPack` agregada.  
+- v1.1 Función `GetTilesetsPack` agregada.  
+- v1.1 Función `UnloadTilesetsPack` agregada.  
 
 ### Modificado
 
 - v1.1 Se modifica la función `GetTileset` para que ahora funcione con `TilesetPack`.
-- v1.1 Se modifica la versión ``
+- v1.1 Se modifica la función `CreateMap` para que ahora funcione con `TilesetPack`.
 
 ### Eliminado
 
