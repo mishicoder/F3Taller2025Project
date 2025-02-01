@@ -1,4 +1,4 @@
-﻿# Desaroollo de Videojuego de Gestión de Granja con C
+﻿# Desarrollo de Videojuego de Gestión de Granja con C
 
 Proyecto para el taller de verano 2025 por Family Error y UTP.
 
