@@ -16,8 +16,8 @@ El proyecto **Family Error** es una iniciativa de un grupo de jóvenes que desea
 | Tiled        | 1.11.1  | [🌐](https://www.mapeditor.org/) | [🔗](https://github.com/mapeditor/tiled) |
 | Libre Sprite |   1.1   | [🌐](https://libresprite.github.io/#!/) | [🔗](https://github.com/LibreSprite/LibreSprite) |
 
-### Recursos utilizados
+### Recursos utilizados ([Ctrl + Click] para abrir en otra pestaña):
 
-| Nombre | Descarga |Autor | Web del Autor |
-|--------|-----|--------|-------|
+| Nombre     | Descarga |Autor | Web del Autor |
+|------------|----------|------|---------------|
 | Sunny Side | [🔽](https://danieldiggle.itch.io/sunnyside) | danieldiggle | [🔗](https://www.danieldiggle.com/) |

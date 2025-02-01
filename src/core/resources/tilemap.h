@@ -31,7 +31,7 @@ typedef struct TilesetPack
 	// Nombre del pack.
 	char* name;
 	// Lista de todos los tiles (El índice cero es NULL porque se reserva como elemento vacío).
-	Tile** tiles;
+	Tile* tiles;
 	// Cantidad de tiles cargados.
 	unsigned int tileCount;
 	// Lista de todos los tilesets.
@@ -41,6 +41,14 @@ typedef struct TilesetPack
 	// Índice siguiente de cada tileset.
 	unsigned int nextTilesetIndex;
 } TilesetPack;
+
+/* Nodo para el árbol de paquete de conjuntos de mosaicos. */
+typedef struct TilesetPackNode
+{
+	TilesetPack* pack;
+	struct TilesetPackNode* left;
+	struct TilesetPackNode* right;
+}TilesetPackNode;
 
 typedef struct TiledLayer
 {
@@ -90,23 +98,13 @@ typedef struct TileMapNode
 TilesetPack* CreateTilesetsPack(const char* name, const char* filename);
 
 /**
-* Función para agregar un set de mosaicos a un paquete de sets.
-* 
-* @param[in] tilesetsPackname Nombre del paquete donde se agregará el set.
-* @param[in] filename Ruta del archivo del set (.tsx).
-* 
-* @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
-*/
-int AddTilesetToPack(const char* tilesetsPackname, const char* filename);
-
-/**
 * Función que retorna un paquete de sets de mosaicos.
-* 
+*
 * @param[in] name Nombre del paquete de sets de mosaicos.
-* 
+*
 * @return Retorna TilesetPack si se encuentra, caso contrario, retorna NULL.
 */
-TilesetPack* GetTilesetsPack(const char* name);
+TilesetPack* GetTilesetsPack(const char* name); // Funcion en el punto equivocado XD
 
 /**
 * Funcion para crear un set de mosaicos.
@@ -119,14 +117,44 @@ TilesetPack* GetTilesetsPack(const char* name);
 Tileset* CreateTileset(const char* filename, unsigned int initialIndex);
 
 /**
+* Función para agregar un set de mosaicos a un paquete de sets.
+*
+* @param[in] pack Paquete donde se agregará el conjunto de mosaicos.
+* @param[in] filename Ruta del archivo del set (.tsx).
+*
+* @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
+*/
+int InsertTilesetToPack(TilesetPack* pack, const char* filename);
+
+/**
 * Función que busca un set de mosaicos en un pack a traves de un índice.
 * 
-* @param[in] packName Nombre del paquete de sets de mosaicos.
+* @param[in] pack Paquete donde se buscará el conjunto de mosaicos.
 * @param[in] index Indice del mosaico a buscar.
 * 
 * @return Retorna Tileset si el índice se encuentra en el rango de alguno de los sets del pack, caso contrario, retorna NULL.
 */
-Tileset* GetTileset(const char* packName, unsigned int index);
+Tileset* GetTileset(TilesetPack* pack, unsigned int index);
+
+/**
+* Funcion para agregar un paquete de cojunto de mosaicos a un árbol binario.
+* 
+* @param[in] node Puntero al nodo raíz.
+* @param[in] pack Paquete a agregar en el árbol.
+* 
+* @return Retorna TilesetPackNode si la inserción ha sido exitosa, caso contrario, retorna NULL.
+*/
+TilesetPackNode* InsertTilesetPackNode(TilesetPackNode* node, TilesetPack* pack);
+
+/**
+* Funcion para buscar un paquete de conjunto de mosaicos en un árbol binario.
+* 
+* @param[in] node Nodo raíz de la búsqueda.
+* @param[in] name Nombre del paquete que se está buscando.
+* 
+* @return Retorna TilesetPack si encuentra la coincidencia, caso contrario, retorna NULL.
+*/
+TilesetPack* TreeTilesetPackSearch(TilesetPackNode* node, const char* name);
 
 /**
 * Funcion para crear un mapa de mosaicos.
