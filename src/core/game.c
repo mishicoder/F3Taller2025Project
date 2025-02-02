@@ -302,33 +302,6 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 	return 1;
 }
 
-void DefineComponents(Game* game, GameLevel* level)
-{
-	ECS_COMPONENT(level->world, C_Info);
-	ECS_COMPONENT(level->world, C_RenderLayer);
-	ECS_COMPONENT(level->world, C_Transfom);
-	ECS_COMPONENT(level->world, C_SpriteRender);
-	ECS_COMPONENT(level->world, C_Color);
-	ECS_COMPONENT(level->world, C_MapRender);
-	ECS_COMPONENT(level->world, C_RectCollider);
-	ECS_COMPONENT(level->world, C_DayCicle);
-	ECS_COMPONENT(level->world, C_Collector);
-	ECS_COMPONENT(level->world, C_Dialog);
-	ECS_COMPONENT(level->world, C_Inventory);
-	ECS_COMPONENT(level->world, C_HotBar);
-	ECS_COMPONENT(level->world, C_Movement);
-	ECS_COMPONENT(level->world, C_Action);
-	ECS_COMPONENT(level->world, C_PlayerStats);
-	ECS_COMPONENT(level->world, C_WorldItem);
-	ECS_COMPONENT(level->world, C_Build);
-	ECS_COMPONENT(level->world, C_Builder);
-	ECS_COMPONENT(level->world, C_Trader);
-	ECS_COMPONENT(level->world, C_DropTable);
-	ECS_COMPONENT(level->world, C_FarmLand);
-	ECS_COMPONENT(level->world, C_Crop);
-	ECS_COMPONENT(level->world, C_Tree);
-}
-
 int LoadLevel(Game* game, const char* filename)
 {
 	// si no se puede abrir el archivo, se retorna cero.

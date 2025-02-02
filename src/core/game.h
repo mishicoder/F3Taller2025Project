@@ -140,12 +140,14 @@ int LoadTilsetsPack(Game* game, const char* filename, const char* name);
 int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name);
 
 /**
-* Funcion que permite registrar y reafirma los componentes en los mundos de entidades.
+* Crea un entidad en blanco, solo tendrá el componente "C_Transform".
 * 
-* @param[in] game Referencia en memoria de la instancia del juego.
-* @param[in] level Referencia en memoria del nivel.
+* @param[in] game Puntero a la instancia del juego que contiene el nivel donde se agregará la entidad.
+* @param[in] tag Etiqueta de la entidad (si no se quiere añadir etiqueta el valor debe ser NULL).
+* 
+* @return Retorna ecs_entity_t.
 */
-void DefineComponents(Game* game, GameLevel* level);
+ecs_entity_t CreateBlankEntity(Game* game, const char* tag);
 
 /**
 * Funcion para cargar un nivel en el juego a traves de un archivo.

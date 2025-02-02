@@ -27,5 +27,6 @@ El proyecto **Family Error** es una iniciativa de un grupo de jóvenes que desea
 
 | Nombre      | Versión     |  link  |
 |:------------|:-----------:|:------:|
+| ¿Aliens?    | `dev-1.2`   | [🔗 ir al enlace]() |
 | Explorador  | `1.1`   | [🔗 ir al enlace](https://github.com/mishicoder/F3Taller2025Project/blob/main/CHANGELOG.md#11-explorador---2025-02-02) |
 | Kikiriki    | `1.0`       | [🔗 ir al enlace](https://github.com/mishicoder/F3Taller2025Project/blob/main/CHANGELOG.md#10-kikiriki-2025---01---01) |
