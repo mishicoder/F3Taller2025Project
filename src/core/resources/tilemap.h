@@ -31,7 +31,7 @@ typedef struct TilesetPack
 	// Nombre del pack.
 	char* name;
 	// Lista de todos los tiles (El índice cero es NULL porque se reserva como elemento vacío).
-	Tile* tiles;
+	Tile** tiles;
 	// Cantidad de tiles cargados.
 	unsigned int tileCount;
 	// Lista de todos los tilesets.
@@ -174,7 +174,7 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack);
 * 
 * @return Retorna un TiledLayer si la creación ha tenido éxito, caso contrario, retorna NULL.
 */
-TiledLayer* AddLayer(mxml_node_t* data, TileMap* map);
+TiledLayer* CreateLayer(mxml_node_t* data, unsigned int mapWidth, unsigned int mapHeight);
 
 /**
 * Función para insertar un nodo de mapa en un árbol binario.

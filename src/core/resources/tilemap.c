@@ -129,7 +129,13 @@ int InsertTilesetToPack(TilesetPack* pack, const char* filename)
 
 Tileset* GetTileset(TilesetPack* pack, unsigned int index)
 {
+	if (pack == NULL) return NULL;
 
+	for (int i = 0; i < pack->tilesetsCount; i++)
+	{
+		if (index >= pack->tilesets[i]->initialIndex && index <= pack->tilesets[i]->finalIndex)
+			return pack->tilesets[i];
+	}
 
 	return NULL;
 }
@@ -154,7 +160,7 @@ TilesetPackNode* InsertTilesetPackNode(TilesetPackNode* node, TilesetPack* pack)
 	int nameCompare = strcmp(pack->name, node->pack->name);
 	if (nameCompare < 0)
 		node->left = InsertTilesetPackNode(node->left, pack);
-	if (nameCompare > 0)
+	else if (nameCompare > 0)
 		node->right = InsertTilesetPackNode(node->right, pack);
 	else
 		printf("El paquete de conjunto de mosaicos {%s} ya existe.\n", pack->name);
@@ -169,7 +175,7 @@ TilesetPack* TreeTilesetPackSearch(TilesetPackNode* node, const char* name)
 	int nameCompare = strcmp(name, node->pack->name);
 	if (nameCompare == 0)
 		return node->pack;
-	if (nameCompare < 0)
+	else if (nameCompare < 0)
 		return TreeTilesetPackSearch(node->left, name);
 	else
 		return TreeTilesetPackSearch(node->right, name);
@@ -277,7 +283,8 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 	{
 		printf("Error al cargar el nodo map para el mapa: %s\n", name);
 		free(tmap);
-		mxmlOptionsDelete(options);
+		mxmlOptionsDelete(options); 
+		mxmlDelete(tree);
 		return NULL;
 	}
 
@@ -287,148 +294,62 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 	tmap->mapWidth = atoi(mxmlElementGetAttr(mapNode, "width"));
 	tmap->mapHeight = atoi(mxmlElementGetAttr(mapNode, "height"));
 
-	// cargar los tilesets
-	mxml_node_t* tilesetNode = mxmlFindElement(tree, tree, "tileset", NULL, NULL, MXML_DESCEND_ALL);
-	while (tilesetNode != NULL)
-	{
-		Tileset* tlst = CreateTileset(tilesetNode, tmap);
-
-		if (tlst == NULL)
-		{
-			printf("Error al crear un tileset para el mapa: %s\n", name);
-
-			if (tmap->tilesetsCount > 0)
-			{
-				for (int i = 0; i < tmap->tilesetsCount; i++)
-				{
-					UnloadTexture(tmap->tilesets[i]->texture);
-					free(tmap->tilesets[i]);
-				}
-			}
-
-			free(tmap->name);
-			free(tmap->tiles);
-			free(tmap);
-			mxmlOptionsDelete(options);
-			return NULL;
-		}
-
-		Tileset** tilesetsMemTemp = (Tileset**)realloc(tmap->tilesets, (size_t)(tmap->tilesetsCount + 1) * sizeof(Tileset*));
-		if (tilesetsMemTemp == NULL)
-		{
-			printf("Errro al asignar memoria para los tilesets del mapa: %s\n", name);
-
-			if (tmap->tilesetsCount > 0)
-			{
-				for (int i = 0; i < tmap->tilesetsCount; i++)
-				{
-					UnloadTexture(tmap->tilesets[i]->texture);
-					free(tmap->tilesets[i]);
-				}
-			}
-
-			free(tmap->name);
-			free(tmap->tiles);
-			free(tmap);
-			mxmlOptionsDelete(options);
-			return NULL;
-		}
-
-		tmap->tilesets = tilesetsMemTemp;
-		tmap->tilesets[tmap->tilesetsCount] = tlst;
-		tmap->tilesetsCount += 1;
-
-		tilesetNode = mxmlFindElement(tilesetNode, tree, "tileset", NULL, NULL, MXML_DESCEND_ALL);
-	}
-
 	// cargar las capas
+	unsigned int hasErrors = 0;
 	mxml_node_t* layerNode = mxmlFindElement(tree, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
 	while (layerNode != NULL)
 	{
 		mxml_node_t* layerData = mxmlFindElement(layerNode, layerNode, "data", NULL, NULL, MXML_DESCEND_ALL);
-		if (layerData == NULL)
-		{
-			printf("Error al crear un tileset para el mapa: %s\n", name);
+		if (layerData == NULL) hasErrors++;
 
-			if (tmap->tilesetsCount > 0)
-			{
-				for (int i = 0; i < tmap->tilesetsCount; i++)
-				{
-					UnloadTexture(tmap->tilesets[i]->texture);
-					free(tmap->tilesets[i]);
-				}
-			}
-
-			free(tmap->name);
-			free(tmap->tiles);
-			free(tmap);
-			mxmlOptionsDelete(options);
-			return NULL;
-		}
-
-		TiledLayer* layer = AddLayer(layerData, tmap);
-		if (layer == NULL)
-		{
-			printf("Error al cargar una capa para el mapa: %s\n", name);
-
-			if (tmap->tilesetsCount > 0)
-			{
-				for (int i = 0; i < tmap->tilesetsCount; i++)
-				{
-					UnloadTexture(tmap->tilesets[i]->texture);
-					free(tmap->tilesets[i]);
-				}
-			}
-
-			if (tmap->layerCount > 0)
-			{
-				for (int i = 0; i < tmap->layerCount; i++)
-				{
-					free(tmap->layers[i]->data);
-				}
-			}
-
-			free(tmap->name);
-			free(tmap->tiles);
-			free(tmap);
-			mxmlOptionsDelete(options);
-			return NULL;
-		}
+		TiledLayer* layer = CreateLayer(layerData, tmap->mapWidth, tmap->mapHeight);
+		if (layer == NULL) hasErrors++;
 
 		TiledLayer** layersMemTemp = (TiledLayer**)malloc((size_t)(tmap->layerCount + 1) * sizeof(TiledLayer*));
-		if (layersMemTemp == NULL)
+		if (layersMemTemp != NULL && layer != NULL) 
 		{
-			printf("Error al asignar memoria de capas para el mapa: %s\n", name);
-
-			if (tmap->tilesetsCount > 0)
-			{
-				for (int i = 0; i < tmap->tilesetsCount; i++)
-				{
-					UnloadTexture(tmap->tilesets[i]->texture);
-					free(tmap->tilesets[i]);
-				}
-			}
-
-			if (tmap->layerCount > 0)
-			{
-				for (int i = 0; i < tmap->layerCount; i++)
-				{
-					free(tmap->layers[i]->data);
-				}
-			}
-
-			free(tmap->name);
-			free(tmap->tiles);
-			free(tmap);
-			mxmlOptionsDelete(options);
-			return NULL;
+			tmap->layers = layersMemTemp;
+			tmap->layers[tmap->layerCount] = layer;
+			tmap->layerCount += 1; // hacer a visual studio feliz	
 		}
-
-		tmap->layers = layersMemTemp;
-		tmap->layers[tmap->layerCount] = layer;
-		tmap->layerCount += 1; // hacer a visual studio feliz
+		else
+			hasErrors++;
+		
 
 		layerNode = mxmlFindElement(layerNode, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
+	}
+
+	if (hasErrors > 0)
+	{
+		printf("Se han encontrado {%d} en la carga, imposible crear el mapa.\n", hasErrors);
+		if (tmap->layerCount > 0)
+		{
+			for (int i = 0; i < tmap->layerCount; i++)
+			{
+				if (tmap->layers[i] != NULL)
+					free(tmap->layers[i]);
+			}
+		}
+		free(tmap);
+		mxmlOptionsDelete(options);
+		mxmlDelete(tree);
+		return NULL;
+	}
+	if (tmap->layerCount == 0)
+	{
+		printf("No se han encontrado capas para el mapa {%s}, imposible crear un mapa sin capas.\n", tmap->name);
+		if (tmap->layerCount > 0)
+		{
+			for (int i = 0; i < tmap->layerCount; i++)
+			{
+				if (tmap->layers[i] != NULL)
+					free(tmap->layers[i]);
+			}
+		}
+		free(tmap);
+		mxmlOptionsDelete(options);
+		mxmlDelete(tree);
+		return NULL;
 	}
 
 	// crear textura
@@ -437,48 +358,42 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 		tmap->tileHeight * tmap->mapHeight
 	);
 
-	// dibujar las capas
+	// Dibujar las capas
 	BeginTextureMode(tmap->mapTexture);
 	ClearBackground(BLANK);
 
-	if (tmap->layerCount > 0 && tmap->tiles != NULL)
+	for (int i = 0; i < tmap->layerCount; i++)
 	{
-		for (int i = 0; i < tmap->layerCount; i++)
+		unsigned int tileIndex = 0;
+		for (int ty = 0; ty < tmap->mapHeight; ty++)
 		{
-			int tileIndex = 0;
-			for (int ty = 0; ty < tmap->mapHeight; ty++)
+			for (int tx = 0; tx < tmap->mapWidth; tx++)
 			{
-				int destY = ty * tmap->tileHeight;
-				int destX = 0;
-				for (int tx = 0; tx < tmap->mapWidth; tx++)
+				// Cero indica que el espacio está vacío.
+				if (tmap->layers[i]->data[tileIndex] != 0)
 				{
-					destX = tx * tmap->tileWidth;
-					if (tmap->layers[i]->data[tileIndex] != 0)
+					Tileset* tileset = GetTileset(pack, tmap->layers[i]->data[tileIndex]);
+					if (tileset != NULL)
 					{
-						Tileset* tilesetForTexture = GetTileset(tmap, tmap->layers[i]->data[tileIndex]);
-						if (tilesetForTexture != NULL)
+						if (pack->tiles[tmap->layers[i]->data[tileIndex]] != NULL)
 						{
-							if (tmap->tiles[tmap->layers[i]->data[tileIndex]] != NULL)
-							{
-								Rectangle src = {
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->x,
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->y,
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->width,
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->height
-								};
+							Rectangle src = {
+								pack->tiles[tmap->layers[i]->data[tileIndex]]->x,
+								pack->tiles[tmap->layers[i]->data[tileIndex]]->y,
+								tmap->tileWidth,
+								tmap->tileHeight
+							};
+							Rectangle dst = {
+								tx * tmap->tileWidth,
+								ty * tmap->tileHeight,
+								tmap->tileWidth,
+								tmap->tileHeight
+							};
 
-								Rectangle dst = {
-									destX, destY,
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->width,
-									tmap->tiles[tmap->layers[i]->data[tileIndex]]->height
-								};
-
-								Vector2 origin = { 0.0f, 0.0f };
-								DrawTexturePro(tilesetForTexture->texture, src, dst, origin, 0.0f, WHITE);
-							}
+							DrawTexturePro(tileset->texture, src, dst, (Vector2) { 0.0f, 0.0f }, 0.0f, WHITE);
 						}
+						tileIndex++;
 					}
-					tileIndex++;
 				}
 			}
 		}
@@ -489,4 +404,99 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 	mxmlOptionsDelete(options);
 	mxmlDelete(tree);
 	return tmap;
+}
+
+TiledLayer* CreateLayer(mxml_node_t* data, unsigned int mapWidth, unsigned int mapHeight)
+{
+	if (data == NULL) return NULL;
+
+	const char* opaqueData = mxmlGetOpaque(data);
+	if (opaqueData == NULL) return NULL;
+
+	char* dataCopy = strdup(opaqueData);
+	if (dataCopy == NULL) return NULL;
+
+	TiledLayer* layer = (TiledLayer*)malloc(sizeof(TiledLayer));
+	if (layer == NULL) return NULL;
+
+	layer->width = mapWidth;
+	layer->height = mapHeight;
+	layer->dataCount = layer->width * layer->height;
+	layer->data = (int*)malloc((size_t)layer->dataCount * sizeof(int));
+	if (layer->data == NULL)
+	{
+		free(layer);
+		return NULL;
+	}
+	int index = 0;
+	char* context = NULL; // hace a visual studio feliz :D
+	char* token = strtok_s(dataCopy, ",", &context);
+	while (token)
+	{
+		layer->data[index] = atoi(token);
+		index++;
+		token = strtok_s(NULL, ",", &context);
+	}
+
+	free(dataCopy);
+	return layer;
+}
+
+TileMapNode* InsertTileMapNode(TileMapNode* node, TileMap* map)
+{
+	if (node == NULL)
+	{
+		TileMapNode* newNode = (TileMapNode*)malloc(sizeof(TileMapNode));
+		if (newNode == NULL) 
+		{
+			printf("Imposible crear el nodo para el mapa {%s}.\n", map->name);
+			return NULL;
+		}
+
+		newNode->tmap = map;
+		newNode->left = NULL;
+		newNode->right = NULL;
+		return newNode;
+	}
+
+	int nameCompare = strcmp(map->name, node->tmap->name);
+	if (nameCompare < 0)
+		return InsertTileMapNode(node->left, map);
+	else if (nameCompare > 0)
+		return InsertTileMapNode(node->right, map);
+	else
+		printf("El TileMap con el nombre {%s} ya existe.\n", map->name);
+
+	return node;
+}
+
+TileMap* TreeTileMapSearch(TileMapNode* node, const char* name)
+{
+	if (node == NULL) return NULL;
+
+	int nameCompare = strcmp(name, name, node->tmap->name);
+	if (nameCompare == 0)
+		return node->tmap;
+	else if (nameCompare < 0)
+		return TreeTileMapSearch(node->left, name);
+	else
+		return TreeTileMapSearch(node->right, name);
+
+	return NULL;
+}
+
+void UnloadTilesetsPack(TilesetPack* pack)
+{
+	if (pack == NULL) return;
+
+	// eliminar tiles
+	if (pack->tileCount > 0)
+	{
+		for (int i = 0; i < pack->tileCount; i++)
+		{
+			if (pack->tiles[i] != NULL)
+				free(pack->tiles[i]);
+		}
+		free(pack->tiles);
+	}
 }
