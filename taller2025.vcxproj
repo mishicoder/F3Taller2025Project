@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="assets\tilesets\pack_0.tspack" />
+    <None Include="CHANGELOG.md" />
     <None Include="flecs.dll" />
     <None Include="mxml4.dll" />
     <None Include="packages.config" />

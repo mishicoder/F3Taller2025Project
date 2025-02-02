@@ -474,7 +474,7 @@ TileMap* TreeTileMapSearch(TileMapNode* node, const char* name)
 {
 	if (node == NULL) return NULL;
 
-	int nameCompare = strcmp(name, name, node->tmap->name);
+	int nameCompare = strcmp(name, node->tmap->name);
 	if (nameCompare == 0)
 		return node->tmap;
 	else if (nameCompare < 0)
@@ -499,4 +499,47 @@ void UnloadTilesetsPack(TilesetPack* pack)
 		}
 		free(pack->tiles);
 	}
+
+	// eliminar tilesets
+	if (pack->tilesetsCount > 0)
+	{
+		for (int i = 0; i < pack->tilesetsCount; i++)
+		{
+			if (pack->tilesets[i] != NULL)
+			{
+				UnloadTexture(pack->tilesets[i]->texture);
+				free(pack->tilesets[i]);
+			}
+		}
+		free(pack->tilesets);
+	}
+
+	// eliminar el paquete
+	free(pack);
+}
+
+void UnloadTreeTileMapNode(TileMapNode* node)
+{
+	if (node == NULL) return;
+
+	// liberar los otros nodos
+	UnloadTreeTileMapNode(node->left);
+	UnloadTreeTileMapNode(node->right);
+
+	// eliminar capas
+	if (node->tmap->layerCount > 0)
+	{
+		for (int i = 0; i < node->tmap->layerCount; i++)
+		{
+			free(node->tmap->layers[i]->data);
+			free(node->tmap->layers[i]);
+		}
+		free(node->tmap->layers);
+	}
+	// eliminar textura
+	UnloadRenderTexture(node->tmap->mapTexture);
+
+	// eliminar mapa
+	free(node->tmap);
+	free(node);
 }

@@ -7,13 +7,6 @@
 struct Game;
 struct Level;
 
-typedef enum COMPONENT_TYPE
-{
-	INFO = 0,
-	TRANSFORM,
-	SPRITE_RENDER
-} COMPONENT_TYPE;
-
 /*********************************************************
 * componentes generales
 **********************************************************/
