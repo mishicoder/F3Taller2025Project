@@ -28,6 +28,7 @@ int main()
 
 	Game game;
 	InitGame(&game, config);
+	SetGameWindowIcon(&game, "assets/game_icon.png");
 
 	//AddLevel(&game, "test", 0, 0, 0, TL_Run);
 	AddLevel(&game, "menu", 0, 0, 0, Menu_Run);

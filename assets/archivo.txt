@@ -1,4 +1,0 @@
-dialog:Hola, me llamo tal
-
-[EVENT=]
-dialog:texto...

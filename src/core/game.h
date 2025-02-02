@@ -58,6 +58,14 @@ typedef struct Game
 */
 void InitGame(struct Game* game, GameConfig config);
 
+/**
+* Establece el ícono de la ventana del juego.
+* 
+* @param[in] game Referencia a la instancia del juego al cual se le establecerá el ícono.
+* @param[in] filename Ruta del archivo del ícono.
+*/
+void SetGameWindowIcon(Game* game, const char* filename);
+
 /** 
 * Inicialia el bucle principal del juego.
 * 

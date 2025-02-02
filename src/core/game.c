@@ -32,6 +32,13 @@ void InitGame(Game* game, GameConfig config)
 	game->currentLevel = -1;
 }
 
+void SetGameWindowIcon(Game* game, const char* filename)
+{
+	Image icon = LoadImage(filename);
+	SetWindowIcon(icon);
+	UnloadImage(icon);
+}
+
 void RunGame(Game* game)
 {
 
@@ -275,7 +282,6 @@ int LoadTilsetsPack(Game* game, const char* filename, const char* name)
 	if (game == NULL) return 0;
 
 	TilesetPack* pack = CreateTilesetsPack(name, filename);
-	printf("Se creó el set\n");
 	if (pack == NULL) return 0;
 
 	AddTilesetsPack(&game->resourcesManager, pack);

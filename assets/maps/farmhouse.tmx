@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.1" orientation="orthogonal" renderorder="right-down" width="10" height="7" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="13">
+ <tileset firstgid="1" source="world.tsx"/>
+ <layer id="1" name="suelos" width="10" height="7">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,587,587,587,587,587,587,587,587,0,
+0,587,587,587,587,587,587,587,587,0,
+0,587,587,587,587,587,587,587,587,0,
+0,587,587,587,587,587,587,587,587,0,
+0,587,587,587,587,587,587,587,587,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="paredes" width="10" height="7">
+  <data encoding="csv">
+777,773,773,773,773,773,773,773,773,837,
+775,0,0,0,0,0,0,0,0,836,
+775,0,0,0,0,0,0,0,0,836,
+775,0,0,0,0,0,0,0,0,836,
+775,0,0,0,0,0,0,0,0,836,
+775,0,0,0,0,0,0,0,0,836,
+839,838,838,0,0,0,838,838,838,840
+</data>
+ </layer>
+ <layer id="3" name="interior a" width="10" height="7">
+  <data encoding="csv">
+0,2152,2160,2290,2291,2291,2292,0,2155,0,
+0,2216,2224,2354,2355,2355,2356,0,2219,0,
+0,0,0,2418,2419,2419,2420,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="4" name="interior b" width="10" height="7">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,2164,2101,0,0,0,0,
+0,0,0,0,2163,2163,0,0,0,0,
+0,0,0,0,2227,2227,0,0,0,0,
+0,0,0,2284,2285,2286,0,0,0,0,
+0,0,0,2348,2349,2350,0,0,0,0,
+0,0,0,2412,2413,2414,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="interior c" width="10" height="7">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="6" name="superior" width="10" height="7">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,838,717,838,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="7" name="entities">
+  <object id="1" template="entity.tx" name="bed" x="16" y="16" visible="1">
+   <properties>
+    <property name="bed" value=""/>
+    <property name="rect_collider" value="0,0,16,16"/>
+   </properties>
+  </object>
+  <object id="7" template="entity.tx" name="wall left" x="0" y="32" width="16" height="80" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,16,80"/>
+   </properties>
+  </object>
+  <object id="8" template="entity.tx" name="wall right" x="144" y="17" width="16" height="95" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,16,95"/>
+   </properties>
+  </object>
+  <object id="2" template="entity.tx" name="table" x="64" y="16" width="16" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="-2,-2,36,20"/>
+   </properties>
+  </object>
+  <object id="4" template="entity.tx" name="chairs" x="64" y="32" width="16" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,10,26,10"/>
+   </properties>
+  </object>
+  <object id="9" template="entity.tx" name="wall down a" x="16" y="96" width="48" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,48,16"/>
+   </properties>
+  </object>
+  <object id="11" template="entity.tx" name="wall up a" x="48" y="0" width="14" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,14,16"/>
+   </properties>
+  </object>
+  <object id="12" template="entity.tx" name="wall up b" x="98" y="0" width="30" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,30,16"/>
+   </properties>
+  </object>
+  <object id="10" template="entity.tx" name="wall down b" x="80" y="96" width="64" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,0,64,16"/>
+   </properties>
+  </object>
+  <object id="6" template="entity.tx" name="bookshelf" x="128" y="0" width="16" height="17" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,00,16,17"/>
+   </properties>
+  </object>
+  <object id="5" template="entity.tx" name="door" x="64" y="96" width="16" height="16" visible="1">
+   <properties>
+    <property name="level_loader" value="farm"/>
+    <property name="rect_collider" value="0,0,16,16"/>
+   </properties>
+  </object>
+  <object id="3" template="entity.tx" name="night table" x="32" y="0" width="16" height="16" visible="1">
+   <properties>
+    <property name="rect_collider" value="0,8,16,10"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

@@ -111,6 +111,7 @@ void UnloadResourcesManager(ResourcesManager* manager)
 	}
 
 	UnloadTreeSpriteNode(manager->spritesRoot);
+	UnloadTreeTilesetsPackNode(manager->tilesetsPacksRoot);
 	UnloadTreeTileMapNode(manager->tilemapsRoot);
 	manager->spritesRoot = NULL;
 }

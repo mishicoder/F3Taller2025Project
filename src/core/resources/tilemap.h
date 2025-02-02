@@ -97,15 +97,6 @@ typedef struct TileMapNode
 TilesetPack* CreateTilesetsPack(const char* name, const char* filename);
 
 /**
-* Función que retorna un paquete de sets de mosaicos.
-*
-* @param[in] name Nombre del paquete de sets de mosaicos.
-*
-* @return Retorna TilesetPack si se encuentra, caso contrario, retorna NULL.
-*/
-TilesetPack* GetTilesetsPack(const char* name); // Funcion en el punto equivocado XD
-
-/**
 * Funcion para crear un set de mosaicos.
 *
 * @param[in] filename Ruta al set de mosaicos (.tsx).

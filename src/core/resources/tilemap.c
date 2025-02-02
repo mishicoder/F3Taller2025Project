@@ -9,7 +9,7 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 	{
 		// Muestra el error.
 		printf("Error al crear el paquete de sets de mosaicos {%s}\n", name);
-		// returna NULL.
+		// retorna NULL.
 		return NULL;
 	}
 
@@ -55,7 +55,6 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 					if (strcmp(key, "ts") == 0)
 					{
 						Tileset* newTileset = CreateTileset(val, pack->nextTilesetIndex);
-						printf("TEXTURA ID AL SER CARGADA: %d\n", newTileset->texture.id);
 						if (newTileset != NULL)
 						{
 							Tileset** tsMemTemp = (Tileset**)realloc(pack->tilesets, (size_t)(pack->tilesetsCount + 1) * sizeof(Tileset*));
@@ -112,7 +111,6 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 	unsigned int totalTiles = 0;
 	for (int i = 0; i < pack->tilesetsCount; i++)
 		totalTiles += pack->tilesets[i]->tilesCount;
-	printf("TOTAL TILES %d\n", totalTiles);
 
 	Tile** tilesMemTemp = (Tile**)realloc(pack->tiles, (size_t)(totalTiles + 1) * sizeof(Tile*));
 	if (tilesMemTemp == NULL)
@@ -133,8 +131,6 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 	{
 		unsigned int rows = pack->tilesets[i]->texture.height / pack->tilesets[i]->tileHeight;
 		unsigned int columns = pack->tilesets[i]->texture.width / pack->tilesets[i]->tileWidth;
-		printf("ROWS: %d\n", rows);
-		printf("COLUMNS: %d\n", columns);
 
 		for (int ty = 0; ty < rows; ty++)
 		{
@@ -148,7 +144,6 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 					newTile->width = pack->tilesets[i]->tileWidth;
 					newTile->height = pack->tilesets[i]->tileHeight;
 					pack->tiles[pack->tileCount] = newTile;
-					printf("TILES AGREGADO CON: %d, %d, %d, %d\n", newTile->x, newTile->y, newTile->width, newTile->height);
 				}
 				pack->tileCount += 1;
 			}
@@ -182,19 +177,14 @@ Tileset* GetTileset(TilesetPack* pack, unsigned int index)
 
 	for (int i = 0; i < pack->tilesetsCount; i++)
 	{
-		printf("DEBUG TILESET 0\n");
-		printf("DEBUG TILESET COUNT %d\n", pack->tilesetsCount);
 		if(pack->tilesets[i] != NULL)
 		{
 			if (index >= pack->tilesets[i]->initialIndex && index <= pack->tilesets[i]->finalIndex)
-			{
-				printf("DEBUG TILESET 1\n");
+			{;
 				return pack->tilesets[i];
 			}
 		}
-		printf("DEBUG TILESET 2\n");
 	}
-	printf("DEBUG TILESET 4\n");
 	return NULL;
 }
 
@@ -285,6 +275,8 @@ Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
 	// obtener atributos del tileset
 	unsigned int tileWidth = atoi(mxmlElementGetAttr(tsNode, "tilewidth"));
 	unsigned int tileHeight = atoi(mxmlElementGetAttr(tsNode, "tileheight"));
+	tileset->tileWidth = tileWidth;
+	tileset->tileHeight = tileHeight;
 	tileset->finalIndex = (tileset->initialIndex + atoi(mxmlElementGetAttr(tsNode, "tilecount"))) - 1;
 	tileset->tilesCount = atoi(mxmlElementGetAttr(tsNode, "tilecount"));
 
@@ -292,7 +284,6 @@ Tileset* CreateTileset(const char* filename, unsigned int initialIndex)
 	mxml_node_t* textureNode = mxmlFindElement(tsNode, root, "image", NULL, NULL, MXML_DESCEND_ALL);
 	const char* textureFilename = mxmlElementGetAttr(textureNode, "source");
 	tileset->texture = LoadTexture(textureFilename);
-	printf("TILESET TEXTURE: %d\n", tileset->texture.id);
 
 	// descargar datos de memoria
 	mxmlOptionsDelete(options);
@@ -351,24 +342,19 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 	tmap->tileHeight = atoi(mxmlElementGetAttr(mapNode, "tileheight"));
 	tmap->mapWidth = atoi(mxmlElementGetAttr(mapNode, "width"));
 	tmap->mapHeight = atoi(mxmlElementGetAttr(mapNode, "height"));
-	printf("DEBUG 0\n");
 
 	// cargar las capas
 	unsigned int hasErrors = 0;
 	mxml_node_t* layerNode = mxmlFindElement(tree, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
-	printf("DEBUG 1\n");
 	while (layerNode != NULL)
 	{
 		mxml_node_t* layerData = mxmlFindElement(layerNode, layerNode, "data", NULL, NULL, MXML_DESCEND_ALL);
 		if (layerData == NULL) hasErrors++;
-		printf("DEBUG 2\n");
 
 		TiledLayer* layer = CreateLayer(layerData, tmap->mapWidth, tmap->mapHeight);
 		if (layer == NULL) hasErrors++;
-		printf("DEBUG 3\n");
 
 		TiledLayer** layersMemTemp = (TiledLayer**)realloc(tmap->layers, (size_t)(tmap->layerCount + 1) * sizeof(TiledLayer*));
-		printf("DEBUG 4\n");
 		if (layersMemTemp != NULL && layer != NULL) 
 		{
 			tmap->layers = layersMemTemp;
@@ -381,7 +367,6 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 
 		layerNode = mxmlFindElement(layerNode, tree, "layer", NULL, NULL, MXML_DESCEND_ALL);
 	}
-	printf("DEBUG 4\n");
 
 	if (hasErrors > 0)
 	{
@@ -399,7 +384,6 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 		mxmlDelete(tree);
 		return NULL;
 	}
-	printf("DEBUG 5\n");
 
 	if (tmap->layerCount == 0)
 	{
@@ -417,62 +401,42 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 		mxmlDelete(tree);
 		return NULL;
 	}
-	printf("DEBUG 6\n");
 
 	// crear textura
 	tmap->mapTexture = LoadRenderTexture(
 		tmap->tileWidth * tmap->mapWidth,
 		tmap->tileHeight * tmap->mapHeight
 	);
-	printf("DEBUG 8\n");
 	// Dibujar las capas
 	BeginTextureMode(tmap->mapTexture);
-	
 	ClearBackground(BLANK);
 
 	for (int i = 0; i < tmap->layerCount; i++)
 	{
-		printf("DEBUG 9\n");
 		unsigned int tileIndex = 0;
 		for (int ty = 0; ty < tmap->mapHeight; ty++)
 		{
-			printf("DEBUG 10\n");
 			for (int tx = 0; tx < tmap->mapWidth; tx++)
 			{
 				// Cero indica que el espacio está vacío.
-				printf("DEBUG 11\n");
 				if (tmap->layers[i]->data[tileIndex] != 0)
 				{
-					printf("DEBUG 12\n");
 					Tileset* tileset = GetTileset(pack, tmap->layers[i]->data[tileIndex]);
-					printf("DEBUG 13\n");
 					if (tileset != NULL)
 					{
-						printf("DEBUG 14\n");
-						if (pack->tiles[tmap->layers[i]->data[tileIndex]] != NULL)
-						{
-							printf("DEBUG 15\n");
-							printf("UN DATO DEL PACK: %d\n", pack->tiles[0]->width);
-							Rectangle src = {
-								pack->tiles[tmap->layers[i]->data[tileIndex]]->x,
-								pack->tiles[tmap->layers[i]->data[tileIndex]]->y,
-								tmap->tileWidth,
-								tmap->tileHeight
-							};
-							printf("DEBUG 16\n");
-							Rectangle dst = {
-								tx * tmap->tileWidth,
-								ty * tmap->tileHeight,
-								tmap->tileWidth,
-								tmap->tileHeight
-							};
-							printf("DEBUG 17\n");
-							DrawTexturePro(tileset->texture, src, dst, (Vector2) { 0.0f, 0.0f }, 0.0f, WHITE);
-							printf("DEBUG 18\n");
-						}
-						tileIndex++;
+						int x = pack->tiles[tmap->layers[i]->data[tileIndex]]->x;
+						int y = pack->tiles[tmap->layers[i]->data[tileIndex]]->y;
+						int w = pack->tiles[tmap->layers[i]->data[tileIndex]]->width;
+						int h = pack->tiles[tmap->layers[i]->data[tileIndex]]->height;
+						Rectangle rectSrc = { x, y, w, h };
+						Rectangle rectDst = { tx * w, ty * h, w, h };
+						Vector2 origin = { 0.0f, 0.0f };
+						float rotation = 0.0f;
+						DrawTexturePro(tileset->texture, rectSrc, rectDst, origin, rotation, WHITE);
 					}
+					
 				}
+				tileIndex += 1;
 			}
 		}
 	}
@@ -520,7 +484,6 @@ TiledLayer* CreateLayer(mxml_node_t* data, unsigned int mapWidth, unsigned int m
 	}
 
 	free(dataCopy);
-	printf("Capa creada\n");
 	return layer;
 }
 

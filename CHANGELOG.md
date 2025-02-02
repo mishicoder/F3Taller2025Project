@@ -4,10 +4,11 @@ Todos los cambios notables en este proyecto se documentarán en este archivo.
 
 El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) y este proyecto se adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Próximos cambios]
+## [1.1] "Explorador" - 2025-02-02
 
 ### Añadido
 
+- v1.1 Se agrega la función `SetGameWindowIcon` para establece un ícono para la ventana.
 - v1.1 Se agrega la propiedad `tilesetsPacksNode` al gestor de recursos para manejar los paquetes de conjuntos de mosaicos.
 - v1.1 Tipo de dato `TilesetPack` añadido.  
 - v1.1 Función `CreateTilesetsPack` agregada.  
@@ -67,7 +68,9 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 ### Corregido
 
 - v1.1 Se corrige el error al momento de liberar de memoria el nombre de los sprites.  
-- v1.1 Se corrije el error al momento de cargar un paquete de conjuntos de mosaicos.   
+- v1.1 Se corrige el error al momento de cargar un paquete de conjuntos de mosaicos.   
+- v1.1 Se corrige el error al cargar y dibujar el mapa de mosaicos haciendo uso de `TilesetPack`.   
+- v1.1 Se corrige el error que no permitia borra la memoria de `TilesetPackNode` y `TileMapNode`.   
 
 ## [1.0] "Kikiriki" - 2025-01-01
 
