@@ -100,6 +100,38 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFilename);
 
 /**
+* Agrega un nuevo conjunto de patrones a un paquete.
+* 
+* @param[in] game Referencia al juego de donde se obtendrá el paquete para agregar el conjunto.
+* @param[in] pack Nombre del paquete donde se agregará el conjunto.
+* @param[in] filename Ruta del conjunto.
+*/
+int AddTilsetToPack(Game* game, const char* pack, const char* filename);
+
+/**
+* Carga un paquete de conjuntos de mosaicos al gestor del recursos del juego.
+* 
+* @param[in] game Referencia al juego donde se cargará el paquete.
+* @param[in] filename Ruta del archivo del paquete.
+* @param[in] name Nombre del paquete.
+* 
+* @return Retorna 1 sila cargar ha sido exitosa, caso contrario, retorna 0.
+*/
+int LoadTilsetsPack(Game* game, const char* filename, const char* name);
+
+/**
+* Carga un mapa de mosaicos utilizando un paquete de conjunto de mosaicos.
+* 
+* @param[in] game Referencia al juego donde se cargará el mapa.
+* @param[in] filename Ruta del archivo del mapa.
+* @param[in] pack Nombre del paquete de conjuntos de mosaicos que usará el mapa.
+* @param[in] name Nombre del mapa.
+* 
+* @return Retorna 1 si la carga ha sido exitosa, caso contrario, retorna 0;
+*/
+int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name);
+
+/**
 * Funcion que permite registrar y reafirma los componentes en los mundos de entidades.
 * 
 * @param[in] game Referencia en memoria de la instancia del juego.

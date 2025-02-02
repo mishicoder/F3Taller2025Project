@@ -258,6 +258,44 @@ int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFil
 	return 1;
 }
 
+int AddTilsetToPack(Game* game, const char* pack, const char* filename)
+{
+	if (game == NULL) return;
+
+	TilesetPack* tsPack = GetTilesetPack(&game->resourcesManager, pack);
+	if (tsPack == NULL) return NULL;
+
+	int result = InsertTilesetToPack(tsPack, filename);
+
+	return result;
+}
+
+int LoadTilsetsPack(Game* game, const char* filename, const char* name)
+{
+	if (game == NULL) return 0;
+
+	TilesetPack* pack = CreateTilesetsPack(name, filename);
+	printf("Se creó el set\n");
+	if (pack == NULL) return 0;
+
+	AddTilesetsPack(&game->resourcesManager, pack);
+	return 1;
+}
+
+int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name)
+{
+	if (game == NULL) return 0;
+
+	TilesetPack* tsPack = GetTilesetPack(&game->resourcesManager, pack);
+	if (tsPack == NULL) return 0;
+
+	TileMap* map = CreateMap(name, filename, tsPack);
+	if (map == NULL) return 0;
+
+	AddTilemap(&game->resourcesManager, map);
+	return 1;
+}
+
 void DefineComponents(Game* game, GameLevel* level)
 {
 	ECS_COMPONENT(level->world, C_Info);

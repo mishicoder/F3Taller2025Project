@@ -55,7 +55,7 @@ typedef struct TiledLayer
 	unsigned int width; // ancho de la capa (esto permite calcular el tamaño de la textura)
 	unsigned int height; // alto de la capa (esto permite calcular el tamaño de la textura)
 	unsigned int dataCount;
-	unsigned int* data; // datos de la capa (debe ser un array de enteros ya que así se trabaja el indexado con los arrays)
+	int* data; // datos de la capa (debe ser un array de enteros ya que así se trabaja el indexado con los arrays)
 } TiledLayer;
 
 typedef struct TileMap
@@ -202,6 +202,13 @@ TileMap* TreeTileMapSearch(TileMapNode* node, const char* name);
 * @param[in] pack Bloque de memoria del pack que se des-cargará.
 */
 void UnloadTilesetsPack(TilesetPack* pack);
+
+/**
+* Des-carga de memoria el árbol de los mapas de mosaicos.
+*
+* @param[in] node Árbol que se des-cargará de memoria.
+*/
+void UnloadTreeTilesetsPackNode(TilesetPackNode* node);
 
 /**
 * Des-carga de memoria el árbol de los mapas de mosaicos.

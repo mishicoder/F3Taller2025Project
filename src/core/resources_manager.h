@@ -22,6 +22,7 @@ typedef struct ResourcesManager
 	unsigned int textureCount;
 	Texture2D* textures;
 	SpriteNode* spritesRoot;
+	TilesetPackNode* tilesetsPacksRoot;
 	TileMapNode* tilemapsRoot;
 }ResourcesManager;
 
@@ -32,6 +33,9 @@ void AddSprite(ResourcesManager* manager, Sprite* sprite);
 Sprite* GetSprite(ResourcesManager* manager, const char* name);
 SpriteFrame* GetSpriteFrame(Sprite* sprite, unsigned int index);
 SpriteAnimation* GetSpriteAnimation(Sprite* sprite, const char* name);
+
+void AddTilesetsPack(ResourcesManager* manager, TilesetPack* pack);
+TilesetPack* GetTilesetPack(ResourcesManager* manager, const char* name);
 
 void AddTilemap(ResourcesManager* manager, TileMap* map);
 TileMap* GetTileMap(ResourcesManager* manager, const char* name);

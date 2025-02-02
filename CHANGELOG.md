@@ -8,6 +8,7 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Añadido
 
+- v1.1 Se agrega la propiedad `tilesetsPacksNode` al gestor de recursos para manejar los paquetes de conjuntos de mosaicos.
 - v1.1 Tipo de dato `TilesetPack` añadido.  
 - v1.1 Función `CreateTilesetsPack` agregada.  
 - v1.1 Función `AddTilesetToPack` agregada.  
@@ -39,7 +40,6 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 - v1.1 Se agrega el componente `C_RenderLayer` para el manejo de capas de renderizado.  
 - v1.1 Se agrega el componente `C_Info` para la información de las entidades.  
 - v1.1 Se agrega el componente `C_Camera2D` para el manejo de múltiples cámaras y la cámara principal.   
-- v1.1 Se agrega el archivo `components.h` que contiene los componentes para las entidades.  
 - v1.1 Se agrega el tipo de dato `GameItem` para manejar los objetos de inventario del juego.  
 - v1.1 Se agrega el tipo de dato `InventorySlot` para manejar los espacios de un inventario.  
 - v1.1 Se agrega el tipo de dato `BUILD_TYPE` para los tipos de construcciones disponibles en el juego.   
@@ -49,7 +49,6 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 - v1.1 Se agrega el tipo de dato `TraderItem` para manejar los elementos de comercio del comerciante.   
 - v1.1 Se agrega el tipo de dato `FARMLAND_STATE` para manejar los estados de la tierra de la granja.   
 - v1.1 Se agrega el tipo de dato `CROP_TYPE` para manejar los tipos de cultivos disponibles en el juego.   
-- v1.1 Se agrega el archivo `gametypes.h` que contiene tipos de datos para el juego.   
 
 ### Modificado
 
@@ -68,6 +67,7 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 ### Corregido
 
 - v1.1 Se corrige el error al momento de liberar de memoria el nombre de los sprites.  
+- v1.1 Se corrije el error al momento de cargar un paquete de conjuntos de mosaicos.   
 
 ## [1.0] "Kikiriki" - 2025-01-01
 

@@ -5,6 +5,7 @@ void InitResourcesManager(ResourcesManager* manager)
 	manager->textureCount = 0;
 	manager->textures = NULL;
 	manager->spritesRoot = NULL;
+	manager->tilesetsPacksRoot = NULL;
 	manager->tilemapsRoot = NULL;
 }
 
@@ -72,6 +73,26 @@ SpriteAnimation* GetSpriteAnimation(Sprite* sprite, const char* name)
 	return NULL;
 }
 
+void AddTilesetsPack(ResourcesManager* manager, TilesetPack* pack)
+{
+	manager->tilesetsPacksRoot = InsertTilesetPackNode(manager->tilesetsPacksRoot, pack);
+}
+
+TilesetPack* GetTilesetPack(ResourcesManager* manager, const char* name)
+{
+	return TreeTilesetPackSearch(manager->tilesetsPacksRoot, name);
+}
+
+void AddTilemap(ResourcesManager* manager, TileMap* map)
+{
+	manager->tilemapsRoot = InsertTilesetPackNode(manager->tilemapsRoot, map);
+}
+
+TileMap* GetTileMap(ResourcesManager* manager, const char* name)
+{
+	return TreeTileMapSearch(manager->tilemapsRoot, name);
+}
+
 void UnloadResourcesManager(ResourcesManager* manager)
 {
 	if (manager == NULL) 
@@ -90,6 +111,6 @@ void UnloadResourcesManager(ResourcesManager* manager)
 	}
 
 	UnloadTreeSpriteNode(manager->spritesRoot);
-	//UnloadTreeTileMapNode(manager->tilemapsRoot);
+	UnloadTreeTileMapNode(manager->tilemapsRoot);
 	manager->spritesRoot = NULL;
 }
