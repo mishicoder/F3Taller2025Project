@@ -2,6 +2,13 @@
 #ifndef GAMETYPES_H
 #define GAMETYPES_H
 
+typedef struct Circle
+{
+	float centerX;
+	float centerY;
+	float radius;
+} Circle;
+
 /* Objeto de inventario. */
 typedef struct GameItem 
 {

@@ -52,6 +52,9 @@
     <ClCompile Include="src\levels\menu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\utilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\resources_manager.h">
@@ -64,9 +67,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\components.h">
@@ -82,6 +82,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\levels\menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,7 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
+#include <flecs.h>
 #include "gametypes.h"
 
 struct Game;
@@ -64,7 +65,7 @@ typedef struct C_Transform
 
 	// rotación de la entidad (a favor de las agujas del reloj)
 	float rotation;
-} C_Transfom;
+} C_Transform;
 
 /* Permite a la entidad renderizar un sprite en el mundo. */
 typedef struct C_SpriteRender
@@ -114,7 +115,20 @@ typedef struct C_RectCollider
 	unsigned int width;
 	// Alto del rectángulo de colisión.
 	unsigned int height;
+	// Determina si la caja de colisión es solida.
+	unsigned short isSolid;
 } C_RectCollider;
+
+typedef struct C_CircleCollider {
+	// Desplazamiento en el eje x respecto a la posición de la entidad.
+	float offsetX;
+	// Desplazamiento en el eje y respecto a la posición de la entidad.
+	float offsetY;
+	// Radio del círculo
+	float radius;
+	// Determina si el círculo de colisión es solido.
+	unsigned short isSolid;
+};
 
 /*********************************************************
 * componentes para eljuego

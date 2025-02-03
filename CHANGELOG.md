@@ -8,11 +8,20 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Añadido
 
-- Se agrega la función `CreateBlankEntity` para crear una entidad que solo tiene el componente `C_Transform`.  
+- v1.2 Se agrega la función `ResolveRectRectCollision` para resolver la conlisión entre dos rectángulos sólidos.   
+- v1.2 Se agrega la función `GetCollisionRectangleRectangle` para encontrar el rectángulo de intersección entre dos rectángulos.   
+- v1.2 Se agrega la propiedad `isSolid` a los componentes de colisión.   
+- v1.2 Se agrega la función `LoadResources` como propiedad a la estructura `Game`.   
+- v1.2 Se agrega el component `C_CircleCollider` para manejar colisiones circulares.   
+- v1.2 Se agrega la función `CreateBlankEntity` para crear una entidad que solo tiene los componente `C_Info` y `C_Transform`.  
 
 ### Eliminado
 
-- Se elimina la función `DefineComponents` debido al método de gestión de componentes de Flecs.  
+- v1.2 Se elimina la función `DefineComponents` debido al método de gestión de componentes de Flecs.  
+
+### Corregido
+
+- v1.2 Se corrige el error del nombre de `C_Transform` que anteriormente era `C_Transfom`.  
 
 ## [1.1] "Explorador" - 2025-02-02
 

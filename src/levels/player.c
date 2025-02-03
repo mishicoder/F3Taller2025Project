@@ -40,11 +40,11 @@ void OnPlayerInput(Game* game, GameLevel* level, ecs_entity_t entity)
 
 void OnPlayerUpdate(Game* game, GameLevel* level, ecs_entity_t entity)
 {
-	ECS_COMPONENT(level->world, C_Transfom);
+	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_Movement);
 
 	C_Movement* movement = ecs_get(level->world, entity, C_Movement);
-	C_Transfom* transform = ecs_get(level->world, entity, C_Transfom);
+	C_Transform* transform = ecs_get(level->world, entity, C_Transform);
 	if (movement == 0) return;
 
 	scale += 1.5f * GetFrameTime();

@@ -46,6 +46,13 @@ typedef struct Game
 	struct GameLevel** levelStack;
 	unsigned int levelStackCount;
 	signed int currentLevel;
+
+	/**
+	* Carga los recursos que se necesitan en el juego.
+	*
+	* @param[in] game Referencia de la instancia del juego.
+	*/
+	void(*LoadResources)(struct Game* game);
 } Game;
 
 /**
@@ -55,8 +62,9 @@ typedef struct Game
 * 
 * @param[in] game Referencia en memoria de la instancia del juego.
 * @param[in] config Estructura que contiene la configuracion del juego.
+* @param[in] void(*LoadResources)(Game* game) Función para cargar los recursos.
 */
-void InitGame(struct Game* game, GameConfig config);
+void InitGame(struct Game* game, GameConfig config, void(*LoadResources)(struct Game* game));
 
 /**
 * Establece el ícono de la ventana del juego.
@@ -143,11 +151,13 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 * Crea un entidad en blanco, solo tendrá el componente "C_Transform".
 * 
 * @param[in] game Puntero a la instancia del juego que contiene el nivel donde se agregará la entidad.
+* @param[in] level Puntero al nivel donde se agregará la entidad.
+* @param[in] name Nombre de la entidad.
 * @param[in] tag Etiqueta de la entidad (si no se quiere añadir etiqueta el valor debe ser NULL).
 * 
 * @return Retorna ecs_entity_t.
 */
-ecs_entity_t CreateBlankEntity(Game* game, const char* tag);
+ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
 
 /**
 * Funcion para cargar un nivel en el juego a traves de un archivo.

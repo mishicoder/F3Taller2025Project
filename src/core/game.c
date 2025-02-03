@@ -1,8 +1,9 @@
 #include "game.h"
 
-void InitGame(Game* game, GameConfig config)
+void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* game))
 {
 	game->config = config;
+	game->LoadResources = LoadResources;
 	InitResourcesManager(&game->resourcesManager);
 
 	InitWindow(game->config.windowWidth, game->config.windowHeight, game->config.windowTitle);
@@ -30,6 +31,9 @@ void InitGame(Game* game, GameConfig config)
 	game->levelCacheCount = 0;
 	game->levelStackCount = 0;
 	game->currentLevel = -1;
+
+	if (game->LoadResources != NULL)
+		game->LoadResources(game);
 }
 
 void SetGameWindowIcon(Game* game, const char* filename)
@@ -300,6 +304,18 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 
 	AddTilemap(&game->resourcesManager, map);
 	return 1;
+}
+
+ecs_entity_t CreateBlankEntity(Game* game, GameLevel* level)
+{
+	//ECS_COMPONENT(game->levelStack[game->currentLevel], C_Info);
+	ECS_COMPONENT(game->levelStack[game->currentLevel], C_Transform);
+
+	ecs_entity_t ent = ecs_new(game->levelStack[game->currentLevel]);
+	ecs_add(level->world, ent, C_Transform);
+	ecs_set(level->world, ent, C_Transform, { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f });
+
+	return ent;
 }
 
 int LoadLevel(Game* game, const char* filename)

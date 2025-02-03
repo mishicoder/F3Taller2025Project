@@ -9,7 +9,7 @@ void TL_Run(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_Behaviour);
 	ECS_COMPONENT(level->world, C_Info);
 	ECS_COMPONENT(level->world, C_RenderLayer);
-	ECS_COMPONENT(level->world, C_Transfom);
+	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_SpriteRender);
 	ECS_COMPONENT(level->world, C_Color);
 	ECS_COMPONENT(level->world, C_MapRender);
@@ -38,10 +38,10 @@ void TL_Run(Game* game, GameLevel* level)
 		ecs_entity_t ent = ecs_entity(level->world, { .name = "player" });
 		ecs_add(level->world, ent, C_Info);
 		ecs_add(level->world, ent, C_SpriteRender);
-		ecs_add(level->world, ent, C_Transfom);
+		ecs_add(level->world, ent, C_Transform);
 		ecs_add(level->world, ent, C_Behaviour);
 		ecs_add(level->world, ent, C_Movement);
-		ecs_set(level->world, ent, C_Transfom, {20.0f, 120.0f, 1.0f, 1.0f, 0.0f});
+		ecs_set(level->world, ent, C_Transform, {20.0f, 120.0f, 1.0f, 1.0f, 0.0f});
 		ecs_set(level->world, ent, C_Info, { "ent", "test" });
 		ecs_set(level->world, ent, C_SpriteRender, {"test_sprite", 1, 1.0f});
 		ecs_set(level->world, ent, C_Movement, { 0, 0, 120.0f });
@@ -50,9 +50,9 @@ void TL_Run(Game* game, GameLevel* level)
 		ecs_entity_t ent2 = ecs_entity(level->world, { .name = "change"});
 		ecs_add(level->world, ent2, C_Info);
 		ecs_add(level->world, ent2, C_SpriteRender);
-		ecs_add(level->world, ent2, C_Transfom);
+		ecs_add(level->world, ent2, C_Transform);
 		ecs_add(level->world, ent2, C_Color);
-		ecs_set(level->world, ent2, C_Transfom, { 220.0f, 120.0f, 3.0f, 3.0f, 0.0f });
+		ecs_set(level->world, ent2, C_Transform, { 220.0f, 120.0f, 3.0f, 3.0f, 0.0f });
 		ecs_set(level->world, ent2, C_Info, { "ent2", "test" });
 		ecs_set(level->world, ent2, C_SpriteRender, { "test_sprite", 1, 1.0f});
 		ecs_set(level->world, ent2, C_Color, {45, 255, 25});
@@ -113,7 +113,7 @@ void TL_Run(Game* game, GameLevel* level)
 			ecs_entity_t entity = it.entities[i];
 
 			C_SpriteRender* spriteRender = ecs_get(level->world, entity, C_SpriteRender);
-			C_Transfom* transform = ecs_get(level->world, entity, C_Transfom);
+			C_Transform* transform = ecs_get(level->world, entity, C_Transform);
 			C_Color* color = ecs_get(level->world, entity, C_Color);
 
 			if (spriteRender && transform)
