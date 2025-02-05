@@ -31,6 +31,7 @@ typedef struct GameLevel
 
 	/**
 	* Se ejecuta cuando la escena es cargada (punto para agregar entidades o cargar datos).
+	* Cuando se mantiene en memoria, no se vuelve a ejecutar cuando se agrega al satck con PushMemoryLevel.
 	* 
 	* @param[in] game Referencia de memoria de la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
@@ -65,14 +66,16 @@ typedef struct GameLevel
 
 	/**
 	* Se encarga de eliminar la memoria del nivel.
+	* Si el nivel se mantiene en memoria, esta función se ignora, hasta que se cierre el juego.
 	*
 	* @param[in] game Referencia de memoria de la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
 	*/
-	void(*OnUnload)(struct Game* game, struct GameLevel* level);
+	void(*Unload)(struct Game* game, struct GameLevel* level);
 
 	/**
 	* Se encarga de renderizar las cajas de colisión y otros elementos para el sistema debug.
+	* Solo se ejecutará si la configuración del juego indica que se debe mostrar el debug.
 	* 
 	* @param[in] game Referencia a la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
@@ -97,7 +100,7 @@ GameLevel* CreateLevel(
 	unsigned int keepInMemory,
 	unsigned int renderInStack,
 	unsigned int updateInStack,
-	void(*Run)(struct Game* game, struct GameLevel* level)
+	void(*Load)(struct Game* game, struct GameLevel* level)
 );
 
 //ecs_entity_t CreateEntity(struct GameLevel* level, unsigned int ccount);

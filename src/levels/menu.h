@@ -6,6 +6,9 @@
 #include <flecs.h>
 #include "../core/game.h"
 
-void Menu_Run(Game* game, GameLevel* level, ecs_entity_t entity);
+void MenuOnLoad(Game* game, GameLevel* level);
+
+void Another(Game* game, GameLevel* level);
+void Tuki(Game* game, GameLevel* level);
 
 #endif // !MENU_H

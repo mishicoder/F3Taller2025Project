@@ -14,26 +14,35 @@
 #include <float.h>
 #include "levels/menu.h"
 
+void LoadResources(Game* game);
+
 int main()
 {
 	GameConfig config = {0};
-	config.windowTitle = "My Farm Game";
+	config.windowTitle = "Sunny Side";
 	config.windowWidth = 800;
 	config.windowHeight = 600;
 	config.windowFullscreen = 0;
 	config.useEscapeToExit = 1;
+	config.activeDebug = 0;
 	config.colorBackground = (Color){ 20, 23, 21, 255 };
 
 	Game game;
-	InitGame(&game, config, NULL);
+	InitGame(&game, config, LoadResources);
 	SetGameWindowIcon(&game, "assets/game_icon.png");
 
+	PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
 	//AddLevel(&game, "test", 0, 0, 0, TL_Run);
-	AddLevel(&game, "menu", 0, 0, 0, Menu_Run);
+	//AddLevel(&game, "menu", 0, 0, 0, Menu_Run);
 
 	RunGame(&game);
 	FreeGame(&game);
 
 
 	return 0;
+}
+
+void LoadResources(Game* game)
+{
+	printf("AQUI SE CARGARIAN TODOS LOS RECURSOS PARA EL JUEGO\n");
 }

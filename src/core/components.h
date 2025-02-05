@@ -129,12 +129,12 @@ typedef struct C_MapRender
 typedef struct C_Behaviour
 {
 	// Comportamiento general
-	void(*OnCreate)(struct Game* game, struct Level* level, ecs_entity_t entity);
-	void(*OnInput)(struct Game* game, struct Level* level, ecs_entity_t entity);
-	void(*OnUpdate)(struct Game* game, struct Level* level, ecs_entity_t entity);
-	void(*OnDestroy)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	void(*OnCreate)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	void(*OnInput)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	void(*OnUpdate)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	void(*OnDestroy)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 	// Comportamiento para el tema de colisiones
-	void(*OnCollision)(struct Game* game, struct Level* level, ecs_entity_t entity, ecs_entity_t collide);
+	void(*OnCollision)(struct Game* game, struct GameLevel* level, ecs_entity_t entity, ecs_entity_t collide);
 } C_Behaviour;
 
 /* Permite que la entidad tenga colisión en el mundo. */

@@ -27,6 +27,8 @@ typedef struct GameConfig{
 	unsigned int useEscapeToExit;
 	// colo de fondo de la pantalla del juego
 	Color colorBackground;
+	// Determina si se hace un debug de las colisiones y otras cosas.
+	unsigned int activeDebug;
 } GameConfig;
 
 /**
@@ -148,8 +150,34 @@ int LoadTilsetsPack(Game* game, const char* filename, const char* name);
 int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name);
 
 /**
+* Comprueba si el nivel ya ha sido agregado.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] name Nombre de la escena a comprobar.
+* 
+* @return Retorna 1 si el nivel ya existe, caso contrario, retorna 0.
+*/
+int CheckLevel(Game* game, const char* name);
+
+/**
+* Carga un nuevo nivel, reemplazando al que se encuentra en la parte más alta del stack.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] filename Nombre del archivo tmx de donde se extraerá la capa de objetos.
+* @param[in] name Nombre de la escena.
+* @param[in] keepInMemory Indica si la escena se quedará cargada en memoria.
+* @param[in] renderInStack Indica si el nivel se sigue renderizando cuando se estaquea un nuevo nivel.
+* @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
+* @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
+* 
+* @return Retorna GameLevel si la carga ha tenido éxito, caso contrario, retorna 0.
+*/
+int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+
+/**
 * Carga una capa de objectos desde tiled como nivel.
 *
+* @param[in] game Puntero a la instancia del juego.
 * @param[in] filename Nombre del archivo tmx de donde se extraerá la capa de objetos.
 * @param[in] name Nombre de la escena.
 * @param[in] keepInMemory Indica si la escena se quedará cargada en memoria.
@@ -157,9 +185,9 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 * @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
 * @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
 *
-* @return Retorna GameLevel si la carga ha tenido éxito, caso contrario, retorna NULL.
+* @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
 */
-GameLevel* LoadLevel(const char* filename, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+int LoadLevelF(Game* game, const char* filename, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
 
 /**
 * Agrega un nivel a la escena.
@@ -171,7 +199,7 @@ GameLevel* LoadLevel(const char* filename, const char* name, unsigned int keepIn
 * @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
 * @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
 */
-void PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
 
 /**
 * Agrega un nivel guardado en memoria al stack de niveles.
@@ -182,6 +210,16 @@ void PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned
 * @return Retorna 1 si encuentra y agrega el nivel, caso contrario, retorna 0.
 */
 int PushMemoryLevel(Game* game, const char* name);
+
+/**
+* Agrega un nivel al stack de cache.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] level Nivel a agregar.
+* 
+* @return Retorna 1 si la operación se completa con éxito, caso contrario, retorna 0.
+*/
+int AddLevelToCacheStack(Game* game, GameLevel* level);
 
 /**
 * Quita el último nivel agregado en el stack.
@@ -225,7 +263,13 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 * @param[in] level Nivel en el que se encuentra la entidad.
 * @param[in] entity Entidad a la que se le agregará el componente.
 */
-int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity);
+int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity,
+	void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity),
+	void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity),
+	void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity),
+	void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity),
+	void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide)
+);
 
 // Temporal
 int AddLevel(struct Game* game, const char* name,

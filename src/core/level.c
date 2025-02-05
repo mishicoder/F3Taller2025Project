@@ -5,7 +5,7 @@ ecs_entity_t ecs_id(C_Info);
 GameLevel* CreateLevel(const char* name, unsigned int keepInMemory,
 	unsigned int renderInStack,
 	unsigned int updateInStack,
-	void(*Run)(struct Game* game, struct GameLevel* level)
+	void(*Load)(struct Game* game, struct GameLevel* level)
 )
 {
 	GameLevel* level = (GameLevel*)malloc(sizeof(GameLevel));
@@ -23,7 +23,7 @@ GameLevel* CreateLevel(const char* name, unsigned int keepInMemory,
 		return NULL;
 	}
 
-	level->name = _strdup(name);
+	level->name = name;
 	if (level->name == NULL)
 	{
 		printf("Error al asignar memoria para el nombre del nivel %s.\n", name);
@@ -35,7 +35,7 @@ GameLevel* CreateLevel(const char* name, unsigned int keepInMemory,
 	level->renderInStack = renderInStack;
 	level->updateInStack = updateInStack;
 	level->isComponentsAdded = 0;
-	level->Run = Run;
+	level->Load = Load;
 
 	return level;
 }
@@ -44,7 +44,7 @@ void UnloadLevel(GameLevel* level)
 {
 	if (level == NULL) return;
 
-	free(level->name);
+	//free(level->name);
 	level->name = NULL;
 	ecs_fini(level->world);
 	free(level);

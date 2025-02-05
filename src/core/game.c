@@ -58,11 +58,13 @@ void RunGame(Game* game)
 				if(i != game->currentLevel)
 				{
 					if (game->levelStack[i]->renderInStack)
-						game->levelStack[i]->Run(game, game->levelStack[i]);
+						if(game->levelStack[i]->Load != NULL)
+							game->levelStack[i]->Load(game, game->levelStack[i]);
 				}
 				else
 				{
-					game->levelStack[i]->Run(game, game->levelStack[i]);
+					if (game->levelStack[i]->Load != NULL)
+						game->levelStack[i]->Load(game, game->levelStack[i]);
 				}
 			}
 		}
@@ -306,6 +308,173 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 	return 1;
 }
 
+int CheckLevel(Game* game, const char* name)
+{
+	for (int i = 0; i < game->levelCacheCount; i++)
+	{
+		int cmp = strcmp(game->levelCache[i]->name, name);
+		if (cmp == 0) return 1;
+	}
+
+	for (int i = 0; i < game->levelStackCount; i++)
+	{
+		int cmp = strcmp(game->levelStack[i]->name, name);
+		if (cmp == 0) return 1;
+	}
+
+	return 0;
+}
+
+int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
+{
+	if (CheckLevel(game, name) == 1) return 0;
+
+	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, OnLoad);
+	if (level == NULL) return 0;
+
+	if (game->levelStack[game->currentLevel]->keepInMemory == 1)
+	{
+		if (AddLevelToCacheStack(game, game->levelStack[game->currentLevel]) == 1)
+		{
+			game->levelStack[game->currentLevel] = NULL;
+			game->levelStack[game->currentLevel] = level;
+			return 1;
+		}
+	}
+	else
+	{
+		UnloadLevel(game->levelStack[game->currentLevel]);
+		game->levelStack[game->currentLevel] = NULL;
+		game->levelStack[game->currentLevel] = level;
+		return 1;
+	}
+
+	return 0;
+}
+
+int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
+{
+	if (CheckLevel(game, name) == 1) return 0;
+
+	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, OnLoad);
+	if (level == NULL) return 0;
+
+	GameLevel** levelsMemTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
+	if (levelsMemTemp == NULL)
+	{
+		UnloadLevel(level);
+		return 0;
+	}
+
+	game->levelStack = levelsMemTemp;
+	game->levelStack[game->levelStackCount] = level;
+	game->currentLevel = game->levelStackCount;
+	game->levelStackCount += 1;
+
+	if (level->Load != NULL) level->Load(game, level);
+
+	return 1;
+}
+
+int PushMemoryLevel(Game* game, const char* name)
+{
+	if (game->levelCacheCount <= 0) return 0;
+	if (game->levelCache == NULL) return 0;
+
+	int result = -1;
+	
+	GameLevel** cacheMemTemp = NULL;
+	if(game->levelCacheCount > 1)
+	{
+		printf("DEBUG n\n");
+		cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
+		if (cacheMemTemp == NULL) return 0;
+	}
+
+	int indexToRemove = -1;
+	for (int i = 0; i < game->levelCacheCount; i++)
+	{	
+		result = strcmp(game->levelCache[i]->name, name);
+		printf("NOMBRE DE LA ESCENA PARA PRUEBAS: %s ? %s | result: %d | index: %d\n", game->levelCache[i]->name, name, result, i);
+		if (result == 0)
+		{
+			// hacer el push
+			GameLevel** levelsMempTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
+			if (levelsMempTemp == NULL) return 0;
+
+			game->levelStack = levelsMempTemp;
+			game->levelStack[game->levelStackCount] = game->levelCache[i];
+			game->currentLevel = game->levelStackCount;
+			game->levelStackCount += 1;
+
+			indexToRemove = i;
+			break;
+		}
+	}
+
+	if(result != -1)
+	{
+		if (indexToRemove != -1 && cacheMemTemp != NULL)
+		{
+			game->levelCache[indexToRemove] = NULL;
+			for (int i = indexToRemove; i < game->levelCacheCount; i++)
+			{
+				game->levelCache[i] = game->levelCache[i + 1];
+				game->levelCache[i + 1] = NULL;
+			}
+
+			game->levelCache = cacheMemTemp;
+			game->levelCacheCount -= 1;
+
+			return 1;
+		}
+		else
+		{
+			game->levelCache[0] = NULL;
+			game->levelCacheCount = 0;
+			free(game->levelCache);
+			game->levelCache = NULL;
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+int AddLevelToCacheStack(Game* game, GameLevel* level)
+{
+	if (level == NULL) return;
+
+	GameLevel** memTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount + 1) * sizeof(GameLevel*));
+	if (memTemp == NULL) return 0;
+
+	game->levelCache = memTemp;
+	game->levelCache[game->levelCacheCount] = level;
+	game->levelCacheCount += 1;
+
+	return 1;
+}
+
+int PopLevel(Game* game)
+{
+	if (game->levelStackCount <= 0) return 0;
+
+	GameLevel** levelStackMemTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount - 1) * sizeof(GameLevel*));
+	if (levelStackMemTemp == NULL) return 0;
+
+	if (AddLevelToCacheStack(game, game->levelStack[game->levelStackCount - 1]) == 1)
+	{
+		game->levelStack[game->levelStackCount - 1] = NULL;
+		game->levelStack = levelStackMemTemp;
+		game->currentLevel = game->levelStackCount;
+		game->levelStackCount -= 1;
+		
+	}
+
+	return 0;
+}
+
 /*int LoadLevel(Game* game, const char* filename)
 {
 	// si no se puede abrir el archivo, se retorna cero.
@@ -378,36 +547,40 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	ECS_COMPONENT(level->world, C_Tree);
 	ECS_COMPONENT(level->world, C_Ore);
 
-	if (strcmp(component, C_CAMERA_2D_ID))
+	if (strcmp(component, C_CAMERA_2D_ID) == 0)
 	{
 		if (ecs_has(level->world, entity, C_Camera2D)) return 0;
 
-		char* token = strtok(cdata, ",");
+		char* data = strdup(cdata);
+		char* context = NULL;
+
+		char* token = strtok_s(data, ",", &context);
 		// indica si la cámara es la principal
 		unsigned int isMain = atoi(token);
 		// offset de la cámara
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float offsetX = atof(token);
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float offsetY = atof(token);
 		// target al que apunta la camara
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float targetX = atof(token);
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float targetY = atof(token);
 		// rotation
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float rotation = atof(token);
 		// zoom
-		token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float zoom = atof(token);
 
 		ecs_add(level->world, entity, C_Camera2D);
 		ecs_set(level->world, entity, C_Camera2D, { isMain, offsetX, offsetY, targetX, targetY, rotation, zoom });
+		free(data);
 
 		return 1;
 	}
-	else if (strcmp(component, C_INFO_ID))
+	else if (strcmp(component, C_INFO_ID) == 0)
 	{
 		/*
 			en este caso no se comprueba si la entidad tiene el componente
@@ -415,59 +588,62 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			solo cambiamos sus datos
 		*/
 		// nombre
-		char* token = strtok(cdata, ",");
+		char* context = NULL;
+		char* token = strtok_s(cdata, ",", &context);
 		char* name = token;
 		// tag
-		char* token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		char* tag = token;
 
 		ecs_set(level->world, entity, C_Info, { name, tag });
 		return 1;
 	}
-	else if (strcmp(component, C_RENDER_LAYER_ID)) {}
-	else if (strcmp(component, C_TRANSFORM_ID)) 
+	else if (strcmp(component, C_RENDER_LAYER_ID) == 0) {}
+	else if (strcmp(component, C_TRANSFORM_ID) == 0) 
 	{
 		/*
 			en este caso no se comprueba si la entidad tiene el componente
 			ya que toda entidad se crear con este componente, así que
 			solo cambiamos sus datos
 		*/
+		char* context;
 		// position
-		char* token = strtok(cdata, ",");
+		char* token = strtok_s(cdata, ",", &context);
 		float posX = atof(token);
-		char* token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float posY = atof(token);
 		// scale
-		char* token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float scaleX = atof(token);
-		char* token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float scaleY = atof(token);
 		// rotation
-		char* token = strtok(NULL, ",");
+		token = strtok_s(NULL, ",", &context);
 		float rotation = atof(token);
 
 		ecs_set(level->world, entity, C_Transform, { posX, posY, scaleX, scaleY, rotation });
 		return 1;
 
 	}
-	else if (strcmp(component, C_SPRITE_RENDER_ID)) {}
-	else if (strcmp(component, C_COLOR_ID)) {}
-	else if (strcmp(component, C_MAP_RENDER_ID)) {}
-	else if (strcmp(component, C_RECT_COLLIDER_ID)) {}
-	else if (strcmp(component, C_CIRCLE_COLLIDER_ID)) {}
-	else if (strcmp(component, C_DAY_CYCLE_ID)) {}
-	else if (strcmp(component, C_COLLECTOR_ID)) {}
-	else if (strcmp(component, C_DIALOG_ID)) 
+	else if (strcmp(component, C_SPRITE_RENDER_ID) == 0) {}
+	else if (strcmp(component, C_COLOR_ID) == 0) {}
+	else if (strcmp(component, C_MAP_RENDER_ID) == 0) {}
+	else if (strcmp(component, C_RECT_COLLIDER_ID) == 0) {}
+	else if (strcmp(component, C_CIRCLE_COLLIDER_ID) == 0) {}
+	else if (strcmp(component, C_DAY_CYCLE_ID) == 0) {}
+	else if (strcmp(component, C_COLLECTOR_ID) == 0) {}
+	else if (strcmp(component, C_DIALOG_ID) == 0) 
 	{
 		if (ecs_has(level->world, entity, C_Dialog)) return 0; // ya tiene el componente
 
-		char* token = strtok(cdata, "@");
+		char* context;
+		char* token = strtok_s(cdata, "@", &context);
 		int interactionCount = atoi(token);
 
 		char** dialogs = NULL;
 		int count = 0;
 
-		token = strtok(cdata, "@");
+		token = strtok_s(NULL, ",", &context);
 		while (token != NULL)
 		{
 			char** memTemp = (char**)realloc(dialogs, (size_t)(count + 1) * sizeof(char*));
@@ -477,7 +653,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			dialogs[count] = token;
 			count++;
 
-			token = strtok(NULL, "@");
+			token = strtok_s(NULL, ",", &context);
 		}
 
 		ecs_add(level->world, entity, C_Dialog);
@@ -485,21 +661,31 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 
 		return 1;
 	}
-	else if (strcmp(component, C_INVENTORY_ID)) {}
-	else if (strcmp(component, C_HOTBAR_ID)) {}
-	else if (strcmp(component, C_MOVEMENT_ID)) {}
-	else if (strcmp(component, C_PLAYER_STATS_ID)) {}
-	else if (strcmp(component, C_WORLD_ITEM_ID)) {}
-	else if (strcmp(component, C_BUILD_ID)) {}
-	else if (strcmp(component, C_BUILDER_ID)) {}
-	else if (strcmp(component, C_TRADER_ID)) {}
-	else if (strcmp(component, C_DROP_TABLE_ID)) {}
-	else if (strcmp(component, C_FARM_LAND_ID)) {}
-	else if (strcmp(component, C_CROP_ID)) {}
-	else if (strcmp(component, C_TREE_ID)) {}
-	else if (strcmp(component, C_ORE_ID)) {}
+	else if (strcmp(component, C_INVENTORY_ID) == 0) {}
+	else if (strcmp(component, C_HOTBAR_ID) == 0) {}
+	else if (strcmp(component, C_MOVEMENT_ID) == 0) {}
+	else if (strcmp(component, C_PLAYER_STATS_ID) == 0) {}
+	else if (strcmp(component, C_WORLD_ITEM_ID) == 0) {}
+	else if (strcmp(component, C_BUILD_ID) == 0) {}
+	else if (strcmp(component, C_BUILDER_ID) == 0) {}
+	else if (strcmp(component, C_TRADER_ID) == 0) {}
+	else if (strcmp(component, C_DROP_TABLE_ID) == 0) {}
+	else if (strcmp(component, C_FARM_LAND_ID) == 0) {}
+	else if (strcmp(component, C_CROP_ID) == 0) {}
+	else if (strcmp(component, C_TREE_ID) == 0) {}
+	else if (strcmp(component, C_ORE_ID) == 0) {}
 
 	return 0;
+}
+
+int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity, void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide))
+{
+	if (entity == 0) return 0;
+
+	ECS_COMPONENT(level->world, C_Behaviour);
+	ecs_set(level->world, entity, C_Behaviour, { OnCreate, OnInput, OnUpdate, OnDestroy, OnCollision });
+
+	return 1;
 }
 
 int AddLevel(Game* game,
@@ -530,6 +716,16 @@ int AddLevel(Game* game,
 
 void FreeGame(Game* game)
 {
+	if (game->levelCacheCount > 0)
+	{
+		for (int i = 0; i < game->levelCacheCount; i++)
+		{
+			UnloadLevel(game->levelCache[i]);
+		}
+		free(game->levelCache);
+		game->levelCache = NULL;
+	}
+
 	if (game->levelStackCount > 0)
 	{
 		for (int i = 0; i < game->levelStackCount; i++)

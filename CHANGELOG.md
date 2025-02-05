@@ -8,7 +8,16 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Añadido
 
-- v1.2 Se agrega la función `IntersectionRectangleRectangleCollisionImplementation` para evitar el tunelado (costo medio).
+- v1.2 Se agrega la función `AddEntityBehaviour` para agregar el componente de comportamiento a las entidades.
+- v1.2 Se agrega la función `AddComponentToEntity` para agregar un componente a una entidad usando literales.  
+- v1.2 Se agrega la función `PopLevel` para sacar del stack el último nivel agregado.   
+- v1.2 Se agrega la función `AddLevelToCacheStack` para guardar el nivel en memoria.   
+- v1.2 Se agrega la función `PushMemoryLevel` para agregar un nivel guardado en memoria al stack.   
+- v1.2 Se agrega la función `PushLevel` para agregar un nivel al stack.   
+- v1.2 Se agrega la función `LoadLevel` para cargar un nivel, reemplazando al actual.   
+- v1.2 Se agrega la propiedad `Load` al elemento `GameLevel` para que sea manejado por el usuario.   
+- v1.2 Se agrega la propiedad `activeDebug` a `GameConfig` para indicar si se quiere activar el debug de las colisiones y otros elementos.   
+- v1.2 Se agrega la función `IntersectionRectangleRectangleCollisionImplementation` para evitar el tunelado (costo medio).   
 - v1.2 Se agrega la función `IntersectionCircleRectCollisionImplementation` para evitar el tunelado (costo medio).   
 - v1.2 Se agrega la función `ResolveRectangleCircleCollision` para resolver colisiones entre rectángulos y círculos.   
 - v1.2 Se agrega la función `ResolveRectRectCollision` para resolver colisiones entre rectángulos.   
@@ -18,9 +27,14 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 - v1.2 Se agrega el component `C_CircleCollider` para manejar colisiones circulares.   
 - v1.2 Se agrega la función `CreateBlankEntity` para crear una entidad que solo tiene los componente `C_Info` y `C_Transform`.  
 
+### Obsoleto
+
+- v1.2 La función `AddLevel` queda obsoleta y será eliminada en la siguiente versión, ahora se usarán las funciones `PushLevel`, `PushMemoryLevel`, `LoadLevel` o `LoadLevelF`.  
+
 ### Eliminado
 
-- v1.2 Se elimina la función `DefineComponents` debido al método de gestión de componentes de Flecs.  
+- v1.2 Se elimina la función `Run` que se encarba de realizar la actualización y renderizado de objetos de forma manual.   
+- v1.2 Se elimina la función `DefineComponents` debido al método de gestión de componentes de Flecs.   
 
 ### Corregido
 
