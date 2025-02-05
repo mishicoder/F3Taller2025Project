@@ -306,19 +306,7 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 	return 1;
 }
 
-ecs_entity_t CreateBlankEntity(Game* game, GameLevel* level)
-{
-	//ECS_COMPONENT(game->levelStack[game->currentLevel], C_Info);
-	ECS_COMPONENT(game->levelStack[game->currentLevel], C_Transform);
-
-	ecs_entity_t ent = ecs_new(game->levelStack[game->currentLevel]);
-	ecs_add(level->world, ent, C_Transform);
-	ecs_set(level->world, ent, C_Transform, { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f });
-
-	return ent;
-}
-
-int LoadLevel(Game* game, const char* filename)
+/*int LoadLevel(Game* game, const char* filename)
 {
 	// si no se puede abrir el archivo, se retorna cero.
 	FILE* levelFile = fopen(filename, "r");
@@ -337,6 +325,180 @@ int LoadLevel(Game* game, const char* filename)
 	}
 
 	mxmlOptionsDelete(options);
+	return 0;
+}*/
+
+ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag)
+{
+	ECS_COMPONENT(level->world, C_Info);
+	ECS_COMPONENT(level->world, C_Transform);
+
+	struct ecs_entity_desc_t desc = { 0 };
+	desc.name = tag;
+
+	ecs_entity_t entity = ecs_entity_init(level->world, &desc);
+
+	// agregar los componentes base
+	ecs_add(level->world, entity, C_Info);
+	ecs_add(level->world, entity, C_Transform);
+
+	// establecer los datos de los componentes
+	ecs_set(level->world, entity, C_Info, { name, tag });
+	ecs_set(level->world, entity, C_Transform, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f});
+
+	return entity;
+}
+
+int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, const char* component, const char* cdata)
+{
+	ECS_COMPONENT(level->world, C_Camera2D);
+	ECS_COMPONENT(level->world, C_Info);
+	ECS_COMPONENT(level->world, C_RenderLayer);
+	ECS_COMPONENT(level->world, C_Transform);
+	ECS_COMPONENT(level->world, C_SpriteRender);
+	ECS_COMPONENT(level->world, C_Color);
+	ECS_COMPONENT(level->world, C_MapRender);
+	ECS_COMPONENT(level->world, C_RectCollider);
+	ECS_COMPONENT(level->world, C_CircleCollider);
+	ECS_COMPONENT(level->world, C_DayCicle);
+	ECS_COMPONENT(level->world, C_Collector);
+	ECS_COMPONENT(level->world, C_Dialog);
+	ECS_COMPONENT(level->world, C_Inventory);
+	ECS_COMPONENT(level->world, C_HotBar);
+	ECS_COMPONENT(level->world, C_Movement);
+	//ECS_COMPONENT(level->world, C_Action);
+	ECS_COMPONENT(level->world, C_PlayerStats);
+	ECS_COMPONENT(level->world, C_WorldItem);
+	ECS_COMPONENT(level->world, C_Build);
+	ECS_COMPONENT(level->world, C_Builder);
+	ECS_COMPONENT(level->world, C_Trader);
+	ECS_COMPONENT(level->world, C_DropTable);
+	ECS_COMPONENT(level->world, C_FarmLand);
+	ECS_COMPONENT(level->world, C_Crop);
+	ECS_COMPONENT(level->world, C_Tree);
+	ECS_COMPONENT(level->world, C_Ore);
+
+	if (strcmp(component, C_CAMERA_2D_ID))
+	{
+		if (ecs_has(level->world, entity, C_Camera2D)) return 0;
+
+		char* token = strtok(cdata, ",");
+		// indica si la cámara es la principal
+		unsigned int isMain = atoi(token);
+		// offset de la cámara
+		token = strtok(NULL, ",");
+		float offsetX = atof(token);
+		token = strtok(NULL, ",");
+		float offsetY = atof(token);
+		// target al que apunta la camara
+		token = strtok(NULL, ",");
+		float targetX = atof(token);
+		token = strtok(NULL, ",");
+		float targetY = atof(token);
+		// rotation
+		token = strtok(NULL, ",");
+		float rotation = atof(token);
+		// zoom
+		token = strtok(NULL, ",");
+		float zoom = atof(token);
+
+		ecs_add(level->world, entity, C_Camera2D);
+		ecs_set(level->world, entity, C_Camera2D, { isMain, offsetX, offsetY, targetX, targetY, rotation, zoom });
+
+		return 1;
+	}
+	else if (strcmp(component, C_INFO_ID))
+	{
+		/*
+			en este caso no se comprueba si la entidad tiene el componente
+			ya que toda entidad se crear con este componente, así que
+			solo cambiamos sus datos
+		*/
+		// nombre
+		char* token = strtok(cdata, ",");
+		char* name = token;
+		// tag
+		char* token = strtok(NULL, ",");
+		char* tag = token;
+
+		ecs_set(level->world, entity, C_Info, { name, tag });
+		return 1;
+	}
+	else if (strcmp(component, C_RENDER_LAYER_ID)) {}
+	else if (strcmp(component, C_TRANSFORM_ID)) 
+	{
+		/*
+			en este caso no se comprueba si la entidad tiene el componente
+			ya que toda entidad se crear con este componente, así que
+			solo cambiamos sus datos
+		*/
+		// position
+		char* token = strtok(cdata, ",");
+		float posX = atof(token);
+		char* token = strtok(NULL, ",");
+		float posY = atof(token);
+		// scale
+		char* token = strtok(NULL, ",");
+		float scaleX = atof(token);
+		char* token = strtok(NULL, ",");
+		float scaleY = atof(token);
+		// rotation
+		char* token = strtok(NULL, ",");
+		float rotation = atof(token);
+
+		ecs_set(level->world, entity, C_Transform, { posX, posY, scaleX, scaleY, rotation });
+		return 1;
+
+	}
+	else if (strcmp(component, C_SPRITE_RENDER_ID)) {}
+	else if (strcmp(component, C_COLOR_ID)) {}
+	else if (strcmp(component, C_MAP_RENDER_ID)) {}
+	else if (strcmp(component, C_RECT_COLLIDER_ID)) {}
+	else if (strcmp(component, C_CIRCLE_COLLIDER_ID)) {}
+	else if (strcmp(component, C_DAY_CYCLE_ID)) {}
+	else if (strcmp(component, C_COLLECTOR_ID)) {}
+	else if (strcmp(component, C_DIALOG_ID)) 
+	{
+		if (ecs_has(level->world, entity, C_Dialog)) return 0; // ya tiene el componente
+
+		char* token = strtok(cdata, "@");
+		int interactionCount = atoi(token);
+
+		char** dialogs = NULL;
+		int count = 0;
+
+		token = strtok(cdata, "@");
+		while (token != NULL)
+		{
+			char** memTemp = (char**)realloc(dialogs, (size_t)(count + 1) * sizeof(char*));
+			if (memTemp == NULL) return 0;
+
+			dialogs = memTemp;
+			dialogs[count] = token;
+			count++;
+
+			token = strtok(NULL, "@");
+		}
+
+		ecs_add(level->world, entity, C_Dialog);
+		ecs_set(level->world, entity, C_Dialog,{ dialogs, count, interactionCount });
+
+		return 1;
+	}
+	else if (strcmp(component, C_INVENTORY_ID)) {}
+	else if (strcmp(component, C_HOTBAR_ID)) {}
+	else if (strcmp(component, C_MOVEMENT_ID)) {}
+	else if (strcmp(component, C_PLAYER_STATS_ID)) {}
+	else if (strcmp(component, C_WORLD_ITEM_ID)) {}
+	else if (strcmp(component, C_BUILD_ID)) {}
+	else if (strcmp(component, C_BUILDER_ID)) {}
+	else if (strcmp(component, C_TRADER_ID)) {}
+	else if (strcmp(component, C_DROP_TABLE_ID)) {}
+	else if (strcmp(component, C_FARM_LAND_ID)) {}
+	else if (strcmp(component, C_CROP_ID)) {}
+	else if (strcmp(component, C_TREE_ID)) {}
+	else if (strcmp(component, C_ORE_ID)) {}
+
 	return 0;
 }
 

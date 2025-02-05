@@ -5,6 +5,35 @@
 #include <flecs.h>
 #include "gametypes.h"
 
+// definiciones útiles para la carga de entidades desde Tiled.
+#define C_INFO_ID            "info"
+#define C_CAMERA_2D_ID       "camera2d"
+#define C_RENDER_LAYER_ID    "layer"
+#define C_TRANSFORM_ID       "transform"
+#define C_SPRITE_RENDER_ID   "sprite"
+#define C_COLOR_ID           "color"
+#define C_MAP_RENDER_ID      "map"
+#define C_BEHAVIOUR_ID       "script"
+#define C_RECT_COLLIDER_ID	 "rect"
+#define C_CIRCLE_COLLIDER_ID "circle"
+#define C_DAY_CYCLE_ID       "daycycle"
+#define C_COLLECTOR_ID       "collector"
+#define C_DIALOG_ID          "dialog"
+#define C_INVENTORY_ID       "inventory"
+#define C_HOTBAR_ID          "hotbar"
+#define C_MOVEMENT_ID        "movement"
+#define C_ACTION_ID          "action"
+#define C_PLAYER_STATS_ID    "pstats"
+#define C_WORLD_ITEM_ID      "witem"
+#define C_BUILD_ID           "build"
+#define C_BUILDER_ID         "builder"
+#define C_TRADER_ID          "trader"
+#define C_DROP_TABLE_ID      "dtable"
+#define C_FARM_LAND_ID       "fland"
+#define C_CROP_ID            "crop"
+#define C_TREE_ID            "tree"
+#define C_ORE_ID             "ore"
+
 struct Game;
 struct Level;
 
@@ -99,9 +128,13 @@ typedef struct C_MapRender
 /* En desarrollo */
 typedef struct C_Behaviour
 {
-	void(*OnInput)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	// Comportamiento general
 	void(*OnCreate)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	void(*OnInput)(struct Game* game, struct Level* level, ecs_entity_t entity);
 	void(*OnUpdate)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	void(*OnDestroy)(struct Game* game, struct Level* level, ecs_entity_t entity);
+	// Comportamiento para el tema de colisiones
+	void(*OnCollision)(struct Game* game, struct Level* level, ecs_entity_t entity, ecs_entity_t collide);
 } C_Behaviour;
 
 /* Permite que la entidad tenga colisión en el mundo. */
@@ -128,7 +161,7 @@ typedef struct C_CircleCollider {
 	float radius;
 	// Determina si el círculo de colisión es solido.
 	unsigned short isSolid;
-};
+}C_CircleCollider;
 
 /*********************************************************
 * componentes para eljuego
@@ -164,6 +197,8 @@ typedef struct C_Dialog
 {
 	// Diálogos en memoria
 	char** dialogs;
+	// Cantidad de diálogos cargados
+	unsigned int dialogCount;
 	// Maximo de interacciones que puede tener el npc
 	unsigned int maxInteractions;
 } C_Dialog;

@@ -24,7 +24,22 @@ float GClamp(float value, float min, float max);
 * @param[in] rect Rectángulo al cuál se le corregirá la posición.
 * @param[in] circle Círculo con el que se resolverá la colisión.
 */
-int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle);
+int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle, unsigned int isSolid);
+
+/**
+* Obtiene el punto más cercano del rectángulo al círculo.
+*/
+void GetClosestPoint(Rectangle rect, Circle circle, float* closestX, float* closestY);
+
+/**
+* Determina la intersección del objeto para evitar el tunelado (intersección).
+* 
+* @param[in] rect Rectángulo al cuál se le corregirá la posición.
+* @param[in] circle Círculo con el que se resolverá la colisión.
+* 
+* @return Retorna 1 si la colisión se da y se resuelve, caso contrario, retorna 0.
+*/
+int IntersectionCircleRectCollisionImplementation(Rectangle* rect, Circle circle);
 
 /**
 * Función para obtener el rectángulo de intersección entre dos rectángulos.
@@ -43,6 +58,16 @@ int GetCollisionRectangleRectangle(Rectangle a, Rectangle b, Rectangle* result);
 * @param[in] a Rectángulo al cuál se le corregirá la posición.
 * @param[in] b Rectángulo con el que se comprueba la colisión.
 */
-int ResolveRectRectCollision(Rectangle* a, Rectangle b);
+int ResolveRectRectCollision(Rectangle* a, Rectangle b, unsigned int isSolid);
+
+/**
+* Determina la intersección de un rectángulo en un rectángulo para evitar el tunelado.
+* 
+* @param[in] a Rectángulo al que se le corrige el tunelado.
+* @param[in] b Rectángulo que simula el obstáculo que el objeto no puede atravesar.
+* 
+* @return Retorna 1 si se da la colisión, caso contrario, retorna 0.
+*/
+int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b);
 
 #endif // !UTILITIES_H

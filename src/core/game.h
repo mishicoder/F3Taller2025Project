@@ -148,27 +148,86 @@ int LoadTilsetsPack(Game* game, const char* filename, const char* name);
 int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name);
 
 /**
-* Crea un entidad en blanco, solo tendrá el componente "C_Transform".
+* Carga una capa de objectos desde tiled como nivel.
+*
+* @param[in] filename Nombre del archivo tmx de donde se extraerá la capa de objetos.
+* @param[in] name Nombre de la escena.
+* @param[in] keepInMemory Indica si la escena se quedará cargada en memoria.
+* @param[in] renderInStack Indica si el nivel se sigue renderizando cuando se estaquea un nuevo nivel.
+* @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
+* @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
+*
+* @return Retorna GameLevel si la carga ha tenido éxito, caso contrario, retorna NULL.
+*/
+GameLevel* LoadLevel(const char* filename, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+
+/**
+* Agrega un nivel a la escena.
 * 
+* @param[in] game Referencia a la instancia del juego.
+* @param[in] name Nombre del nivel.
+* @param[in] keepInMemory Indica si la escena se quedará cargada en memoria.
+* @param[in] renderInStack Indica si el nivel se sigue renderizando cuando se estaquea un nuevo nivel.
+* @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
+* @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
+*/
+void PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+
+/**
+* Agrega un nivel guardado en memoria al stack de niveles.
+* 
+* @param[in] game Referencia a la instancia del juego.
+* @param[in] name Nombre del nivel.
+* 
+* @return Retorna 1 si encuentra y agrega el nivel, caso contrario, retorna 0.
+*/
+int PushMemoryLevel(Game* game, const char* name);
+
+/**
+* Quita el último nivel agregado en el stack.
+* 
+* @param[in] game Referencia a la instancia del juego.
+* 
+* @return Retorna 1 si la operación resulta exitosa, caso contrario, retorna 0.
+*/
+int PopLevel(Game* game);
+
+/**
+* Crea un entidad en blanco, solo tendrá el componente "C_Transform".
+*
 * @param[in] game Puntero a la instancia del juego que contiene el nivel donde se agregará la entidad.
 * @param[in] level Puntero al nivel donde se agregará la entidad.
 * @param[in] name Nombre de la entidad.
 * @param[in] tag Etiqueta de la entidad (si no se quiere añadir etiqueta el valor debe ser NULL).
-* 
-* @return Retorna ecs_entity_t.
+*
+* @return Retorna ecs_entity_t cuando se crear correctamente la entidad, caso contrario, retorna 0.
 */
 ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
 
 /**
-* Funcion para cargar un nivel en el juego a traves de un archivo.
+* Agrega un componente a una entidad cargada en base a cadenas de texto.
+* El componente "C_Behaviour" no funciona en esta función, para ello se debe usar
+* la función "AddEntityBehaviour"
 * 
-* @param[in] game Referencia en memoria de la instancia del juego.
-* @param[in] filename Ruta del archivo del nivel que se cargará.
+* @param[in] game Referencia a la instancia del juego.
+* @param[in] level Referencia al nivel.
+* @param[in] entity Entidad a la que se le agregará el componente
+* @param[in] component Componente a agregar.
+* @param[in] cdata Datos del componente.
 * 
-* @return Retorna 1 si el nivel se ha logrado cargar, caso contrario, 0.
+* @return Retorna 1 si el componente se agregó de forma exitosa, caso contrario, retorna 0.
 */
-int LoadLevel(struct Game* game, const char* filename);
+int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, const char* component, const char* cdata);
 
+/**
+* Agrega el componente "C_Behaviour" a la entidad.
+* 
+* @param[in] level Nivel en el que se encuentra la entidad.
+* @param[in] entity Entidad a la que se le agregará el componente.
+*/
+int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity);
+
+// Temporal
 int AddLevel(struct Game* game, const char* name,
 	unsigned int keepInMemory,
 	unsigned int renderInStack,

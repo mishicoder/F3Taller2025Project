@@ -5,7 +5,7 @@ float GClamp(float value, float min, float max)
 	return (value < min) ? min : (value > max) ? max : value;
 }
 
-int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle)
+int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle, unsigned int isSolid)
 {
 	// 1. Encontrar el punto más cercano del rectángulo al círculo
 	float closestX = GClamp(circle.centerX, rect->x, rect->x + rect->width);
@@ -19,6 +19,8 @@ int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle)
 
 	// 3. Si hay colisión (distancia menor que el radio del círculo)
 	if (distanceSquared < radiusSquared) {
+		if (isSolid == 0) return 1;
+
 		float distance = sqrt(distanceSquared);
 
 		// Si la distancia es 0 (el rectángulo está en el centro del círculo), moverlo arbitrariamente
@@ -43,6 +45,36 @@ int ResolveRectangleCircleCollision(Rectangle* rect, Circle circle)
 	return 0;
 }
 
+void GetClosestPoint(Rectangle rect, Circle circle, float* closestX, float* closestY)
+{
+	*closestX = fmaxf(rect.x, fminf(circle.centerX, rect.x + rect.width));
+	*closestY = fmaxf(rect.y, fminf(circle.centerY, rect.y + rect.height));
+}
+
+int IntersectionCircleRectCollisionImplementation(Rectangle* rect, Circle circle)
+{
+	float closestX, closestY;
+	GetClosestPoint(*rect, circle, &closestX, &closestY);
+
+	float toCircleX = closestX - circle.centerX;
+	float toCircleY = closestY - circle.centerY;
+	float distSq = toCircleX * toCircleX + toCircleY * toCircleY;
+	float radiusSq = circle.radius * circle.radius;
+
+	if (distSq < radiusSq) { // Hay colisión
+		float dist = sqrtf(distSq);
+		if (dist == 0) return; // Evita divisiones por cero
+
+		float normalX = toCircleX / dist;
+		float normalY = toCircleY / dist;
+		float overlap = circle.radius - dist;
+
+		// Mueve el rectángulo hacia afuera del círculo
+		rect->x += normalX * overlap;
+		rect->y += normalY * overlap;
+	}
+}
+
 int GetCollisionRectangleRectangle(Rectangle a, Rectangle b, Rectangle* result)
 {
 	float intersectX = (a.x > b.x) ? a.x : b.x;
@@ -61,11 +93,13 @@ int GetCollisionRectangleRectangle(Rectangle a, Rectangle b, Rectangle* result)
 	return 0; // No hay colisión
 }
 
-int ResolveRectRectCollision(Rectangle* a, Rectangle b)
+int ResolveRectRectCollision(Rectangle* a, Rectangle b, unsigned int isSolid)
 {
 	Rectangle collisionRect;
 
 	if (GetCollisionRectangleRectangle(*a, b, &collisionRect)) {
+		if (isSolid == 0) return 1;
+
 		float overlapX = (a->x + a->width) - b.x;
 		float overlapY = (a->y + a->height) - b.y;
 
@@ -94,4 +128,74 @@ int ResolveRectRectCollision(Rectangle* a, Rectangle b)
 	}
 
 	return 0;
+}
+
+int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b)
+{
+	if (a->x < b.x + b.width &&
+		a->x + a->width > b.x &&
+		a->y < b.y + b.height &&
+		a->y + a->height > b.y)
+	{
+		float overlapLeft = (a->x + a->width) - b.x;
+		float overlapRight = (b.x + b.width) - a->x;
+		float overlapTop = (a->y + a->height) - b.y;
+		float overlapBottom = (b.y + b.height) - a->y;
+
+		float minOverlap = fminf(fminf(overlapLeft, overlapRight), fminf(overlapTop, overlapBottom));
+
+		if (minOverlap == overlapLeft)
+			a->x -= overlapLeft;
+		else if (minOverlap == overlapRight)
+			a->x += overlapRight;
+		else if (minOverlap == overlapTop)
+			a->y -= overlapTop;
+		else if (minOverlap == overlapBottom)
+			a->y += overlapBottom;
+
+		return 1;
+	}
+
+	return 0;
+}
+
+void TOIRectRect(Rectangle* object, Rectangle obstacle, float velX, float velY, float dt)
+{
+	float entryTime = 0.0f;
+	float exitTime = 1.0f;
+
+	float dx = velX * dt;
+	float dy = velY * dt;
+
+	if (dx != 0)
+	{
+		float invDx = 1.0f / dx;
+		float tx1 = (obstacle.x - (object->x + object->width)) * invDx;
+		float tx2 = ((obstacle.x + obstacle.width) - object->x) * invDx;
+		if (tx1 > tx2) { float tmp = tx1; tx1 = tx2; tx2 = tmp; }
+		entryTime = fmaxf(entryTime, tx1);
+		exitTime = fminf(exitTime, tx2);
+	}
+
+	if (dy != 0)
+	{
+		float invDy = 1.0f / dy;
+		float ty1 = (obstacle.y - (object->y + object->height)) * invDy;
+		float ty2 = ((obstacle.y + obstacle.height) - object->y) * invDy;
+		if (ty1 > ty2) { float tmp = ty1; ty1 = ty2; ty2 = tmp; }
+		entryTime = fmaxf(entryTime, ty1);
+		exitTime = fminf(exitTime, ty2);
+	}
+
+	if (entryTime < exitTime && entryTime >= 0.0f && entryTime <= 1.0f)
+	{
+		float impactTime = entryTime * dt;
+		object->x += velX * impactTime;
+		object->y += velY * impactTime;
+	}
+	else
+	{
+		object->x += dx;
+		object->y += dy;
+	}
 }

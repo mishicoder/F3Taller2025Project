@@ -8,7 +8,10 @@ El formato se basa (en su mayor parte) en [Keep a Changelog](https://keepachange
 
 ### Añadido
 
-- v1.2 Se agrega la función `ResolveRectRectCollision` para resolver la conlisión entre dos rectángulos sólidos.   
+- v1.2 Se agrega la función `IntersectionRectangleRectangleCollisionImplementation` para evitar el tunelado (costo medio).
+- v1.2 Se agrega la función `IntersectionCircleRectCollisionImplementation` para evitar el tunelado (costo medio).   
+- v1.2 Se agrega la función `ResolveRectangleCircleCollision` para resolver colisiones entre rectángulos y círculos.   
+- v1.2 Se agrega la función `ResolveRectRectCollision` para resolver colisiones entre rectángulos.   
 - v1.2 Se agrega la función `GetCollisionRectangleRectangle` para encontrar el rectángulo de intersección entre dos rectángulos.   
 - v1.2 Se agrega la propiedad `isSolid` a los componentes de colisión.   
 - v1.2 Se agrega la función `LoadResources` como propiedad a la estructura `Game`.   

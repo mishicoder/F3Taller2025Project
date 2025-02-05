@@ -30,28 +30,54 @@ typedef struct GameLevel
 	void(*Run)(struct Game* game, struct GameLevel* level);
 
 	/**
-	* Funcion que se ejecuta cuando la escena es cargada (punto para agregar entidades o cargar datos).
+	* Se ejecuta cuando la escena es cargada (punto para agregar entidades o cargar datos).
 	* 
 	* @param[in] game Referencia de memoria de la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
 	*/
-	void(*OnLoad)(struct Game* game, struct GameLevel* level);
+	void(*Load)(struct Game* game, struct GameLevel* level);
 
 	/**
-	* Funcion que se actualiza en cada frame del juego.
+	* Se actualiza en cada frame del juego (controla los sistema de control de entrada,
+	* actualización de componentes y resolución de físicas.
 	* 
 	* @param[in] game Referencia de memoria de la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
 	*/
-	void(*OnUpdate)(struct Game* game, struct GameLevel* level);
+	void(*Update)(struct Game* game, struct GameLevel* level);
 
 	/**
-	* Funcion que se ejecuta cuando se des-cargar el nivel.
+	* Se encarga de renderizar las entidades que poseen componentes gráficos, las ordena por orden de posición
+	* y por capas de renderizado.
+	* 
+	* @param[in] game Referencia a la instancia de juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
+	void(*Render)(struct Game* gane, struct GameLevel* level);
+
+	/**
+	* Se encarga de renderizar los elementos de interfáz gráfica.
+	* 
+	* @param[in] game Referencia a la instancia del juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
+	void(*RenderUI)();
+
+	/**
+	* Se encarga de eliminar la memoria del nivel.
 	*
 	* @param[in] game Referencia de memoria de la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
 	*/
 	void(*OnUnload)(struct Game* game, struct GameLevel* level);
+
+	/**
+	* Se encarga de renderizar las cajas de colisión y otros elementos para el sistema debug.
+	* 
+	* @param[in] game Referencia a la instancia del juego.
+	* @param[in] level Referencia al nivel actual.
+	*/
+	void(*RenderDebug)(struct Game* game, struct GameLevel* level);
 } GameLevel;
 
 /**
