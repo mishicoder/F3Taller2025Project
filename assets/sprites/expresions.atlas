@@ -1,0 +1,17 @@
+# Sprites para las expresiones tanto del jugador
+# como de los NPC'S
+
+sprite=expresion_happy[0,0,16,16
+sprite=expresion_confused[16,0,16,16
+sprite=expresion_sad[32,0,16,16
+sprite=expresion_angry[48,0,16,16
+
+sprite=expresion_discomfort[0,16,16,16
+sprite=expresion_concerned[16,16,16,16
+sprite=expresion_attack[32,16,16,16
+sprite=expresion_love[48,16,16,16
+
+sprite=expresion_stunned[0,32,16,16
+sprite=expresion_alert[16,32,16,16
+sprite=expresion_questioning[32,32,16,16
+sprite=expresion_speaking[48,32,16,16

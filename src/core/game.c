@@ -1,4 +1,4 @@
-#include "game.h"
+ï»¿#include "game.h"
 
 void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* game))
 {
@@ -96,7 +96,7 @@ int LoadSprite(Game* game, const char* textureFilename, const char* name)
 	TextureResult result = AddTexture(&game->resourcesManager, textureFilename);
 	if (result.status == -1) return 0;
 
-	Sprite* sprite = CreateSprite(name, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2) { result.textureWidth/2.0f, result.textureHeight/2.0f }, 0);
+	Sprite* sprite = CreateSprite(strdup(name), result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2) { result.textureWidth/2.0f, result.textureHeight/2.0f }, 0);
 	if (!sprite) return 0;
 
 	AddSprite(&game->resourcesManager, sprite);
@@ -108,10 +108,12 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 	FILE* file = fopen(dataFilename, "r");
 	if (file == NULL) return 0;
 
+	// load texture
 	TextureResult result = AddTexture(&game->resourcesManager, textureFilename);
 	if (result.status == -1)
 	{
 		fclose(file);
+		printf("ERROR WE\n");
 		return 0;
 	}
 
@@ -141,7 +143,10 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 				{
 					if (strcmp(key, "data") == 0)
 					{
+						// obtener el nombre y los nï¿½meros
 						char* spriteName = strtok(value, "@");
+						char* sName = strdup(spriteName);
+						printf("SPRITE NAME ANTES: %s\n", spriteName);
 						char* spriteData = strtok(NULL, "@");
 						if (spriteName != NULL && spriteData != NULL)
 						{
@@ -152,16 +157,22 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 								int sliceX = atoi(sxStr);
 								int sliceY = atoi(syStr);
 
-								sprite = CreateSprite(spriteName, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2){ result.textureWidth/2.0f, result.textureHeight/2.0f }, (sliceX * sliceY));
+								sprite = CreateSprite(sName, result.textureIndex, 0, 0, result.textureWidth, result.textureHeight, (Vector2){0.0f, 0.0f}, (sliceX * sliceY));
 								if (sprite != NULL)
 								{
+									// crear los frames
 									int frameWidth = result.textureWidth / sliceX;
 									int frameHeight = result.textureHeight / sliceY;
+									sprite->width = frameWidth;
+									sprite->height = frameHeight;
+									//int currentFrame = 0;
 									for (int i = 0; i < sliceY; i++)
 									{
 										for (int j = 0; j < sliceX; j++)
 										{
 											AddSpriteFrame(sprite, frameWidth * j, frameHeight * i, frameWidth, frameHeight);
+											//printf("FRAME AGREGADO %d: %d, %d, %d, %d\n", currentFrame, frameWidth * j, frameHeight * i, frameWidth, frameHeight);
+											//currentFrame++;
 										}
 									}
 								}
@@ -169,22 +180,22 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 						}
 					}
 
-					// animaciones
-					if (strcmp(key, "anik") == 0)
+					// animations
+					if (strcmp(key, "anim") == 0)
 					{
-						char* animationName = strtok(value, "@");
-						char* animationData = strtok(NULL, "@");
-						if (animationName != NULL && animationData != NULL)
+						char* animName = strtok(value, "@");
+						char* animData = strtok(NULL, "@");
+						if (animName != NULL && animData != NULL)
 						{
-							int animationOptions[4] = { 0, 0, 0, 0 };
+							int animOptions[4] = { 0,0,0,0 };
 							int index = 0;
 							char* token;
-							char* context = NULL; // hace feliz a visual studio
+							char* context = NULL;
 
-							token = strtok_s(animationData, ",", &context);
+							token = strtok_s(animData, ",", &context);
 							while (token != NULL)
 							{
-								animationOptions[index] = atoi(token);
+								animOptions[index] = atoi(token);
 								index++;
 								token = strtok_s(NULL, ",", &context);
 							}
@@ -192,12 +203,13 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 							{
 								AddSpriteAnimation(
 									sprite,
-									animationName,
-									animationOptions[0],
-									animationOptions[1],
-									animationOptions[2],
-									animationOptions[3]
+									animName,
+									animOptions[0],
+									animOptions[1],
+									animOptions[2],
+									animOptions[3]
 								);
+								//printf("Animacion <%s> cargada\n", animName);
 							}
 						}
 					}
@@ -209,7 +221,10 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 	}
 
 	if (sprite != NULL)
+	{
 		AddSprite(&game->resourcesManager, sprite);
+		printf("Sprite <%s> agregado\n", sprite->name);
+	}
 
 	return 1;
 }
@@ -246,6 +261,7 @@ int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFil
 					if (strcmp(key, "sprite") == 0)
 					{
 						char* spriteName = strtok(value, "[");
+						char* sName = strdup(spriteName);
 						char* spriteCoords = strtok(NULL, "[");
 
 						if (spriteName != NULL && spriteCoords != NULL)
@@ -264,7 +280,7 @@ int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFil
 							}
 							// crear un nuevo sprite
 							Sprite* newSprite = CreateSprite(
-								spriteName,
+								sName,
 								result.textureIndex,
 								coords[0],
 								coords[1],
@@ -480,7 +496,7 @@ int LoadMemoryLevel(Game* game, const char* name)
 				return 1;
 			}
 
-			// hacemos redimensión de memoria.
+			// hacemos redimensiÃ³n de memoria.
 			GameLevel** cacheMemTemp = NULL;
 			if(game->levelCacheCount > 1)
 				cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
@@ -601,6 +617,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	ECS_COMPONENT(level->world, C_RenderLayer);
 	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_SpriteRender);
+	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_Color);
 	ECS_COMPONENT(level->world, C_MapRender);
 	ECS_COMPONENT(level->world, C_RectCollider);
@@ -622,6 +639,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	ECS_COMPONENT(level->world, C_Crop);
 	ECS_COMPONENT(level->world, C_Tree);
 	ECS_COMPONENT(level->world, C_Ore);
+	
 
 	if (strcmp(component, C_CAMERA_2D_ID) == 0)
 	{
@@ -631,9 +649,9 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		char* context = NULL;
 
 		char* token = strtok_s(data, ",", &context);
-		// indica si la cámara es la principal
+		// indica si la cÃ¡mara es la principal
 		unsigned int isMain = atoi(token);
-		// offset de la cámara
+		// offset de la cÃ¡mara
 		token = strtok_s(NULL, ",", &context);
 		float offsetX = atof(token);
 		token = strtok_s(NULL, ",", &context);
@@ -660,7 +678,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	{
 		/*
 			en este caso no se comprueba si la entidad tiene el componente
-			ya que toda entidad se crear con este componente, así que
+			ya que toda entidad se crear con este componente, asÃ­ que
 			solo cambiamos sus datos
 		*/
 		// nombre
@@ -692,7 +710,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	{
 		/*
 			en este caso no se comprueba si la entidad tiene el componente
-			ya que toda entidad se crear con este componente, así que
+			ya que toda entidad se crear con este componente, asÃ­ que
 			solo cambiamos sus datos
 		*/
 		char* data = strdup(cdata);
@@ -725,7 +743,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		char* context = NULL;
 		// name
 		char* token = strtok_s(data, ",", &context);
-		char* name = token;
+		char* name = strdup(token);
 		// visible
 		token = strtok_s(NULL, ",", &context);
 		int visible = atoi(token);
@@ -734,6 +752,18 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		float opacity = atof(token);
 
 		ecs_set(level->world, entity, C_SpriteRender, { name, visible, opacity });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_SPRITE_ANIMATION_ID) == 0)
+	{
+		if (ecs_has(level->world, entity, C_SpriteAnimation)) return 0;
+		char* data = strdup(cdata);
+
+		char* spriteName = strdup(data);
+
+		ecs_set(level->world, entity, C_SpriteAnimation, { spriteName, NULL, 0, 0, 0, 0 });
 
 		free(data);
 		return 1;
@@ -822,12 +852,16 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	return 0;
 }
 
-int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity, void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide))
+int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity, void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide))
 {
 	if (entity == 0) return 0;
 
 	ECS_COMPONENT(level->world, C_Behaviour);
 	ecs_set(level->world, entity, C_Behaviour, { OnCreate, OnInput, OnUpdate, OnDestroy, OnCollision });
+
+	C_Behaviour* comp = ecs_get(level->world, entity, C_Behaviour);
+	if (comp->OnCreate != NULL)
+		comp->OnCreate(game, level, entity);
 
 	return 1;
 }
@@ -856,6 +890,29 @@ int AddLevel(Game* game,
 	game->levelStackCount += 1;
 
 	return 1;
+}
+
+ecs_entity_t GetMainCamera(GameLevel* level)
+{
+	ECS_COMPONENT(level->world, C_Camera2D);
+
+	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {{ .id = ecs_id(C_Camera2D)}}
+	});
+
+	ecs_iter_t it = ecs_query_iter(level->world, query);
+	while (ecs_query_next(&it))
+	{
+		for(int i = 0; i < it.count; i++)
+		{
+			ecs_entity_t ent = it.entities[i];
+			C_Camera2D* comp = ecs_get(level->world, ent, C_Camera2D);
+			if (comp->isMain == 1)
+				return ent;
+		}
+	}
+
+	return 0;
 }
 
 void UpdateLevel(Game* game, GameLevel* level)
@@ -924,14 +981,34 @@ void RenderLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_Color);
 	ECS_COMPONENT(level->world, C_SpriteRender);
 	ECS_COMPONENT(level->world, C_MapRender);
+	ECS_COMPONENT(level->world, C_Camera2D);
+	ECS_COMPONENT(level->world, C_SpriteAnimation);
+
+	ecs_entity_t mainCamera = GetMainCamera(level);
+	if (mainCamera == 0)
+	{
+		DrawText("No hay camara principal para el renderizado.", 10, 10, 24, WHITE);
+		return;
+	}
 
 	/******************************************************************************
 	* RENDERIZADO DE ELEMENTOS
 	******************************************************************************/
+	C_Camera2D* cameraComponent = ecs_get(level->world, mainCamera, C_Camera2D);
+	C_Transform* cameraTransform = ecs_get(level->world, mainCamera, C_Transform);
+	Camera2D renderCamera = { 0 };
+	renderCamera.offset = (Vector2){ cameraComponent->offsetX, cameraComponent->offsetY };
+	renderCamera.target = (Vector2){ cameraTransform->positionX, cameraTransform->positionY };
+	renderCamera.rotation = cameraComponent->rotation;
+	renderCamera.zoom = cameraComponent->zoom;
+
+	BeginMode2D(renderCamera);
+
 	ecs_query_t* queryRender = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = {
-			{ .id = ecs_id(C_SpriteRender), .oper = EcsOr },
 			{ .id = ecs_id(C_MapRender), .oper = EcsOr },
+			{ .id = ecs_id(C_SpriteAnimation), .oper = EcsOr},
+			{ .id = ecs_id(C_SpriteRender), .oper = EcsOr },
 			{ .id = ecs_id(C_Color) }
 		}
 	});
@@ -942,10 +1019,41 @@ void RenderLevel(Game* game, GameLevel* level)
 		for (int i = 0; i < itRender.count; i++)
 		{
 			ecs_entity_t entity = itRender.entities[i];
+
 			C_Transform* transform = ecs_get(level->world, entity, C_Transform);
 			C_Color* color = ecs_get(level->world, entity, C_Color);
 			C_SpriteRender* spriteRender = ecs_get(level->world, entity, C_SpriteRender);
+			C_SpriteAnimation* spAnimation = ecs_get(level->world, entity, C_SpriteAnimation);
 			C_MapRender* mapRender = ecs_get(level->world, entity, C_MapRender);
+
+			
+			if (spAnimation != NULL)
+			{
+				Sprite* sprite = GetSprite(&game->resourcesManager, spAnimation->sprite);
+				if (sprite == NULL) 
+				{
+					continue;
+				}
+
+				Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
+
+				if (spAnimation->currentAnimation == NULL)
+				{
+					SpriteFrame* zeroFrame = GetSpriteFrame(sprite, 0);
+					DrawTexturePro(
+						tex,
+						(Rectangle) {
+						0, 0, zeroFrame->width, zeroFrame->height
+					},
+						(Rectangle) {
+						transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, zeroFrame->width* transform->scaleX, zeroFrame->height* transform->scaleY
+					},
+						sprite->origin,
+						transform->rotation,
+						color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
+					);
+				}
+			}
 
 			// Si renderiza un mapa
 			if (mapRender != NULL)
@@ -972,15 +1080,24 @@ void RenderLevel(Game* game, GameLevel* level)
 				DrawTexturePro(
 					tex,
 					(Rectangle) {sprite->x, sprite->y, sprite->width, sprite->height},
-					(Rectangle) { transform->positionX, transform->positionY, sprite->width* transform->scaleX, sprite->height* transform->scaleY
+					(Rectangle) { transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, sprite->width* transform->scaleX, sprite->height* transform->scaleY
 					},
 					sprite->origin,
 					transform->rotation,
 					color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
 				);
 			}
+			// Si se renderiza un sprite con animaciones
+			if (spriteRender != NULL && spAnimation != NULL)
+			{
+				continue;
+				printf("No\n");
+				
+			}
 		}
 	}
+
+	EndMode2D();
 }
 
 void MapRenderDestroyHook(void* ptr)

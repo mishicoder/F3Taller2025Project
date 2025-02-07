@@ -1,0 +1,50 @@
+data=player@15,19
+
+anim=attack@0,9,1,8
+anim=axe@15,24,0,8
+anim=carry@30,39,1,8
+anim=casting@45,59,0,8
+anim=caught@60,69,1,8
+anim=death@75,87,0,8
+anim=dig@90,102,0,8
+anim=doing@105,112,0,8
+anim=hurt@120,127,0,8
+anim=idle@135,143,1,8
+anim=jump@150,158,0,8
+anim=mining@165,174,0,8
+anim=reeling@180,192,1,8
+anim=roll@195,204,0,8
+anim=run@210,217,1,8
+anim=swimming@225,236,1,8
+anim=waiting@240,248,1,8
+anim=walking@255,262,1,8
+anim=watering@270,274,1,8
+
+@break
+# @break indica que el bucle de lectura se detenga
+# para player
+# los mismo indices son para el cabello y las herramientas
+# en el caso de las herramientas, el primer frame equivale a su idle
+# mayor dimension: 
+# 1 : ataque        : 10 -> indices:   0 -  14 -> anim:   0 - 9   X
+# 2 : acha          : 10 -> indices:  15 -  29 -> anim:  15 - 24  X
+# 3 : cargar        : 08 -> indices:  30 -  44 -> anim:  30 - 39  X
+# 4 : lanzar caña   : 15 -> indices:  45 -  59 -> anim:  45 - 59  X
+# 5 : mordio anzuelo: 10 -> indices:  60 -  74 -> anim:  60 - 69  X
+# 6 : muerte        : 13 -> indices:  75 -  89 -> anim:  75 - 87  X
+# 7 : cavar         : 13 -> indices:  90 - 104 -> anim:  90 - 102 X
+# 8 : hacer         : 08 -> indices: 105 - 119 -> anim: 105 - 112 X
+# 9 : daño          : 08 -> indices: 120 - 134 -> anim: 120 - 127 X
+# 10: reposo        : 09 -> indices: 135 - 149 -> anim: 135 - 143 X 
+# 11: salto         : 09 -> indices: 150 - 164 -> anim: 150 - 158 X
+# 12: minar         : 10 -> indices: 165 - 179 -> anim: 165 - 174 X
+# 13: pescando      : 13 -> indices: 180 - 194 -> anim: 180 - 192 X
+# 14: rodar         : 10 -> indices: 195 - 209 -> anim: 195 - 204 X
+# 15: correr        : 08 -> indices: 210 - 224 -> anim: 210 - 217 X
+# 16: nadar         : 12 -> indices: 225 - 239 -> anim: 225 - 236 X
+# 17: espera        : 09 -> indices: 240 - 254 -> anim: 240 - 248 X
+# 18: caminar       : 08 -> indices: 255 - 269 -> anim: 255 - 262 X
+# 19: regar         : 05 -> indices: 270 - 284 -> anim: 270 - 274 X
+
+# Solo para NPC'S
+# martillo: 32

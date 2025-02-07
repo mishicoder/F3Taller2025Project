@@ -52,8 +52,6 @@ int main()
 	SetGameWindowIcon(&game, "assets/game_icon.png");
 
 	PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
-	//AddLevel(&game, "test", 0, 0, 0, TL_Run);
-	//AddLevel(&game, "menu", 0, 0, 0, Menu_Run);
 
 	RunGame(&game);
 	FreeGame(&game);
@@ -64,6 +62,8 @@ int main()
 
 void LoadResources(Game* game)
 {
+	LoadSprite(game, "assets/game_icon.png", "icon");
+	LoadSpriteWithOptions(game, "assets/sprites/player.png", "assets/sprites/player.sprite");
 	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
 	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");
 }

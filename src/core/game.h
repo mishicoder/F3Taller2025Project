@@ -273,7 +273,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 * @param[in] level Nivel en el que se encuentra la entidad.
 * @param[in] entity Entidad a la que se le agregará el componente.
 */
-int AddEntityBehaviour(GameLevel* level, ecs_entity_t entity,
+int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity,
 	void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity),
 	void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity),
 	void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity),
@@ -288,6 +288,13 @@ int AddLevel(struct Game* game, const char* name,
 	unsigned int updateInStack,
 	void(*Run)(struct Game* game, struct GameLevel* level)
 );
+
+/**
+* Obtiene la cámara principal del nivel actual.
+* 
+* @param[in] level Puntero al nivel donde se buscará la cámara principal.
+*/
+ecs_entity_t GetMainCamera(GameLevel* level);
 
 /**
 * Actualiza todas las entidades del nivel.

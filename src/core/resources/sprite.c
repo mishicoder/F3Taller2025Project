@@ -139,7 +139,7 @@ Sprite* TreeSpriteSearch(SpriteNode* node, const char* name)
 
 void UnloadTreeSpriteNode(SpriteNode* node)
 {
-	if (node == NULL) 
+	if (node == NULL)
 	{
 		printf("El nodo es nulo, imposible eliminar\n");
 		return;
@@ -148,7 +148,7 @@ void UnloadTreeSpriteNode(SpriteNode* node)
 	// liberar sub-arboles
 	UnloadTreeSpriteNode(node->left);
 	UnloadTreeSpriteNode(node->right);
-	
+
 	// eliminar los frames
 	if (node->sprite->framesCount > 0)
 	{
@@ -163,12 +163,14 @@ void UnloadTreeSpriteNode(SpriteNode* node)
 	{
 		for (int i = 0; i < node->sprite->animationsCount; i++)
 		{
-			free(node->sprite->animations[i]->name);
+			//free(node->sprite->animations[i]->name);
 			node->sprite->animations[i]->name = NULL;
 			free(node->sprite->animations[i]);
 		}
 		free(node->sprite->animations);
 	}
+	if (node->sprite->name != NULL)
+		free(node->sprite->name);
 	free(node->sprite);
 	free(node);
 }
