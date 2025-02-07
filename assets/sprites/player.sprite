@@ -1,5 +1,15 @@
 data=player@15,19
 
+# anim es el identificador para una animacion
+# seguido del = para asignar los datos
+# antes del @ va el nombre de la animacion
+# despues del @ van los parametros separados por coma
+# los parametros son:
+# 1- desde que frame inicia la animacion
+# 2- hasta que frame finaliza la animacion
+# 3- determina si la animacion se ejecuta en loop (1 o 0)
+# 4- velocidad de la animacion
+
 anim=attack@0,9,1,8
 anim=axe@15,24,0,8
 anim=carry@30,39,1,8
