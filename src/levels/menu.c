@@ -29,8 +29,13 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	iconTransform->scaleY = 4.0f;
 	C_SpriteRender* iconSprite = ecs_get(level->world, icon, C_SpriteRender);
 	Sprite* sprite = GetSprite(&game->resourcesManager, iconSprite->spriteName);
-	if (ecs_has(level->world, icon, C_SpriteAnimation))
+	if (IsKeyReleased(KEY_P))
 	{
+		PlayAnimation(game, level, icon, "idle");
+	}
+	if (IsKeyReleased(KEY_O))
+	{
+		PlayAnimation(game, level, icon, "run");
 	}
 
 	C_Transform* cameraTransform = ecs_get(level->world, entity, C_Transform);

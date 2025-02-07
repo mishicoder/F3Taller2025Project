@@ -22,9 +22,10 @@ typedef struct GameConfig{
 	// determina si se usará pantalla completa
 	// al iniciar el juego
 	unsigned int windowFullscreen;
-	// determina si se quita el boton de escape como
-	// salida del juego
+	// determina si se quita el boton de escape como salida del juego.
 	unsigned int useEscapeToExit;
+	// limita los fps
+	unsigned int targetFPS;
 	// colo de fondo de la pantalla del juego
 	Color colorBackground;
 	// Determina si se hace un debug de las colisiones y otras cosas.
@@ -105,6 +106,16 @@ int LoadSprite(Game* game, const char* textureFilename, const char* name);
 * @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
 */
 int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* dataFilename);
+
+/**
+* Ejecuta la animación de una entidad que tenga el componente C_SpriteAnimation.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] level Puntero al nivel donde se encuentra la entidad.
+* @param[in] entity Entidad a la que modificar el componente.
+* @param[in] name Nombre de la animación.
+*/
+void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char* name);
 
 /**
 * Funcion para cargar varios sprites desde un archivo.

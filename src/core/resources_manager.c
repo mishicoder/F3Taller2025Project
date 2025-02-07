@@ -66,8 +66,11 @@ SpriteAnimation* GetSpriteAnimation(Sprite* sprite, const char* name)
 
 	for (int i = 0; i < sprite->animationsCount; i++)
 	{
-		if (strcmp(name, sprite->animations[i]->name) == 0)
-			return sprite->animations[i];
+		if(sprite->animations[i]->name != NULL)
+		{
+			if (strcmp(name, sprite->animations[i]->name) == 0)
+				return sprite->animations[i];
+		}
 	}
 
 	return NULL;

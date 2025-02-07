@@ -113,6 +113,8 @@ typedef struct C_SpriteAnimation
 {
 	const char* sprite;
 	char* currentAnimation;
+	int currentFrame;
+	int frameCounter;
 	int fromIndex;
 	int toIndex;
 	int loop;

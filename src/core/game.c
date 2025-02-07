@@ -9,6 +9,11 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 	InitWindow(game->config.windowWidth, game->config.windowHeight, game->config.windowTitle);
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetWindowMinSize(game->config.windowWidth, game->config.windowHeight);
+	printf("TARGET FPS: %d\n", config.targetFPS);
+	if (config.targetFPS == 0)
+		game->config.targetFPS = 60;
+
+	SetTargetFPS(game->config.targetFPS);
 
 	// verifica si el juego se puede cerrar con la tecla "Escape"
 	if (game->config.useEscapeToExit == 0)
@@ -203,7 +208,7 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 							{
 								AddSpriteAnimation(
 									sprite,
-									animName,
+									_strdup(animName),
 									animOptions[0],
 									animOptions[1],
 									animOptions[2],
@@ -227,6 +232,49 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 	}
 
 	return 1;
+}
+
+void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char* name)
+{
+	ECS_COMPONENT(level->world, C_SpriteAnimation);
+	ECS_COMPONENT(level->world, C_SpriteRender);
+
+	C_SpriteAnimation* animationComp = ecs_get(level->world, entity, C_SpriteAnimation);
+	C_SpriteRender* spriteComp = ecs_get(level->world, entity, C_SpriteRender);
+
+	if (spriteComp == NULL || animationComp == NULL) return;
+
+	Sprite* sprite = GetSprite(&game->resourcesManager, spriteComp->spriteName);
+	if (sprite == NULL) return;
+
+	SpriteAnimation* animation = GetSpriteAnimation(sprite, name);
+	if (animation == NULL) return;
+
+	if (animationComp->currentAnimation != NULL)
+	{
+		if (strcmp(animationComp->currentAnimation, name) == 0) return;
+
+		//free(animationComp->currentAnimation);
+		animationComp->currentAnimation = name;
+		animationComp->currentFrame = animation->fromIndex;
+		animationComp->fromIndex = animation->fromIndex;
+		animationComp->toIndex = animation->toIndex;
+		animationComp->loop = animation->loop;
+		animationComp->speed = animation->speed;
+		animationComp->frameCounter = 0;
+		printf("CURRENT ANIMATION: %s\n", animationComp->currentAnimation);
+	}
+	else
+	{
+		animationComp->currentAnimation = name;
+		animationComp->fromIndex = animation->fromIndex;
+		animationComp->currentFrame = animation->fromIndex;
+		animationComp->toIndex = animation->toIndex;
+		animationComp->loop = animation->loop;
+		animationComp->speed = animation->speed;
+		animationComp->frameCounter = 0;
+		printf("CURRENT ANIMATION: %s\n", animationComp->currentAnimation);
+	}
 }
 
 int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFilename)
@@ -763,7 +811,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 
 		char* spriteName = strdup(data);
 
-		ecs_set(level->world, entity, C_SpriteAnimation, { spriteName, NULL, 0, 0, 0, 0 });
+		ecs_set(level->world, entity, C_SpriteAnimation, { spriteName, NULL, 0, 0, 0, 0, 0, 0 });
 
 		free(data);
 		return 1;
@@ -921,6 +969,7 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_RectCollider);
 	ECS_COMPONENT(level->world, C_CircleCollider);
+	ECS_COMPONENT(level->world, C_SpriteAnimation);
 
 	/******************************************************************************
 	* COMPORTAMIENTO PERSONALIZADO
@@ -944,6 +993,38 @@ void UpdateLevel(Game* game, GameLevel* level)
 	}
 
 	ecs_query_fini(query);
+
+	/******************************************************************************
+	* UPDATE COMPONENTS
+	******************************************************************************/
+	ecs_query_t* animQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {{ .id = ecs_id(C_SpriteAnimation)}}
+	});
+
+	ecs_iter_t itAnim = ecs_query_iter(level->world, animQuery);
+	while (ecs_query_next(&itAnim))
+	{
+		for (int i = 0; i < itAnim.count; i++)
+		{
+			ecs_entity_t ent = itAnim.entities[i];
+			C_SpriteAnimation* animComp = ecs_get(level->world, ent, C_SpriteAnimation);
+			if (animComp->currentAnimation == NULL) 
+			{
+				continue;
+			}
+			animComp->frameCounter += 1;
+
+			if (animComp->frameCounter >= (60 / animComp->speed))
+			{
+				animComp->frameCounter = 0;
+				animComp->currentFrame += 1;
+				if (animComp->currentFrame > animComp->toIndex)
+					animComp->currentFrame = animComp->fromIndex;
+			}
+		}
+	}
+
+	ecs_query_fini(animQuery);
 
 	/******************************************************************************
 	* GESTION DE COLISIONES
@@ -1029,7 +1110,7 @@ void RenderLevel(Game* game, GameLevel* level)
 			
 			if (spAnimation != NULL)
 			{
-				Sprite* sprite = GetSprite(&game->resourcesManager, spAnimation->sprite);
+				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
 				if (sprite == NULL) 
 				{
 					continue;
@@ -1037,7 +1118,30 @@ void RenderLevel(Game* game, GameLevel* level)
 
 				Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
 
-				if (spAnimation->currentAnimation == NULL)
+				if (spAnimation->currentAnimation != NULL)
+				{
+					SpriteFrame* frame = GetSpriteFrame(sprite, spAnimation->currentFrame);
+					if (frame != NULL)
+					{
+						DrawTexturePro(
+							tex,
+							(Rectangle) {
+							frame->x, frame->y, frame->width, frame->height
+						},
+							(Rectangle) {
+							transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, frame->width* transform->scaleX, frame->height* transform->scaleY
+						},
+							sprite->origin,
+							transform->rotation,
+							color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
+						);
+					}
+					else
+					{
+						printf("El frame es nulo\n");
+					}
+				}
+				else if (spAnimation->currentAnimation == NULL)
 				{
 					SpriteFrame* zeroFrame = GetSpriteFrame(sprite, 0);
 					DrawTexturePro(
@@ -1071,7 +1175,7 @@ void RenderLevel(Game* game, GameLevel* level)
 				);
 			}
 			// Si renderiza un sprite
-			if (spriteRender != NULL)
+			if (spriteRender != NULL && spAnimation == NULL)
 			{
 				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
 				if (sprite == NULL) continue;
