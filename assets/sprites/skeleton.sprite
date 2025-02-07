@@ -1,0 +1,19 @@
+data=skeleton@10,6
+
+# indices: 0 - 9 | frames de animacion: 0 - 6
+anim=attack@0,6,1,8
+
+# indices: 10 - 19 | frames de animacion: 10 - 19
+anim=death@10,19,1,8
+
+# indices: 20 - 29 | frames de animacion: 20 - 26
+anim=hurt@20,26,1,8
+
+# indices: 30 - 39 | frames de animacion: 30 - 35
+anim=idle@30,35,1,8
+
+# indices: 40 - 49 | frames de animacion: 40 - 49
+anim=jump@40,49,1,8
+
+# indices: 50 - 59 | frames de animacion: 50 - 57
+anim=walk@50,57,1,8
