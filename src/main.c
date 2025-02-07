@@ -14,6 +14,26 @@
 #include <float.h>
 #include "levels/menu.h"
 
+/*
+* 0 -> carrot
+* 1 -> cauliflower
+* 2 -> parsnip
+* 3 -> potato
+* 4 -> pumpkin
+* 5 -> sunflower
+* 6 -> wheat
+* 7 -> beetroot
+* 8 -> cabbage
+* 9 -> kale
+* 10 -> radish
+* 
+* 11 -> coal
+* 12 -> silver
+* 13 -> gold
+* 14 -> diamond
+* 15 -> stone
+*/
+
 void LoadResources(Game* game);
 
 int main()
@@ -44,5 +64,6 @@ int main()
 
 void LoadResources(Game* game)
 {
-	printf("AQUI SE CARGARIAN TODOS LOS RECURSOS PARA EL JUEGO\n");
+	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
+	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");
 }

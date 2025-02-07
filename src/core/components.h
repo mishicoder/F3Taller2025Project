@@ -76,7 +76,7 @@ typedef struct Info
 typedef struct C_RenderLayer
 {
 	// indice de la capa
-	unsigned int index;
+	int index;
 } C_RenderLayer;
 
 /* Gestiona la posición, escala y rotación de la entidad */
@@ -140,6 +140,9 @@ typedef struct C_Behaviour
 /* Permite que la entidad tenga colisión en el mundo. */
 typedef struct C_RectCollider
 {
+	// Posición del collider
+	float posX;
+	float posY;
 	// Desplazamiento en el eje x respecto a la posición de la entidad.
 	float offsetX;
 	// Desplazamiento en el eje y respecto a la posición de la entidad.
@@ -152,7 +155,11 @@ typedef struct C_RectCollider
 	unsigned short isSolid;
 } C_RectCollider;
 
-typedef struct C_CircleCollider {
+typedef struct C_CircleCollider 
+{
+	// Posición del collider
+	float posX;
+	float posY;
 	// Desplazamiento en el eje x respecto a la posición de la entidad.
 	float offsetX;
 	// Desplazamiento en el eje y respecto a la posición de la entidad.
@@ -242,7 +249,7 @@ typedef struct C_Movement
 typedef struct C_Action
 {
 	// Controlador de acciones (lo gestiona el usuario).
-	void (*OnAction)(InventorySlot* selectedSlot, ecs_entity_t playerID);
+	void (*OnAction)(InventorySlot* selectedSlot, ecs_entity_t player);
 } C_Action;
 
 /* Componente para las estadísticas del jugador */

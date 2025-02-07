@@ -48,6 +48,24 @@ void RunGame(Game* game)
 
 	while (!WindowShouldClose())
 	{
+		for (int i = 0; i < game->levelStackCount; i++)
+		{
+			if (i == game->currentLevel)
+			{
+				if (game->levelStack[i]->Update != NULL)
+				{
+					game->levelStack[i]->Update(game, game->levelStack[i]);
+				}
+			}
+			else
+			{
+				if(game->levelStack[i]->updateInStack == 1)
+				{
+					game->levelStack[i]->Update(game, game->levelStack[i]);
+				}
+			}
+		}
+
 		BeginDrawing();
 		ClearBackground(game->config.colorBackground);
 
@@ -55,16 +73,16 @@ void RunGame(Game* game)
 		{
 			for (int i = 0; i < game->levelStackCount; i++)
 			{
-				if(i != game->currentLevel)
+				if (i == game->currentLevel)
 				{
-					if (game->levelStack[i]->renderInStack)
-						if(game->levelStack[i]->Load != NULL)
-							game->levelStack[i]->Load(game, game->levelStack[i]);
+					if(game->levelStack[i]->Render != NULL)
+						game->levelStack[i]->Render(game, game->levelStack[i]);
 				}
 				else
 				{
-					if (game->levelStack[i]->Load != NULL)
-						game->levelStack[i]->Load(game, game->levelStack[i]);
+					if (game->levelStack[i]->renderInStack == 1)
+						game->levelStack[i]->Render(game, game->levelStack[i]);
+					
 				}
 			}
 		}
@@ -332,12 +350,17 @@ int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, OnLoad);
 	if (level == NULL) return 0;
 
+	level->Update = UpdateLevel;
+	level->Render = RenderLevel;
+
 	if (game->levelStack[game->currentLevel]->keepInMemory == 1)
 	{
 		if (AddLevelToCacheStack(game, game->levelStack[game->currentLevel]) == 1)
 		{
 			game->levelStack[game->currentLevel] = NULL;
 			game->levelStack[game->currentLevel] = level;
+			if (game->levelStack[game->currentLevel]->Load != NULL)
+				game->levelStack[game->currentLevel]->Load(game, game->levelStack[game->currentLevel]);
 			return 1;
 		}
 	}
@@ -346,6 +369,8 @@ int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 		UnloadLevel(game->levelStack[game->currentLevel]);
 		game->levelStack[game->currentLevel] = NULL;
 		game->levelStack[game->currentLevel] = level;
+		if (game->levelStack[game->currentLevel]->Load != NULL)
+			game->levelStack[game->currentLevel]->Load(game, game->levelStack[game->currentLevel]);
 		return 1;
 	}
 
@@ -358,6 +383,9 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 
 	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, OnLoad);
 	if (level == NULL) return 0;
+
+	level->Update = UpdateLevel;
+	level->Render = RenderLevel;
 
 	GameLevel** levelsMemTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
 	if (levelsMemTemp == NULL)
@@ -372,7 +400,6 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	game->levelStackCount += 1;
 
 	if (level->Load != NULL) level->Load(game, level);
-
 	return 1;
 }
 
@@ -381,59 +408,108 @@ int PushMemoryLevel(Game* game, const char* name)
 	if (game->levelCacheCount <= 0) return 0;
 	if (game->levelCache == NULL) return 0;
 
-	int result = -1;
-	
-	GameLevel** cacheMemTemp = NULL;
-	if(game->levelCacheCount > 1)
-	{
-		printf("DEBUG n\n");
-		cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
-		if (cacheMemTemp == NULL) return 0;
-	}
-
-	int indexToRemove = -1;
 	for (int i = 0; i < game->levelCacheCount; i++)
-	{	
-		result = strcmp(game->levelCache[i]->name, name);
-		printf("NOMBRE DE LA ESCENA PARA PRUEBAS: %s ? %s | result: %d | index: %d\n", game->levelCache[i]->name, name, result, i);
-		if (result == 0)
-		{
-			// hacer el push
-			GameLevel** levelsMempTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
-			if (levelsMempTemp == NULL) return 0;
-
-			game->levelStack = levelsMempTemp;
-			game->levelStack[game->levelStackCount] = game->levelCache[i];
-			game->currentLevel = game->levelStackCount;
-			game->levelStackCount += 1;
-
-			indexToRemove = i;
-			break;
-		}
-	}
-
-	if(result != -1)
 	{
-		if (indexToRemove != -1 && cacheMemTemp != NULL)
+		int nameCompare = strcmp(game->levelCache[i]->name, name);
+		printf("NOMBRES A COMPARAR: %s <> %s\n", game->levelCache[i]->name, name);
+		if (nameCompare == 0)
 		{
-			game->levelCache[indexToRemove] = NULL;
-			for (int i = indexToRemove; i < game->levelCacheCount; i++)
+			GameLevel** cacheMemTemp = NULL;
+			if (game->levelCacheCount > 1)
 			{
-				game->levelCache[i] = game->levelCache[i + 1];
-				game->levelCache[i + 1] = NULL;
+				cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
+				if(cacheMemTemp == NULL) return 0;
 			}
 
-			game->levelCache = cacheMemTemp;
-			game->levelCacheCount -= 1;
+			// guardamos el nivel en un variable
+			GameLevel* refLevel = game->levelCache[i];
 
+			GameLevel** memTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
+			if (memTemp == NULL) return 0;
+
+			game->levelStack = memTemp;
+			game->levelStack[game->levelStackCount] = refLevel;
+			game->currentLevel = game->levelStackCount;
+			game->levelStackCount += 1;
+			game->levelCache[i] = NULL;
+
+			if(cacheMemTemp != NULL)
+			{ 
+				/* reordernar */ 
+				for (int j = i; j < game->levelCacheCount; j++)
+				{
+					game->levelCache[j] = game->levelCache[j + 1];
+					game->levelCache[j + 1] = NULL;
+				}
+				game->levelCache = cacheMemTemp;
+				game->levelCacheCount -= 1;
+			}
+			else
+			{
+				game->levelCache[0] = NULL;
+				game->levelCacheCount = 0;
+				free(game->levelCache);
+				game->levelCache = NULL;
+			}
+
+			
 			return 1;
 		}
-		else
+	}
+
+	return 0;
+}
+
+int LoadMemoryLevel(Game* game, const char* name)
+{
+	if (game->levelCacheCount <= 0) return 0;
+	if (game->levelCache == NULL) return 0;
+
+	for (int i = 0; i < game->levelCacheCount; i++)
+	{
+		int nameCompare = strcmp(game->levelCache[i]->name, name);
+		if (nameCompare == 0)
 		{
-			game->levelCache[0] = NULL;
-			game->levelCacheCount = 0;
-			free(game->levelCache);
-			game->levelCache = NULL;
+			if (game->levelStack[game->currentLevel]->keepInMemory == 1)
+			{
+				// Hacemos un swap
+				GameLevel* referTemp = game->levelStack[game->currentLevel];
+				game->levelStack[game->currentLevel] = NULL;
+				game->levelStack[game->currentLevel] = game->levelCache[i];
+				game->levelCache[i] = referTemp;
+				return 1;
+			}
+
+			// hacemos redimensión de memoria.
+			GameLevel** cacheMemTemp = NULL;
+			if(game->levelCacheCount > 1)
+				cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
+
+			// Descargar el nivel actual
+			UnloadLevel(game->levelStack[game->currentLevel]);
+			game->levelStack[game->currentLevel] = NULL;
+			game->levelStack[game->currentLevel] = game->levelCache[i];
+			game->levelCache[i] = NULL;
+
+			// ordenar los nivel de cache antes de reajustar el bloque de memoria
+			if (cacheMemTemp != NULL)
+			{
+				for (int j = i; j < game->levelCacheCount; j++)
+				{
+					game->levelCache[j] = game->levelCache[j + 1];
+					game->levelCache[j + 1] = NULL;
+				}
+
+				game->levelCache = cacheMemTemp;
+				game->levelCacheCount -= 1;
+			}
+			else
+			{
+				game->levelCache[0] = NULL;
+				game->levelCacheCount = 0;
+				free(game->levelCache);
+				game->levelCache = NULL;
+			}
 
 			return 1;
 		}
@@ -588,17 +664,30 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			solo cambiamos sus datos
 		*/
 		// nombre
+		char* data = strdup(cdata);
 		char* context = NULL;
-		char* token = strtok_s(cdata, ",", &context);
+		char* token = strtok_s(data, ",", &context);
 		char* name = token;
 		// tag
 		token = strtok_s(NULL, ",", &context);
 		char* tag = token;
 
 		ecs_set(level->world, entity, C_Info, { name, tag });
+		free(data);
 		return 1;
 	}
-	else if (strcmp(component, C_RENDER_LAYER_ID) == 0) {}
+	else if (strcmp(component, C_RENDER_LAYER_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_RenderLayer)) return 0;
+
+		char* data = strdup(cdata);
+
+		int index = atoi(data);
+		ecs_set(level->world, entity, C_RenderLayer, { index });
+
+		free(data);
+		return 1;
+	}
 	else if (strcmp(component, C_TRANSFORM_ID) == 0) 
 	{
 		/*
@@ -606,9 +695,10 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			ya que toda entidad se crear con este componente, así que
 			solo cambiamos sus datos
 		*/
-		char* context;
+		char* data = strdup(cdata);
+		char* context = NULL;
 		// position
-		char* token = strtok_s(cdata, ",", &context);
+		char* token = strtok_s(data, ",", &context);
 		float posX = atof(token);
 		token = strtok_s(NULL, ",", &context);
 		float posY = atof(token);
@@ -622,12 +712,64 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		float rotation = atof(token);
 
 		ecs_set(level->world, entity, C_Transform, { posX, posY, scaleX, scaleY, rotation });
+		free(data);
 		return 1;
 
 	}
-	else if (strcmp(component, C_SPRITE_RENDER_ID) == 0) {}
-	else if (strcmp(component, C_COLOR_ID) == 0) {}
-	else if (strcmp(component, C_MAP_RENDER_ID) == 0) {}
+	else if (strcmp(component, C_SPRITE_RENDER_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_SpriteRender)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		// name
+		char* token = strtok_s(data, ",", &context);
+		char* name = token;
+		// visible
+		token = strtok_s(NULL, ",", &context);
+		int visible = atoi(token);
+		// opacity
+		token = strtok_s(NULL, ",", &context);
+		float opacity = atof(token);
+
+		ecs_set(level->world, entity, C_SpriteRender, { name, visible, opacity });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_COLOR_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_Color)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		int r = atoi(token);
+		token = strtok_s(NULL, ",", &context);
+		int g = atoi(token);
+		token = strtok_s(NULL, ",", &context);
+		int b = atoi(token);
+
+		ecs_set(level->world, entity, C_Color, { r, g, b });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_MAP_RENDER_ID) == 0)
+	{
+		if (ecs_has(level->world, entity, C_MapRender)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* name = strdup(data);
+
+		ecs_set(level->world, entity, C_MapRender, { name });
+
+		free(data);
+		return 1;
+	}
 	else if (strcmp(component, C_RECT_COLLIDER_ID) == 0) {}
 	else if (strcmp(component, C_CIRCLE_COLLIDER_ID) == 0) {}
 	else if (strcmp(component, C_DAY_CYCLE_ID) == 0) {}
@@ -636,14 +778,16 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	{
 		if (ecs_has(level->world, entity, C_Dialog)) return 0; // ya tiene el componente
 
-		char* context;
-		char* token = strtok_s(cdata, "@", &context);
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, "@", &context);
 		int interactionCount = atoi(token);
 
 		char** dialogs = NULL;
 		int count = 0;
 
-		token = strtok_s(NULL, ",", &context);
+		token = strtok_s(NULL, "@", &context);
 		while (token != NULL)
 		{
 			char** memTemp = (char**)realloc(dialogs, (size_t)(count + 1) * sizeof(char*));
@@ -653,12 +797,12 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			dialogs[count] = token;
 			count++;
 
-			token = strtok_s(NULL, ",", &context);
+			token = strtok_s(NULL, "@", &context);
 		}
 
-		ecs_add(level->world, entity, C_Dialog);
 		ecs_set(level->world, entity, C_Dialog,{ dialogs, count, interactionCount });
 
+		free(data);
 		return 1;
 	}
 	else if (strcmp(component, C_INVENTORY_ID) == 0) {}
@@ -714,8 +858,159 @@ int AddLevel(Game* game,
 	return 1;
 }
 
+void UpdateLevel(Game* game, GameLevel* level)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	ECS_COMPONENT(level->world, C_Transform);
+	ECS_COMPONENT(level->world, C_RectCollider);
+	ECS_COMPONENT(level->world, C_CircleCollider);
+
+	/******************************************************************************
+	* COMPORTAMIENTO PERSONALIZADO
+	******************************************************************************/
+	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {{ .id =  ecs_id(C_Behaviour) }}
+	});
+
+	ecs_iter_t it = ecs_query_iter(level->world, query);
+	while (ecs_query_next(&it))
+	{
+		for (int i = 0; i < it.count; i++)
+		{
+			C_Behaviour* behaviour = ecs_get(level->world, it.entities[i], C_Behaviour);
+			if (behaviour == NULL) continue;
+			if (behaviour->OnInput != NULL)
+				behaviour->OnInput(game, level, it.entities[i]);
+			if(behaviour->OnUpdate)
+				behaviour->OnUpdate(game, level, it.entities[i]);
+		}
+	}
+
+	ecs_query_fini(query);
+
+	/******************************************************************************
+	* GESTION DE COLISIONES
+	******************************************************************************/
+	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = { 
+			{ .id = ecs_id(C_RectCollider), .oper = EcsOr }, // 1
+			{ .id = ecs_id(C_CircleCollider) } // 2
+		}
+	});
+
+	ecs_iter_t itCollider = ecs_query_iter(level->world, queryCollider);
+	while (ecs_query_next(&itCollider))
+	{
+		for (int i = 0; i < itCollider.count; i++)
+		{
+			C_Transform* transform = ecs_get(level->world, it.entities[i], C_Transform);
+			C_RectCollider* rectCollider = ecs_get(level->world, it.entities[i], C_RectCollider);
+			if (rectCollider != NULL)
+			{
+				float px = transform->positionX + rectCollider->offsetX;
+				float py = transform->positionY + rectCollider->offsetY;
+				rectCollider->posX = px;
+				rectCollider->posY = py;
+			}
+		}
+	}
+
+	ecs_query_fini(queryCollider);
+}
+
+void RenderLevel(Game* game, GameLevel* level)
+{
+	ECS_COMPONENT(level->world, C_Transform);
+	ECS_COMPONENT(level->world, C_Color);
+	ECS_COMPONENT(level->world, C_SpriteRender);
+	ECS_COMPONENT(level->world, C_MapRender);
+
+	/******************************************************************************
+	* RENDERIZADO DE ELEMENTOS
+	******************************************************************************/
+	ecs_query_t* queryRender = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{ .id = ecs_id(C_SpriteRender), .oper = EcsOr },
+			{ .id = ecs_id(C_MapRender), .oper = EcsOr },
+			{ .id = ecs_id(C_Color) }
+		}
+	});
+
+	ecs_iter_t itRender = ecs_query_iter(level->world, queryRender);
+	while (ecs_query_next(&itRender))
+	{
+		for (int i = 0; i < itRender.count; i++)
+		{
+			ecs_entity_t entity = itRender.entities[i];
+			C_Transform* transform = ecs_get(level->world, entity, C_Transform);
+			C_Color* color = ecs_get(level->world, entity, C_Color);
+			C_SpriteRender* spriteRender = ecs_get(level->world, entity, C_SpriteRender);
+			C_MapRender* mapRender = ecs_get(level->world, entity, C_MapRender);
+
+			// Si renderiza un mapa
+			if (mapRender != NULL)
+			{
+				TileMap* map = GetTileMap(&game->resourcesManager, mapRender->name);
+				if (map == NULL) continue;
+
+				DrawTexturePro(
+					map->mapTexture.texture,
+					(Rectangle){ 0, 0, map->mapTexture.texture.width, -map->mapTexture.texture.height },
+					(Rectangle){ transform->positionX, transform->positionY, map->mapTexture.texture.width * transform->scaleX, map->mapTexture.texture.height * transform->scaleY },
+					(Vector2){ 0.0f, 0.0f },
+					0.0f,
+					color != NULL ? (Color){ color->r, color->g, color->b, 255 } : WHITE
+				);
+			}
+			// Si renderiza un sprite
+			if (spriteRender != NULL)
+			{
+				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
+				if (sprite == NULL) continue;
+
+				Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
+				DrawTexturePro(
+					tex,
+					(Rectangle) {sprite->x, sprite->y, sprite->width, sprite->height},
+					(Rectangle) { transform->positionX, transform->positionY, sprite->width* transform->scaleX, sprite->height* transform->scaleY
+					},
+					sprite->origin,
+					transform->rotation,
+					color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
+				);
+			}
+		}
+	}
+}
+
+void MapRenderDestroyHook(void* ptr)
+{
+	C_MapRender* comp = ptr;
+	if (comp->name)
+	{
+		free(comp->name);
+		comp->name = NULL;
+	}
+}
+
 void FreeGame(Game* game)
 {
+	for (int i = 0; i < game->levelCacheCount; i++)
+	{
+		ECS_COMPONENT(game->levelCache[i]->world, C_MapRender);
+		ecs_set_hooks(game->levelCache[i]->world, C_MapRender, {
+			.dtor = MapRenderDestroyHook
+			});
+	}
+
+	for (int i = 0; i < game->levelStackCount; i++)
+	{
+		ECS_COMPONENT(game->levelStack[i]->world, C_MapRender);
+		ecs_set_hooks(game->levelStack[i]->world, C_MapRender, {
+			.dtor = MapRenderDestroyHook
+		});
+	}
+
 	if (game->levelCacheCount > 0)
 	{
 		for (int i = 0; i < game->levelCacheCount; i++)

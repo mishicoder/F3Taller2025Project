@@ -212,6 +212,16 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 int PushMemoryLevel(Game* game, const char* name);
 
 /**
+* Carga un nivel en memoria, reemplazando al actual.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] name Nombre del nivel a cargar.
+* 
+* @return Retorna 1 si la operación fue exitosa, caso contrario, retorna 0.
+*/
+int LoadMemoryLevel(Game* game, const char* name);
+
+/**
 * Agrega un nivel al stack de cache.
 * 
 * @param[in] game Puntero a la instancia del juego.
@@ -278,6 +288,53 @@ int AddLevel(struct Game* game, const char* name,
 	unsigned int updateInStack,
 	void(*Run)(struct Game* game, struct GameLevel* level)
 );
+
+/**
+* Actualiza todas las entidades del nivel.
+*
+* @param[in] game Puntero a la instancia de juego.
+* @param[in] level Puntero al nivel a actualizar.
+*/
+void UpdateLevel(struct Game* game, struct GameLevel* level);
+
+/**
+* Renderiza las entidades del mundo.
+*
+* @param[in] game Puntero a la instancia de juego.
+* @param[in] level Puntero al nivel a actualizar.
+*/
+void RenderLevel(struct Game* gane, struct GameLevel* level);
+
+/**
+* Renderiza los elementos de interfaz del nivel.
+*
+* @param[in] game Puntero a la instancia de juego.
+* @param[in] level Puntero al nivel a actualizar.
+*/
+void RenderUI(struct Game* game, struct GameLevel* level);
+
+/**
+* Libera la memoria del nivel.
+*
+* @param[in] game Puntero a la instancia de juego.
+* @param[in] level Puntero al nivel a actualizar.
+*/
+void Unload(struct Game* game, struct GameLevel* level);
+
+/**
+* Renderiza elementos para debugear en el nivel.
+*
+* @param[in] game Puntero a la instancia de juego.
+* @param[in] level Puntero al nivel a actualizar.
+*/
+void RenderDebug(struct Game* game, struct GameLevel* level);
+
+/**
+* Hook para limpiar memoria del componente C_MapRender
+* 
+* @param[in] ptr Puntero del componente.
+*/
+void MapRenderDestroyHook(void* ptr);
 
 /**
 * Funcion para liberar memoria de una instancia de juego.

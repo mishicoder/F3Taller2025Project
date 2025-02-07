@@ -62,7 +62,7 @@ typedef struct GameLevel
 	* @param[in] game Referencia a la instancia del juego.
 	* @param[in] level Referencia al nivel actual.
 	*/
-	void(*RenderUI)();
+	void(*RenderUI)(struct Game* game, struct GameLevel* level);
 
 	/**
 	* Se encarga de eliminar la memoria del nivel.
@@ -103,9 +103,6 @@ GameLevel* CreateLevel(
 	void(*Load)(struct Game* game, struct GameLevel* level)
 );
 
-//ecs_entity_t CreateEntity(struct GameLevel* level, unsigned int ccount);
-//ecs_entity_t CreateEntityFF(struct GameLevel* level, const char* filename);
-
 /**
 * Funcion para liberar la memoria asignada para un nivel.
 * 
@@ -130,6 +127,6 @@ ecs_entity_t GetEntityByTag(struct GameLevel* level, const char* tag);
 * @param[in] tag Etiqueta a comparar en la busqueda.
 * @param[in] void func(ecs_entity_t ent) Funcion a ejecutar.
 */
-void ForEntityWithTag(struct GameLevel* level, const char* tag, void(*func)(struct GameLevel* level, ecs_entity_t ent));
+void ForEntityWithTag(struct Game* game, struct GameLevel* level, const char* tag, void(*func)(struct Game* game, struct GameLevel* level, ecs_entity_t ent));
 
 #endif // !LEVEL_H

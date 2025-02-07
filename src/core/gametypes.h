@@ -99,6 +99,7 @@ typedef struct TradeItem
 {
 	unsigned int itemIndex;
 	unsigned int amount;
+	unsigned int price;
 } TradeItem;
 
 /* Estado de la tierra */
@@ -121,22 +122,28 @@ typedef enum FARMLAND_STATE
 /* Tipos de semillas */
 typedef enum CROP_TYPE
 {
+
+	/* Verano */
 	// Zanahoria
 	CROP_CARROT,
 	// Coliflor
 	CROP_CAULIFLOWER,
 	// Chirivía
 	CROP_PARSNIP,
-	// Calabaza
-	CROP_PUMPKIN,
 	// Papa
 	CROP_POTATO,
+
+	/* Primavera */
+	// Calabaza
+	CROP_PUMPKIN,
 	// Girasol
 	CROP_SUNFLOWER,
 	// Trigo
 	CROP_WHEAT,
 	// Remolacha
 	CROP_BEETROOT,
+
+	/* Otoño */
 	// Col
 	CROP_CABBAGE,
 	// Col rizada

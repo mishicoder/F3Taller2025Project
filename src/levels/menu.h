@@ -8,7 +8,4 @@
 
 void MenuOnLoad(Game* game, GameLevel* level);
 
-void Another(Game* game, GameLevel* level);
-void Tuki(Game* game, GameLevel* level);
-
 #endif // !MENU_H
