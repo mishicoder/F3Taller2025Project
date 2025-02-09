@@ -254,7 +254,6 @@ int PopLevel(Game* game);
 /**
 * Crea un entidad en blanco, solo tendrá el componente "C_Transform".
 *
-* @param[in] game Puntero a la instancia del juego que contiene el nivel donde se agregará la entidad.
 * @param[in] level Puntero al nivel donde se agregará la entidad.
 * @param[in] name Nombre de la entidad.
 * @param[in] tag Etiqueta de la entidad (si no se quiere añadir etiqueta el valor debe ser NULL).
@@ -262,6 +261,18 @@ int PopLevel(Game* game);
 * @return Retorna ecs_entity_t cuando se crear correctamente la entidad, caso contrario, retorna 0.
 */
 ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
+
+/**
+* Agrega un hijo una entidad, que solo tiene el componente "C_Transform".
+* 
+* @param[in] level Puntero al nivel donde se agregará la entidad hija.
+* @param[in] parent Entidad padre para la entidad hija.
+* @param[in] name Nombre de la entidad
+* @param[in] tag Etiqueta de la entidad.
+* 
+* @return Retorna ecs_entity_t si se crea correctamente, caso contrario, retorna 0.
+*/
+ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char* name, const char* tag);
 
 /**
 * Agrega un componente a una entidad cargada en base a cadenas de texto.

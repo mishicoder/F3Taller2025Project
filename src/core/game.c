@@ -262,7 +262,8 @@ void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char
 		animationComp->loop = animation->loop;
 		animationComp->speed = animation->speed;
 		animationComp->frameCounter = 0;
-		printf("CURRENT ANIMATION: %s\n", animationComp->currentAnimation);
+		printf("CURRENT ANIMATION: %s | %d\n", animationComp->currentAnimation, animation->loop);
+		printf("DATO DE LOOP: %d\n", animation->loop);
 	}
 	else
 	{
@@ -274,6 +275,7 @@ void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char
 		animationComp->speed = animation->speed;
 		animationComp->frameCounter = 0;
 		printf("CURRENT ANIMATION: %s\n", animationComp->currentAnimation);
+		printf("DATO DE LOOP: %d\n", animation->loop);
 	}
 }
 
@@ -799,7 +801,13 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		token = strtok_s(NULL, ",", &context);
 		float opacity = atof(token);
 
-		ecs_set(level->world, entity, C_SpriteRender, { name, visible, opacity });
+		token = strtok_s(NULL, ",", &context);
+		unsigned int flipX = atoi(token);
+
+		token = strtok_s(NULL, ",", &context);
+		unsigned int flipY = atoi(token);
+
+		ecs_set(level->world, entity, C_SpriteRender, { name, visible, opacity, flipX, flipY });
 
 		free(data);
 		return 1;
@@ -811,7 +819,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 
 		char* spriteName = strdup(data);
 
-		ecs_set(level->world, entity, C_SpriteAnimation, { spriteName, NULL, 0, 0, 0, 0, 0, 0 });
+		ecs_set(level->world, entity, C_SpriteAnimation, { spriteName, NULL, 0, 0, 0, 0, 0, 0, NULL });
 
 		free(data);
 		return 1;
@@ -848,10 +856,62 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		free(data);
 		return 1;
 	}
-	else if (strcmp(component, C_RECT_COLLIDER_ID) == 0) {}
-	else if (strcmp(component, C_CIRCLE_COLLIDER_ID) == 0) {}
-	else if (strcmp(component, C_DAY_CYCLE_ID) == 0) {}
-	else if (strcmp(component, C_COLLECTOR_ID) == 0) {}
+	else if (strcmp(component, C_RECT_COLLIDER_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_RectCollider)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		float offsetX = atof(token);
+		token = strtok_s(NULL, ",", &context);
+		float offsetY = atof(token);
+		token = strtok_s(data, ",", &context);
+		int width = atoi(token);
+		token = strtok_s(data, ",", &context);
+		int height = atoi(token);
+		token = strtok_s(data, ",", &context);
+		int isSolid = atoi(token);
+
+		ecs_set(level->world, entity, C_RectCollider, { 0.0f, 0.0f, offsetX, offsetY, width, height, isSolid });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_CIRCLE_COLLIDER_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_CircleCollider)) return 0;
+
+		char* data = strddup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		float offsetX = atof(token);
+		token = strtok_s(data, ",", &context);
+		float offsetY = atof(token);
+		token = strtok_s(data, ",", &context);
+		float radius = atof(token);
+		token = strtok_s(data, ",", &context);
+		int isSolid = atoi(token);
+
+		ecs_set(level->world, entity, C_CircleCollider, { 0.0f, 0.0f, offsetX, offsetY, radius, isSolid });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_DAY_CYCLE_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_DayCicle)) return 0;
+
+		ecs_set(level->world, entity, C_DayCicle, { 0.625f, 360, 1740, 360, 6, 0 });
+
+		return 1;
+	}
+	else if (strcmp(component, C_COLLECTOR_ID) == 0)
+	{
+		// se elimina porque se puede implementar con el sistema de Behaviour usando la funcion OnTriggerCollide
+	}
 	else if (strcmp(component, C_DIALOG_ID) == 0) 
 	{
 		if (ecs_has(level->world, entity, C_Dialog)) return 0; // ya tiene el componente
@@ -883,13 +943,228 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		free(data);
 		return 1;
 	}
-	else if (strcmp(component, C_INVENTORY_ID) == 0) {}
-	else if (strcmp(component, C_HOTBAR_ID) == 0) {}
-	else if (strcmp(component, C_MOVEMENT_ID) == 0) {}
-	else if (strcmp(component, C_PLAYER_STATS_ID) == 0) {}
-	else if (strcmp(component, C_WORLD_ITEM_ID) == 0) {}
-	else if (strcmp(component, C_BUILD_ID) == 0) {}
-	else if (strcmp(component, C_BUILDER_ID) == 0) {}
+	else if (strcmp(component, C_INVENTORY_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_Inventory)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		int maxSlots = atoi(token);
+
+		InventorySlot** slots = (InventorySlot**)mallocc((size_t)maxSlots * sizeof(InventorySlot*));
+		if (slots == NULL)
+		{
+			free(data);
+			return 0;
+		}
+
+		ecs_set(level->world, entity, C_Inventory, { maxSlots, slots, 0, 0 });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_HOTBAR_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_HotBar)) return 0;
+
+		char* data = strdup(cdata);
+
+		int maxSlots = atoi(data);
+
+		InventorySlot** slots = (InventorySlot**)malloc((size_t)maxSlots * sizeof(InventorySlot*));
+		if (slots == NULL)
+		{
+			free(data);
+			return 0;
+		}
+
+		ecs_set(level->world, entity, C_HotBar, { maxSlots, slots, 0 });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_MOVEMENT_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_Movement)) return 0;
+
+		char* data = strdup(cdata);
+
+		float speed = atof(data);
+
+		ecs_set(level->world, entity, C_Movement, { 0, 0, speed });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_PLAYER_STATS_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_PlayerStats)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		float maxHealth = atof(token);
+		token = strtok_s(NULL, ",", &context);
+		float maxStamina = atof(token);
+
+		ecs_set(level->world, entity, C_PlayerStats, { 0, maxHealth, maxHealth, maxStamina, maxStamina });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_WORLD_ITEM_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_WorldItem)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+
+		int itemIndex = atoi(token);
+		token = strtok_s(NULL, ",", &context);
+		int count = atoi(token);
+
+		ecs_set(level->world, entity, C_WorldItem, { itemIndex, count });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_BUILD_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_Build)) return 0;
+
+		char* data = strdup(cdata);
+
+		BUILD_TYPE buildType = (BUILD_TYPE)atoi(data);
+
+		ecs_set(level->world, entity, C_Build, { buildType });
+
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_BUILDER_ID) == 0) 
+	{
+		/*
+			Los elemtos de construccion se cargan de forma dinámica.
+			En este componente, los elementos se separan, primero por @ para obtener el estado.
+			Segundo por | para obtener los elementos que se pueden construir.
+			Tercero por , para obtener los datos de los elementos
+			Cuarto por &, para obtener las mejoras que se pueden aplicar
+		*/
+		if (ecs_has(level->world, entity, C_Builder)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, "@", &context);
+		BUILDER_STATE state = (BUILDER_STATE)atoi(token);
+		char* items = strtok_s(NULL, "@", &context);
+		char* buildingsList = strtok_s(items, "&", &context);
+		char* upgradesList = strtok_s(NULL, "&", &context);
+
+		BuildItem** buildItems = NULL;
+		int buildsCount = 0;
+		BuildItem** upgradesItems = NULL;
+		int upgradesCount = 0;
+
+		// obtener las construcciones
+		char* buildData = strtok_s(buildingsList, "|", &context);
+		while (buildData != NULL)
+		{
+			char* buildItemData = strtok_s(buildData, ",", &context);
+			BUILD_TYPE buildType = (BUILD_TYPE)atoi(buildItemData);
+			buildItemData = strtok_s(NULL, ",", &context);
+			// wood
+			int woodAmount = atoi(buildItemData);
+			// rock
+			buildItemData = strtok_s(NULL, ",", &context);
+			int rockAmount = atoi(buildItemData);
+			// coal
+			buildItemData = strtok_s(NULL, ",", &context);
+			int coalAmount = atoi(buildItemData);
+			// gold
+			buildItemData = strtok_s(NULL, ",", &context);
+			int goldAmount = atoi(buildItemData);
+			// silver
+			buildItemData = strtok_s(NULL, ",", &context);
+			int silverAmount = atoi(buildItemData);
+			// diamond
+			buildItemData = strtok_s(NULL, ",", &context);
+			int diamondAmount = atoi(buildItemData);
+
+			BuildItem** iMemTemp = (BuildItem**)realloc(buildItems, (size_t)(buildsCount + 1) * sizeof(BuildItem*));
+			if (iMemTemp != NULL)
+			{
+				BuildItem* newItem = (BuildItem*)malloc(sizeof(BuildItem));
+				if (newItem != NULL)
+				{
+					newItem->type = buildType;
+					newItem->woodQuantity = woodAmount;
+					newItem->rockQuantity = rockAmount;
+					newItem->coalQuantity = coalAmount;
+					newItem->goldQuantity = goldAmount;
+					newItem->silverQuantity = silverAmount;
+					newItem->diamondQuantity = diamondAmount;
+
+					buildItems = iMemTemp;
+					buildItems[buildsCount] = newItem;
+					buildsCount += 1;
+				}
+			}
+
+			buildData = strtok_s(NULL, "|", &context);
+		}
+
+		char* upgradeData = strtok_s(upgradesList, "|", &context);
+		while (upgradeData != NULL)
+		{
+			char* upItemData = strtok_s(upgradeData, ",", &context);
+			BUILD_TYPE buildType = (BUILD_TYPE)atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int woodAmount = atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int rockAmount = atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int coalAmount = atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int goldAmount = atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int silverAmount = atoi(upItemData);
+			upItemData = strtok_s(NULL, ",", &context);
+			int diamondAmount = atoi(upItemData);
+
+			BuildItem** iMemTemp = (BuildItem**)realloc(upgradesItems, (size_t)(upgradesCount + 1) * sizeof(BuildItem*));
+			if (iMemTemp)
+			{
+				BuildItem* bItem = (BuildItem*)malloc(sizeof(BuildItem));
+				if (bItem != NULL)
+				{
+					bItem->type = buildType;
+					bItem->woodQuantity = woodAmount;
+					bItem->rockQuantity = rockAmount;
+					bItem->coalQuantity = coalAmount;
+					bItem->goldQuantity = goldAmount;
+					bItem->silverQuantity = silverAmount;
+					bItem->diamondQuantity = diamondAmount;
+
+					upgradesItems = iMemTemp;
+					upgradesItems[upgradesCount] = bItem;
+					upgradesCount += 1;
+				}
+			}
+
+			upgradeData = strtok_s(NULL, "|", &context);
+		}
+
+		ecs_set(level->world, entity, C_Builder, { state, buildItems, upgradesItems, buildsCount, upgradesCount, BUILD_NONE, 0, 0 });
+
+		free(data);
+		return 1;
+	}
 	else if (strcmp(component, C_TRADER_ID) == 0) {}
 	else if (strcmp(component, C_DROP_TABLE_ID) == 0) {}
 	else if (strcmp(component, C_FARM_LAND_ID) == 0) {}
@@ -1019,7 +1294,17 @@ void UpdateLevel(Game* game, GameLevel* level)
 				animComp->frameCounter = 0;
 				animComp->currentFrame += 1;
 				if (animComp->currentFrame > animComp->toIndex)
-					animComp->currentFrame = animComp->fromIndex;
+				{
+					if (animComp->OnEnd != NULL)
+						animComp->OnEnd(game, level, ent, animComp->currentAnimation);
+
+					if (animComp->loop == 1)
+					{
+						animComp->currentFrame = animComp->fromIndex;
+					}
+					else
+						animComp->currentFrame = animComp->toIndex;
+				}
 			}
 		}
 	}
@@ -1094,6 +1379,8 @@ void RenderLevel(Game* game, GameLevel* level)
 		}
 	});
 
+	//BeginBlendMode(BLEND_ALPHA);
+
 	ecs_iter_t itRender = ecs_query_iter(level->world, queryRender);
 	while (ecs_query_next(&itRender))
 	{
@@ -1123,39 +1410,42 @@ void RenderLevel(Game* game, GameLevel* level)
 					SpriteFrame* frame = GetSpriteFrame(sprite, spAnimation->currentFrame);
 					if (frame != NULL)
 					{
-						DrawTexturePro(
-							tex,
-							(Rectangle) {
-							frame->x, frame->y, frame->width, frame->height
-						},
-							(Rectangle) {
-							transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, frame->width* transform->scaleX, frame->height* transform->scaleY
-						},
-							sprite->origin,
-							transform->rotation,
-							color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
-						);
-					}
-					else
-					{
-						printf("El frame es nulo\n");
+						if(spriteRender->visible == 1)
+						{
+							DrawTexturePro(
+								tex,
+								(Rectangle) {
+								frame->x, frame->y, spriteRender->flipX == 1 ? (-frame->width) : (frame->width), spriteRender->flipY ? (-frame->height) : frame->height
+							},
+								(Rectangle) {
+								transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y,
+									frame->width* transform->scaleX, frame->height* transform->scaleY
+							},
+								sprite->origin,
+								transform->rotation,
+								color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color) { 255, 255, 255, (int)255 * spriteRender->opacity }
+							);
+						}
 					}
 				}
 				else if (spAnimation->currentAnimation == NULL)
 				{
 					SpriteFrame* zeroFrame = GetSpriteFrame(sprite, 0);
-					DrawTexturePro(
-						tex,
-						(Rectangle) {
-						0, 0, zeroFrame->width, zeroFrame->height
-					},
-						(Rectangle) {
-						transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, zeroFrame->width* transform->scaleX, zeroFrame->height* transform->scaleY
-					},
-						sprite->origin,
-						transform->rotation,
-						color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
-					);
+					if(spriteRender->visible == 1)
+					{
+						DrawTexturePro(
+							tex,
+							(Rectangle) {
+							0, 0, spriteRender->flipX == 1 ? (-zeroFrame->width) : (zeroFrame->width), spriteRender->flipY == 1 ? (-zeroFrame->height) : (zeroFrame->height)
+						},
+							(Rectangle) {
+							transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, (zeroFrame->width)* transform->scaleX, zeroFrame->height* transform->scaleY
+						},
+							sprite->origin,
+							transform->rotation,
+							color != NULL ? (Color) { color->r, color->g, color->b, (int) 255 * spriteRender->opacity } : (Color){ 255, 255, 255, (int) 255 * spriteRender->opacity }
+						);
+					}
 				}
 			}
 
@@ -1174,22 +1464,30 @@ void RenderLevel(Game* game, GameLevel* level)
 					color != NULL ? (Color){ color->r, color->g, color->b, 255 } : WHITE
 				);
 			}
+
 			// Si renderiza un sprite
 			if (spriteRender != NULL && spAnimation == NULL)
 			{
 				Sprite* sprite = GetSprite(&game->resourcesManager, spriteRender->spriteName);
 				if (sprite == NULL) continue;
 
-				Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
-				DrawTexturePro(
-					tex,
-					(Rectangle) {sprite->x, sprite->y, sprite->width, sprite->height},
-					(Rectangle) { transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, sprite->width* transform->scaleX, sprite->height* transform->scaleY
+				if(spriteRender->visible == 1)
+				{
+					Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
+					DrawTexturePro(
+						tex,
+						(Rectangle) {
+						sprite->x, sprite->y, sprite->width, sprite->height
 					},
-					sprite->origin,
-					transform->rotation,
-					color != NULL ? (Color) { color->r, color->g, color->b, spriteRender->opacity } : WHITE
-				);
+						(Rectangle) {
+						transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y,
+							(sprite->width * transform->scaleX)* spriteRender->flipX == 1 ? 1 : -1, (sprite->height * transform->scaleY)* spriteRender->flipY == 1 ? 1 : -1
+					},
+						sprite->origin,
+						transform->rotation,
+						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color){ 255, 255, 255, 255 }
+					);
+				}
 			}
 			// Si se renderiza un sprite con animaciones
 			if (spriteRender != NULL && spAnimation != NULL)
@@ -1200,6 +1498,8 @@ void RenderLevel(Game* game, GameLevel* level)
 			}
 		}
 	}
+
+	//EndBlendMode();
 
 	EndMode2D();
 }

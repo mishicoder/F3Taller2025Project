@@ -106,6 +106,9 @@ typedef struct C_SpriteRender
 	unsigned int visible;
 	// Indica la transparencia del sprite.
 	float opacity; // 0.0 - 1.0
+	// flip x e y
+	unsigned int flipX;
+	unsigned int flipY;
 } C_SpriteRender;
 
 /* Permite gestionar animaciones (Funciona unicamente con SpriteRender) */
@@ -119,6 +122,8 @@ typedef struct C_SpriteAnimation
 	int toIndex;
 	int loop;
 	int speed;
+
+	void(*OnEnd)(struct Game* game, struct GameLevel* level, ecs_entity_t entity, const char* name);
 } C_SpriteAnimation;
 
 /* Permite cambiar el color del componente SpriteRender de una entidad */
@@ -154,7 +159,7 @@ typedef struct C_Behaviour
 /* Permite que la entidad tenga colisión en el mundo. */
 typedef struct C_RectCollider
 {
-	// Posición del collider
+	// Posición del collider (se actualiza con el componente transform)
 	float posX;
 	float posY;
 	// Desplazamiento en el eje x respecto a la posición de la entidad.
@@ -191,6 +196,10 @@ typedef struct C_CircleCollider
 /* Controla el ciclo de día y noche. */
 typedef struct C_DayCicle
 {
+	// tiempo en segundos reales en que pasa un minuto en el juego
+	float minuteTime;
+	// tiempo en el que inicia un nuevo día
+	int firstDayTime;
 	// Tiempo total que dura un día
 	unsigned int dayTime;
 	// Tiempo completo actual del día
@@ -199,7 +208,6 @@ typedef struct C_DayCicle
 	unsigned int currentHour;
 	// Minuto actual en el juego (por día)
 	unsigned int currentMinute;
-	// Factor de tiempo que tarda un minuto en pasar
 } C_DayCicle;
 
 /* Controla el rango de colección de objectos del juegador. */
@@ -230,7 +238,7 @@ typedef struct C_Inventory
 	// Cantidad máxima de slots que tiene el inventario.
 	unsigned int maxSlots;
 	// Slots del inventario
-	InventorySlot* slots;
+	InventorySlot** slots;
 
 	/* No aplica para el inventario del jugador */
 	// Indica si el inventario está bloqueado por un cerrojo.
@@ -245,7 +253,9 @@ typedef struct C_HotBar
 	// Cantidad de slots de la barra de acción.
 	unsigned int maxSlots;
 	// Slots de la barra de acción.
-	InventorySlot* slots;
+	InventorySlot** slots;
+	// Slot seleccionado
+	int selectedSlot;
 } C_HotBar;
 
 /* Componente que dota de movimiento al jugador */
@@ -269,6 +279,7 @@ typedef struct C_Action
 /* Componente para las estadísticas del jugador */
 typedef struct C_PlayerStats
 {
+	/*
 	// Nivel máximo de recolección.
 	unsigned int maxCollectionLevel;
 	// Nivel de recolección actual.
@@ -304,6 +315,7 @@ typedef struct C_PlayerStats
 	float currentCombatLevelExp;
 	// Experiencia de combate necesaria para el siguiente nivel.
 	float nextCombatLevelExp;
+	*/
 
 	// Determina si el jugador se encuentra durmiendo o no.
 	unsigned int isSleeping;
@@ -338,10 +350,13 @@ typedef struct C_Builder
 	// Estado del constructor.
 	BUILDER_STATE state;
 	// Construcciones que puede realizar el constructor.
-	BuildItem buildings;
+	BuildItem** buildings;
 	// Mejoras que puede realizar el contructor.
-	BuildItem upgrades;
+	BuildItem** upgrades;
 
+	// cantidad de items
+	int buildingsCount;
+	int upgradesCount;
 	// Construcción en la que se encuentra trabajando.
 	BUILD_TYPE currentBuild;
 	// Dias que le toma una construcción o mejora.

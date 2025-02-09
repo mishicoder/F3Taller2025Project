@@ -56,7 +56,6 @@ int main()
 	RunGame(&game);
 	FreeGame(&game);
 
-
 	return 0;
 }
 
@@ -64,6 +63,10 @@ void LoadResources(Game* game)
 {
 	LoadSprite(game, "assets/game_icon.png", "icon");
 	LoadSpriteWithOptions(game, "assets/sprites/player.png", "assets/sprites/player.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/regadera.png", "assets/sprites/regadera.sprite");
+
 	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
 	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");
+
+	LoadSpriteWithOptions(game, "assets/sprites/skeleton.png", "assets/sprites/skeleton.sprite");
 }

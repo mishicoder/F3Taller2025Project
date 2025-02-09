@@ -17,10 +17,10 @@ typedef struct Animation
 
 typedef struct Frame
 {
-	unsigned int x;
-	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	int x;
+	int y;
+	int width;
+	int height;
 }SpriteFrame;
 
 typedef struct Sprite

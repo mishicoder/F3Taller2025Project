@@ -46,6 +46,7 @@ typedef struct InvSlot
 /* Tipo de construcciones disponibles en el juego. */
 typedef enum BUILD_TYPE
 {
+	BUILD_NONE = -1,
 	// Contrucción->Silo
 	BUILD_SILO = 0,
 	// Contrucción->Gallinero

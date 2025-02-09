@@ -4,7 +4,7 @@ data=skeleton@10,6
 anim=attack@0,6,1,8
 
 # indices: 10 - 19 | frames de animacion: 10 - 19
-anim=death@10,19,1,8
+anim=death@10,19,0,8
 
 # indices: 20 - 29 | frames de animacion: 20 - 26
 anim=hurt@20,26,1,8

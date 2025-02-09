@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <flecs.h>
+#include <math.h>
 #include "../core/game.h"
 
 void MenuOnLoad(Game* game, GameLevel* level);

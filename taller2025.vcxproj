@@ -162,9 +162,14 @@
     <ClInclude Include="src\core\resources\tilemap.h" />
     <ClInclude Include="src\core\resources_manager.h" />
     <ClInclude Include="src\core\utilities.h" />
+    <ClInclude Include="src\implementation\component.h" />
     <ClInclude Include="src\levels\menu.h" />
     <ClInclude Include="src\levels\player.h" />
     <ClInclude Include="src\levels\test_level.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\..\Downloads\TALLER ASSETS\clase.png" />
+    <Image Include="..\..\..\..\..\Downloads\TALLER ASSETS\skeleton.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
