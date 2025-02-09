@@ -655,9 +655,52 @@ ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* t
 
 	// establecer los datos de los componentes
 	ecs_set(level->world, entity, C_Info, { name, tag });
-	ecs_set(level->world, entity, C_Transform, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f});
+	ecs_set(level->world, entity, C_Transform, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f });
 
 	return entity;
+}
+
+ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char* name, const char* tag)
+{
+	ECS_COMPONENT(level->world, C_Info);
+	ECS_COMPONENT(level->world, C_Transform);
+
+	struct ecs_entity_desc_t desc = { 0 };
+	desc.name = tag;
+
+	ecs_entity_t child = ecs_entity_init(level->world, &desc);
+	ecs_add_pair(level->world, child, EcsChildOf, parent);
+	printf("Child %llu added to Parent %llu\n",
+		(unsigned long long)child, (unsigned long long)parent);
+
+	ecs_set(level->world, child, C_Info, { name, tag });
+	ecs_set(level->world, child, C_Transform, { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f });
+
+	return child;
+}
+
+ecs_entity_t GetChildFromIndex(GameLevel* level, ecs_entity_t parent, int index)
+{
+	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{ .id = ecs_pair(EcsChildOf, parent) }
+		}
+	});
+
+	ecs_entity_t child = 0;
+	ecs_iter_t it = ecs_query_iter(level->world, query);
+	int count = 0;
+	while (ecs_query_next(&it))
+	{
+		if (count + it.count > index)
+		{
+			child = it.entities[index - count];
+			break;
+		}
+		count += it.count;
+	}
+
+	return child;
 }
 
 int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, const char* component, const char* cdata)
@@ -883,7 +926,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	{
 		if (ecs_has(level->world, entity, C_CircleCollider)) return 0;
 
-		char* data = strddup(cdata);
+		char* data = strdup(cdata);
 
 		char* context = NULL;
 		char* token = strtok_s(data, ",", &context);
@@ -953,7 +996,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		char* token = strtok_s(data, ",", &context);
 		int maxSlots = atoi(token);
 
-		InventorySlot** slots = (InventorySlot**)mallocc((size_t)maxSlots * sizeof(InventorySlot*));
+		InventorySlot** slots = (InventorySlot**)malloc((size_t)maxSlots * sizeof(InventorySlot*));
 		if (slots == NULL)
 		{
 			free(data);
@@ -1048,6 +1091,13 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	}
 	else if (strcmp(component, C_BUILDER_ID) == 0) 
 	{
+
+		/*
+			Se piensa eliminar ya que se puede mejorar haciendo uso de UI, con los botones, haciendo
+			que también se modifiquen los comportamientos con una nueva propiedad en el componente NPC.
+			"OnInteract"
+		*/
+
 		/*
 			Los elemtos de construccion se cargan de forma dinámica.
 			En este componente, los elementos se separan, primero por @ para obtener el estado.
@@ -1055,6 +1105,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			Tercero por , para obtener los datos de los elementos
 			Cuarto por &, para obtener las mejoras que se pueden aplicar
 		*/
+		/*
 		if (ecs_has(level->world, entity, C_Builder)) return 0;
 
 		char* data = strdup(cdata);
@@ -1164,10 +1215,52 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 
 		free(data);
 		return 1;
+		*/
 	}
-	else if (strcmp(component, C_TRADER_ID) == 0) {}
+	else if (strcmp(component, C_TRADER_ID) == 0) 
+	{
+		/*
+		if (ecs_has(level->world, entity, C_Trader)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, "@", &context);
+		char* productsList = strtok_s(NULL, "@", &context);
+
+		TRADER_STATE state = (TRADER_STATE)atoi(token);
+
+		char* productItemData = strtok_s(productsList, "|", &context);
+		while (productItemData != NULL)
+		{
+			char* itemParams = strtok_s(productItemData, ",", &context);
+			int itemIndex = atoi(itemParams);
+			itemParams = strtok_s(NULL, ",", &context);
+			int amount = atoi(itemParams);
+			itemParams = strtok_s(NULL, ",", &context);
+			int price = atoi(itemParams);
+
+			productItemData = strtok_s(NULL, "|", &context);
+		}
+
+		free(data);
+		return 1;
+		*/
+	}
 	else if (strcmp(component, C_DROP_TABLE_ID) == 0) {}
-	else if (strcmp(component, C_FARM_LAND_ID) == 0) {}
+	else if (strcmp(component, C_FARM_LAND_ID) == 0) 
+	{
+		if (ecs_has(level->world, entity, C_FarmLand)) return 0;
+
+		char* data = strdup(cdata);
+
+		FARMLAND_STATE state = (FARMLAND_STATE)atoi(data);
+
+		ecs_set(level->world, entity, C_FarmLand, { state });
+
+		free(data);
+		return 1;
+	}
 	else if (strcmp(component, C_CROP_ID) == 0) {}
 	else if (strcmp(component, C_TREE_ID) == 0) {}
 	else if (strcmp(component, C_ORE_ID) == 0) {}
@@ -1189,12 +1282,7 @@ int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity, void(*
 	return 1;
 }
 
-int AddLevel(Game* game,
-	const char* name, 
-	unsigned int keepInMemory, 
-	unsigned int renderInStack, 
-	unsigned int updateInStack,
-	void(*Run)(struct Game* game, struct GameLevel* level)
+int AddLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*Run)(struct Game* game, struct GameLevel* level)
 )
 {
 	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, Run);
@@ -1311,6 +1399,38 @@ void UpdateLevel(Game* game, GameLevel* level)
 
 	ecs_query_fini(animQuery);
 
+	// Actualizar entidades que tienen hijos
+	ecs_query_t* childsQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{ .id = ecs_id(C_Transform) },
+			{ .id = ecs_pair(EcsChildOf, EcsWildcard) }
+		}
+	});
+	ecs_iter_t itChilds = ecs_query_iter(level->world, childsQuery);
+	while (ecs_query_next(&itChilds))
+	{
+		for(int i = 0; i < itChilds.count; i++)
+		{
+			ecs_entity_t ent = itChilds.entities[i];
+			ecs_entity_t par = ecs_get_target(level->world, ent, EcsChildOf, 0);
+			if (par)
+			{
+				//printf("ID DE LA ENTIDAD: %llu | PARA: %llu\n", ent, par);
+				const C_Transform* t = ecs_get(level->world, par, C_Transform);
+				if (t)
+				{
+					C_Transform* childT = ecs_get(level->world, ent, C_Transform);
+					C_Transform* parentT = ecs_get(level->world, par, C_Transform);
+
+					childT->relX = parentT->positionX + childT->positionX;
+					childT->relY = parentT->positionY + childT->positionY;
+				}
+			}
+		}
+	}
+
+	ecs_query_fini(childsQuery);
+
 	/******************************************************************************
 	* GESTION DE COLISIONES
 	******************************************************************************/
@@ -1418,7 +1538,8 @@ void RenderLevel(Game* game, GameLevel* level)
 								frame->x, frame->y, spriteRender->flipX == 1 ? (-frame->width) : (frame->width), spriteRender->flipY ? (-frame->height) : frame->height
 							},
 								(Rectangle) {
-								transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y,
+									transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
+									transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y,
 									frame->width* transform->scaleX, frame->height* transform->scaleY
 							},
 								sprite->origin,
@@ -1439,7 +1560,8 @@ void RenderLevel(Game* game, GameLevel* level)
 							0, 0, spriteRender->flipX == 1 ? (-zeroFrame->width) : (zeroFrame->width), spriteRender->flipY == 1 ? (-zeroFrame->height) : (zeroFrame->height)
 						},
 							(Rectangle) {
-							transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y, (zeroFrame->width)* transform->scaleX, zeroFrame->height* transform->scaleY
+								transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
+								transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y, (zeroFrame->width)* transform->scaleX, zeroFrame->height* transform->scaleY
 						},
 							sprite->origin,
 							transform->rotation,
@@ -1458,7 +1580,10 @@ void RenderLevel(Game* game, GameLevel* level)
 				DrawTexturePro(
 					map->mapTexture.texture,
 					(Rectangle){ 0, 0, map->mapTexture.texture.width, -map->mapTexture.texture.height },
-					(Rectangle){ transform->positionX, transform->positionY, map->mapTexture.texture.width * transform->scaleX, map->mapTexture.texture.height * transform->scaleY },
+					(Rectangle){ 
+					transform->relX == 0.0f ? transform->positionX : transform->relX, 
+					transform->relY == 0.0f ? transform->positionY : transform->relY, 
+					map->mapTexture.texture.width * transform->scaleX, map->mapTexture.texture.height * transform->scaleY },
 					(Vector2){ 0.0f, 0.0f },
 					0.0f,
 					color != NULL ? (Color){ color->r, color->g, color->b, 255 } : WHITE
@@ -1480,7 +1605,8 @@ void RenderLevel(Game* game, GameLevel* level)
 						sprite->x, sprite->y, sprite->width, sprite->height
 					},
 						(Rectangle) {
-						transform->positionX + sprite->origin.x, transform->positionY + sprite->origin.y,
+						transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
+						transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y,
 							(sprite->width * transform->scaleX)* spriteRender->flipX == 1 ? 1 : -1, (sprite->height * transform->scaleY)* spriteRender->flipY == 1 ? 1 : -1
 					},
 						sprite->origin,

@@ -62,8 +62,9 @@ int main()
 void LoadResources(Game* game)
 {
 	LoadSprite(game, "assets/game_icon.png", "icon");
-	LoadSpriteWithOptions(game, "assets/sprites/player.png", "assets/sprites/player.sprite");
-	LoadSpriteWithOptions(game, "assets/sprites/regadera.png", "assets/sprites/regadera.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/player/player.png", "assets/sprites/player/player.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/player/tools.png", "assets/sprites/player/tools.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/player/longhair.png", "assets/sprites/player/longhair.sprite");
 
 	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
 	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");

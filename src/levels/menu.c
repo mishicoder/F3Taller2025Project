@@ -6,6 +6,7 @@ void OnCreate(Game* game, GameLevel* level, ecs_entity_t entity)
 }
 
 int currentAnim = 0;
+int isRunning = 0;
 int inRoll = 0;
 
 void OnPlayerEndAnim(Game* game, GameLevel* level, ecs_entity_t entity, const char* name)
@@ -46,7 +47,17 @@ void OnInput(Game* game, GameLevel* level, ecs_entity_t entity)
 		"watering" // 19
 	};
 
-	//printf("Anim: %s\n", anims[currentAnim]);
+	ecs_entity_t hair = GetChildFromIndex(level, entity, 0);
+	ecs_entity_t child = GetChildFromIndex(level, entity, 1);
+
+	if (IsKeyDown(KEY_LEFT_SHIFT))
+	{
+		isRunning = 1;
+	}
+	if (IsKeyReleased(KEY_LEFT_SHIFT))
+	{
+		isRunning = 0;
+	}
 
 	if (IsKeyReleased(KEY_RIGHT)) {
 		currentAnim++;
@@ -55,6 +66,10 @@ void OnInput(Game* game, GameLevel* level, ecs_entity_t entity)
 			currentAnim = 0;
 
 		PlayAnimation(game, level, entity, anims[currentAnim]);
+		if (child != 0)
+			PlayAnimation(game, level, child, anims[currentAnim]);
+		if(hair != 0)
+			PlayAnimation(game, level, hair, anims[currentAnim]);
 	}
 	if (IsKeyReleased(KEY_LEFT)) {
 		currentAnim--;
@@ -63,51 +78,131 @@ void OnInput(Game* game, GameLevel* level, ecs_entity_t entity)
 			currentAnim = 18;
 
 		PlayAnimation(game, level, entity, anims[currentAnim]);
+		if (child != 0)
+			PlayAnimation(game, level, child, anims[currentAnim]);
+		if (hair != 0)
+			PlayAnimation(game, level, hair, anims[currentAnim]);
 	}
 
 	if (IsKeyDown(KEY_D))
 	{
 		transform->positionX += 200 * GetFrameTime();
 		spRender->flipX = 0;
+		if (child != 0)
+		{
+			C_SpriteRender* csp = ecs_get(level->world, child, C_SpriteRender);
+			csp->flipX = 0;
+		}
+		if (hair != 0)
+		{
+			C_SpriteRender* hsp = ecs_get(level->world, hair, C_SpriteRender);
+			hsp->flipX = 0;
+		}
+
 		if(inRoll == 0)
-			PlayAnimation(game, level, entity, "walking");
+		{
+			isRunning == 0 ? PlayAnimation(game, level, entity, "walking") : PlayAnimation(game, level, entity, "run");
+			if (child != 0)
+				PlayAnimation(game, level, child, "walking");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "walking");
+		}
 	}
 	if (IsKeyDown(KEY_A))
 	{
 		transform->positionX -= 200 * GetFrameTime();
 		spRender->flipX = 1;
+		if (child != 0)
+		{
+			C_SpriteRender* csp = ecs_get(level->world, child, C_SpriteRender);
+			csp->flipX = 1;
+		}
+		if (hair != 0)
+		{
+			C_SpriteRender* hsp = ecs_get(level->world, hair, C_SpriteRender);
+			hsp->flipX = 1;
+		}
+
 		if (inRoll == 0)
+		{
 			PlayAnimation(game, level, entity, "walking");
+			if (child != 0)
+				PlayAnimation(game, level, child, "walking");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "walking");
+		}
 	}
 	if (IsKeyDown(KEY_W))
 	{
 		transform->positionY -= 200 * GetFrameTime();
 		if (inRoll == 0)
+		{
 			PlayAnimation(game, level, entity, "walking");
+			if (child != 0)
+				PlayAnimation(game, level, child, "walking");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "walking");
+		}
 	}
 	if (IsKeyDown(KEY_S))
 	{
 		transform->positionY += 200 * GetFrameTime();
 		if (inRoll == 0)
+		{
 			PlayAnimation(game, level, entity, "walking");
+			if (child != 0)
+				PlayAnimation(game, level, child, "walking");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "walking");
+		}
 	}
 
 	if(IsKeyPressed(KEY_R))
 	{
 		inRoll = 1;
-		PlayAnimation(game, level, entity, "roll");
+		{
+			PlayAnimation(game, level, entity, "roll");
+			if (child != 0)
+				PlayAnimation(game, level, child, "roll");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "roll");
+		}
 	}
 
 	if(inRoll == 0)
 	{
 		if (IsKeyReleased(KEY_A))
+		{
 			PlayAnimation(game, level, entity, "idle");
+			if (child != 0)
+				PlayAnimation(game, level, child, "idle");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "idle");
+		}
 		if (IsKeyReleased(KEY_S))
+		{
 			PlayAnimation(game, level, entity, "idle");
+			if (child != 0)
+				PlayAnimation(game, level, child, "idle");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "idle");
+		}
 		if (IsKeyReleased(KEY_D))
+		{
 			PlayAnimation(game, level, entity, "idle");
+			if (child != 0)
+				PlayAnimation(game, level, child, "idle");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "idle");
+		}
 		if (IsKeyReleased(KEY_W))
+		{
 			PlayAnimation(game, level, entity, "idle");
+			if (child != 0)
+				PlayAnimation(game, level, child, "idle");
+			if (hair != 0)
+				PlayAnimation(game, level, hair, "idle");
+		}
 	}
 }
 
@@ -130,7 +225,6 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	C_Transform* skeletonT = ecs_get(level->world, skeleton, C_Transform);
 
 	float d = sqrt(pow(iconTransform->positionX - skeletonT->positionX, 2) + pow(iconTransform->positionY - skeletonT->positionY, 2));
-	printf("Distancia: %.2f\n", d);
 	if (d <= 196.0f)
 	{
 		PlayAnimation(game, level, skeleton, "death");
@@ -139,18 +233,6 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	{
 		PlayAnimation(game, level, skeleton, "idle");
 	}
-
-	ecs_entity_t regadera = ecs_lookup(level->world, "regadera");
-	C_Transform* regaderaTransform = ecs_get(level->world, regadera, C_Transform);
-	C_SpriteAnimation* regaderaAnim = ecs_get(level->world, regadera, C_SpriteAnimation);
-	regaderaTransform->scaleX = 4.0f;
-	regaderaTransform->scaleY = 4.0f;
-
-	if (IsKeyReleased(KEY_P))
-	{
-		PlayAnimation(game, level, regadera, "run");
-	}
-
 
 	C_Transform* cameraTransform = ecs_get(level->world, entity, C_Transform);
 	C_Camera2D* camera = ecs_get(level->world, entity, C_Camera2D);
@@ -184,19 +266,32 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	skeletonT->scaleY = 6.0f;
 
 	ecs_entity_t mainCamera = CreateBlankEntity(level, "camera", "main_camera");
-	AddComponentToEntity(game, level, mainCamera, C_CAMERA_2D_ID, "1,0.0,0.0,0.0,0.0,0.0,1.2");
+	AddComponentToEntity(game, level, mainCamera, C_CAMERA_2D_ID, "1,0.0,0.0,0.0,0.0,0.0,1.0");
 	AddEntityBehaviour(game, level, mainCamera, NULL, NULL, OnUpdateCamera, NULL, NULL);
 
-	ecs_entity_t regadera = CreateBlankEntity(level, "regadera", "regadera");
-	AddComponentToEntity(game, level, regadera, C_SPRITE_RENDER_ID, "regadera,1,1.0,0,0");
-	AddComponentToEntity(game, level, regadera, C_SPRITE_ANIMATION_ID, "regadera");
-	ecs_entity_t iconSpt = CreateBlankEntity(level, "icon", "icon");
-	AddComponentToEntity(game, level, iconSpt, C_SPRITE_RENDER_ID, "player,1,1.0,0,0");
-	AddComponentToEntity(game, level, iconSpt, "animation", "player");
-	AddEntityBehaviour(game, level, iconSpt, OnCreate, OnInput, NULL, NULL, NULL);
-	C_Transform* itransform = ecs_get(level->world, iconSpt, C_Transform);
-	C_SpriteAnimation* playerSA = ecs_get(level->world, iconSpt, C_SpriteAnimation);
+	ecs_entity_t player = CreateBlankEntity(level, "icon", "icon");
+	AddComponentToEntity(game, level, player, C_SPRITE_RENDER_ID, "player,1,1.0,0,0");
+	AddComponentToEntity(game, level, player, "animation", "player");
+	AddEntityBehaviour(game, level, player, OnCreate, OnInput, NULL, NULL, NULL);
+	C_Transform* itransform = ecs_get(level->world, player, C_Transform);
+	C_SpriteAnimation* playerSA = ecs_get(level->world, player, C_SpriteAnimation);
 	playerSA->OnEnd = OnPlayerEndAnim;
+
+	ecs_entity_t playerHair = AddChildToEntity(level, player, "longhair", "longhair");
+	AddComponentToEntity(game, level, playerHair, C_SPRITE_RENDER_ID, "long_hair,1,1.0,0,0");
+	AddComponentToEntity(game, level, playerHair, C_SPRITE_ANIMATION_ID, "long_hair");
+	C_Transform* hairT = ecs_get(level->world, playerHair, C_Transform);
+	hairT->scaleX = 4.0f;
+	hairT->scaleY = 4.0f;
+	PlayAnimation(game, level, playerHair, "idle");
+
+	ecs_entity_t playerTools = AddChildToEntity(level, player, "tools", "tools");
+	AddComponentToEntity(game, level, playerTools, C_SPRITE_RENDER_ID, "tools,1,1.0,0,0");
+	AddComponentToEntity(game, level, playerTools, C_SPRITE_ANIMATION_ID, "tools");
+	C_Transform* toolsT = ecs_get(level->world, playerTools, C_Transform);
+	toolsT->scaleX = 4.0f;
+	toolsT->scaleY = 4.0f;
+	PlayAnimation(game, level, playerTools, "idle");
 
 	ecs_entity_t playerHouse = CreateBlankEntity(level, "house", "player_house");
 	AddComponentToEntity(game, level, playerHouse, C_MAP_RENDER_ID, "player_house");

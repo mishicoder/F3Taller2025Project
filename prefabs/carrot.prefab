@@ -1,0 +1,7 @@
+# datos a leer del prefab
+name=crop
+tag=crop
+com=crop@0,0,0,0,0,0
+com=dtable@dtables/crop.dtable
+com=rect@0,0,16,16,0
+comp=selectable@...

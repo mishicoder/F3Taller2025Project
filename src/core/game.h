@@ -275,6 +275,17 @@ ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* t
 ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char* name, const char* tag);
 
 /**
+* Retorna un entidad hija segun su indice.
+* 
+* @param[in] level Puntero al nivel donde se buscará la entidad hija.
+* @param[in] parent Entidad padre en la cual se buscará la entidad hija.
+* @param[in] index Indice de la entidad
+* 
+* @return Retorna ecs_entity_t si se encuentra un hijo, caso contrario, retorna 0.
+*/
+ecs_entity_t GetChildFromIndex(GameLevel* level, ecs_entity_t parent, int index);
+
+/**
 * Agrega un componente a una entidad cargada en base a cadenas de texto.
 * El componente "C_Behaviour" no funciona en esta función, para ello se debe usar
 * la función "AddEntityBehaviour"

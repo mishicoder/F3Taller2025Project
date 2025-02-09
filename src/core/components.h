@@ -95,6 +95,10 @@ typedef struct C_Transform
 
 	// rotación de la entidad (a favor de las agujas del reloj)
 	float rotation;
+
+	// posicion relativa (parents)
+	float relX;
+	float relY;
 } C_Transform;
 
 /* Permite a la entidad renderizar un sprite en el mundo. */
@@ -188,6 +192,14 @@ typedef struct C_CircleCollider
 	// Determina si el círculo de colisión es solido.
 	unsigned short isSolid;
 }C_CircleCollider;
+
+typedef struct C_PointCollider{
+	float positionX;
+	float positionY;
+
+	float offsetX;
+	float offsetY;
+}C_PointCollider;
 
 /*********************************************************
 * componentes para eljuego
@@ -371,7 +383,8 @@ typedef struct C_Trader
 	// Estado del comerciante
 	TRADER_STATE state;
 	// Productos que vende el comerciante
-	TradeItem products;
+	TradeItem** products;
+	int productsCount;
 } C_Trader;
 
 /* Componente que permite a una entidad tener un drop */
