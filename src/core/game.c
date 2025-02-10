@@ -9,9 +9,11 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 	InitWindow(game->config.windowWidth, game->config.windowHeight, game->config.windowTitle);
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetWindowMinSize(game->config.windowWidth, game->config.windowHeight);
-	printf("TARGET FPS: %d\n", config.targetFPS);
 	if (config.targetFPS == 0)
 		game->config.targetFPS = 60;
+	if (config.globalScale == 0.0)
+		game->config.globalScale = 1.0f;
+	printf("GLOBAL SCALE: %.1ff\n", game->config.globalScale);
 
 	SetTargetFPS(game->config.targetFPS);
 
@@ -26,7 +28,6 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 	{
 		int fsWidth = GetMonitorWidth(GetCurrentMonitor());
 		int fsHeight = GetMonitorHeight(GetCurrentMonitor());
-		printf("Win Width: %d | Win Height: %d\n", fsWidth, fsHeight);
 		SetWindowSize(fsWidth, fsHeight);
 		ToggleFullscreen();
 	}
@@ -118,7 +119,6 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 	if (result.status == -1)
 	{
 		fclose(file);
-		printf("ERROR WE\n");
 		return 0;
 	}
 
@@ -151,7 +151,6 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 						// obtener el nombre y los n�meros
 						char* spriteName = strtok(value, "@");
 						char* sName = strdup(spriteName);
-						printf("SPRITE NAME ANTES: %s\n", spriteName);
 						char* spriteData = strtok(NULL, "@");
 						if (spriteName != NULL && spriteData != NULL)
 						{
@@ -176,8 +175,6 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 										for (int j = 0; j < sliceX; j++)
 										{
 											AddSpriteFrame(sprite, frameWidth * j, frameHeight * i, frameWidth, frameHeight);
-											//printf("FRAME AGREGADO %d: %d, %d, %d, %d\n", currentFrame, frameWidth * j, frameHeight * i, frameWidth, frameHeight);
-											//currentFrame++;
 										}
 									}
 								}
@@ -214,7 +211,6 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 									animOptions[2],
 									animOptions[3]
 								);
-								//printf("Animacion <%s> cargada\n", animName);
 							}
 						}
 					}
@@ -228,7 +224,6 @@ int LoadSpriteWithOptions(Game* game, const char* textureFilename, const char* d
 	if (sprite != NULL)
 	{
 		AddSprite(&game->resourcesManager, sprite);
-		printf("Sprite <%s> agregado\n", sprite->name);
 	}
 
 	return 1;
@@ -262,8 +257,6 @@ void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char
 		animationComp->loop = animation->loop;
 		animationComp->speed = animation->speed;
 		animationComp->frameCounter = 0;
-		printf("CURRENT ANIMATION: %s | %d\n", animationComp->currentAnimation, animation->loop);
-		printf("DATO DE LOOP: %d\n", animation->loop);
 	}
 	else
 	{
@@ -274,8 +267,6 @@ void PlayAnimation(Game* game, GameLevel* level, ecs_entity_t entity, const char
 		animationComp->loop = animation->loop;
 		animationComp->speed = animation->speed;
 		animationComp->frameCounter = 0;
-		printf("CURRENT ANIMATION: %s\n", animationComp->currentAnimation);
-		printf("DATO DE LOOP: %d\n", animation->loop);
 	}
 }
 
@@ -477,7 +468,6 @@ int PushMemoryLevel(Game* game, const char* name)
 	for (int i = 0; i < game->levelCacheCount; i++)
 	{
 		int nameCompare = strcmp(game->levelCache[i]->name, name);
-		printf("NOMBRES A COMPARAR: %s <> %s\n", game->levelCache[i]->name, name);
 		if (nameCompare == 0)
 		{
 			GameLevel** cacheMemTemp = NULL;
@@ -670,8 +660,6 @@ ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char*
 
 	ecs_entity_t child = ecs_entity_init(level->world, &desc);
 	ecs_add_pair(level->world, child, EcsChildOf, parent);
-	printf("Child %llu added to Parent %llu\n",
-		(unsigned long long)child, (unsigned long long)parent);
 
 	ecs_set(level->world, child, C_Info, { name, tag });
 	ecs_set(level->world, child, C_Transform, { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f });
@@ -910,11 +898,11 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		float offsetX = atof(token);
 		token = strtok_s(NULL, ",", &context);
 		float offsetY = atof(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		int width = atoi(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		int height = atoi(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		int isSolid = atoi(token);
 
 		ecs_set(level->world, entity, C_RectCollider, { 0.0f, 0.0f, offsetX, offsetY, width, height, isSolid });
@@ -931,11 +919,11 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		char* context = NULL;
 		char* token = strtok_s(data, ",", &context);
 		float offsetX = atof(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		float offsetY = atof(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		float radius = atof(token);
-		token = strtok_s(data, ",", &context);
+		token = strtok_s(NULL, ",", &context);
 		int isSolid = atoi(token);
 
 		ecs_set(level->world, entity, C_CircleCollider, { 0.0f, 0.0f, offsetX, offsetY, radius, isSolid });
@@ -1436,24 +1424,73 @@ void UpdateLevel(Game* game, GameLevel* level)
 	******************************************************************************/
 	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = { 
-			{ .id = ecs_id(C_RectCollider), .oper = EcsOr }, // 1
-			{ .id = ecs_id(C_CircleCollider) } // 2
+			{ .id = ecs_id(C_CircleCollider), .oper = EcsOr },
+			{ .id = ecs_id(C_RectCollider) } // 1
 		}
 	});
 
 	ecs_iter_t itCollider = ecs_query_iter(level->world, queryCollider);
+	
 	while (ecs_query_next(&itCollider))
 	{
 		for (int i = 0; i < itCollider.count; i++)
 		{
-			C_Transform* transform = ecs_get(level->world, it.entities[i], C_Transform);
-			C_RectCollider* rectCollider = ecs_get(level->world, it.entities[i], C_RectCollider);
+			C_Transform* transform = ecs_get(level->world, itCollider.entities[i], C_Transform);
+			C_RectCollider* rectCollider = ecs_get(level->world, itCollider.entities[i], C_RectCollider);
+			C_CircleCollider* circleCollider = ecs_get(level->world, itCollider.entities[i], C_CircleCollider);
 			if (rectCollider != NULL)
 			{
 				float px = transform->positionX + rectCollider->offsetX;
 				float py = transform->positionY + rectCollider->offsetY;
 				rectCollider->posX = px;
 				rectCollider->posY = py;
+			}
+			if (circleCollider != NULL)
+			{
+				float px = transform->positionX + circleCollider->offsetX;
+				float py = transform->positionY + circleCollider->offsetY;
+				circleCollider->posX = px;
+				circleCollider->posY = py;
+			}
+		}
+		
+		for (int i = 0; i < itCollider.count; i++)
+		{
+			ecs_entity_t ent = itCollider.entities[i];
+			C_RectCollider* entRecColl = ecs_get(level->world, ent, C_RectCollider);
+			C_CircleCollider* entCirColl = ecs_get(level->world, ent, C_CircleCollider);
+			C_Transform* entTransform = ecs_get(level->world, ent, C_Transform);
+
+			ecs_iter_t itinner = ecs_query_iter(level->world, queryCollider);
+			while (ecs_iter_next(&itinner))
+			{
+				for (int j = 0; j < itinner.count; j++)
+				{
+					ecs_entity_t innerEnt = itinner.entities[i];
+					if (ent == innerEnt) continue;
+
+					C_RectCollider* innerRectColl = ecs_get(level->world, innerEnt, C_RectCollider);
+					C_CircleCollider* innerCircColl = ecs_get(level->world, innerEnt, C_CircleCollider);
+
+					if (entRecColl != NULL && innerCircColl != NULL)
+					{
+						if(IntersectionCircleRectTransformImplementation(
+							entTransform,
+							(Rectangle){ entRecColl->posX, entRecColl->posY, entRecColl->width, entRecColl->height },
+							(Circle){ innerCircColl->posX, innerCircColl->posY, innerCircColl->radius },
+							innerCircColl->isSolid
+						) == 1)
+						{
+							if (ecs_has(level->world, ent, C_Behaviour))
+							{
+								C_Behaviour* beh = ecs_get(level->world, ent, C_Behaviour);
+								if (beh->OnCollision != NULL)
+									beh->OnCollision(game, level, ent, innerEnt);
+							}
+						}
+					}
+					if(entRecColl != NULL && innerRectColl != NULL) {}
+				}
 			}
 		}
 	}
@@ -1469,6 +1506,8 @@ void RenderLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_MapRender);
 	ECS_COMPONENT(level->world, C_Camera2D);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
+	ECS_COMPONENT(level->world, C_RectCollider);
+	ECS_COMPONENT(level->world, C_CircleCollider);
 
 	ecs_entity_t mainCamera = GetMainCamera(level);
 	if (mainCamera == 0)
@@ -1615,17 +1654,37 @@ void RenderLevel(Game* game, GameLevel* level)
 					);
 				}
 			}
-			// Si se renderiza un sprite con animaciones
-			if (spriteRender != NULL && spAnimation != NULL)
-			{
-				continue;
-				printf("No\n");
-				
-			}
 		}
 	}
 
 	//EndBlendMode();
+
+	/* DEBUG */
+	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{.id = ecs_id(C_RectCollider), .oper = EcsOr }, // 1
+			{.id = ecs_id(C_CircleCollider) } // 2
+		}
+	});
+
+	ecs_iter_t itCollider = ecs_query_iter(level->world, queryCollider);
+	while (ecs_query_next(&itCollider))
+	{
+		for (int i = 0; i < itCollider.count; i++)
+		{
+			C_RectCollider* rectCollider = ecs_get(level->world, itCollider.entities[i], C_RectCollider);
+			C_CircleCollider* circleCollider = ecs_get(level->world, itCollider.entities[i], C_CircleCollider);
+			if (rectCollider != NULL)
+			{
+				//printf("RECTANGLE > x: %.2f | y: %.2f | w: %.2f | h: %.2f\n", rectCollider->posX, rectCollider->posY, (float)rectCollider->width, (float)rectCollider->height);
+				DrawRectangleLinesEx((Rectangle){ rectCollider->posX, rectCollider->posY, rectCollider->width, rectCollider->height }, 2.0f, RED);
+			}
+			if (circleCollider != NULL)
+			{
+				DrawCircleLines(circleCollider->posX, circleCollider->posY, circleCollider->radius, RED);
+			}
+		}
+	}
 
 	EndMode2D();
 }

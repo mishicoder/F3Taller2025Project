@@ -68,7 +68,6 @@ int AddSpriteAnimation(Sprite* sprite, const char* name, unsigned int fromIndex,
 	if (animation == NULL) return 0;
 
 	animation->name = name;
-	printf("SPRITE ANIMATION: %s\n", animation->name);
 	if (!animation->name)
 	{
 		printf("Error al cargar la animación\n");

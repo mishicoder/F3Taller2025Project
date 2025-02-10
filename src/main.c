@@ -61,7 +61,11 @@ int main()
 
 void LoadResources(Game* game)
 {
-	LoadSprite(game, "assets/game_icon.png", "icon");
+	// Cargar semillasy plantas
+	LoadSpriteAtlas(game, "assets/sprites/plants/crops.png", "assets/sprites/plants/crops.atlas");
+	LoadSpriteAtlas(game, "assets/sprites/plants/seeds.png", "assets/sprites/plants/seeds.atlas");
+	LoadSpriteWithOptions(game, "assets/sprites/plants/bushes.png", "assets/sprites/plants/bushes.sprite");
+
 	LoadSpriteWithOptions(game, "assets/sprites/player/player.png", "assets/sprites/player/player.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/player/tools.png", "assets/sprites/player/tools.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/player/longhair.png", "assets/sprites/player/longhair.sprite");

@@ -1,0 +1,11 @@
+sprite=carrot[0,0,16,16
+sprite=cauliflower[16,0,16,16
+sprite=pumpkin[32,0,16,16
+sprite=sunflower[48,0,16,16
+sprite=radish[64,0,16,16
+sprite=parsnip[80,0,16,16
+sprite=potato[96,0,16,16
+sprite=cabbage[112,0,16,16
+sprite=beetroot[128,0,16,16
+sprite=wheat[144,0,16,16
+sprite=kale[160,0,16,16

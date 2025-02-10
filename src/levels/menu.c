@@ -5,6 +5,13 @@ void OnCreate(Game* game, GameLevel* level, ecs_entity_t entity)
 	PlayAnimation(game, level, entity, "idle");
 }
 
+int counter = 0;
+void OnCollider(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t coll)
+{
+	printf("ME CHOCAS WE %d!\n", counter);
+	counter++;
+}
+
 int currentAnim = 0;
 int isRunning = 0;
 int inRoll = 0;
@@ -15,6 +22,12 @@ void OnPlayerEndAnim(Game* game, GameLevel* level, ecs_entity_t entity, const ch
 	{
 		inRoll = 0;
 		PlayAnimation(game, level, entity, "idle");
+		ecs_entity_t hair = GetChildFromIndex(level, entity, 0);
+		ecs_entity_t tools = GetChildFromIndex(level, entity, 1);
+		if (hair != 0)
+			PlayAnimation(game, level, hair, "idle");
+		if (tools != 0)
+			PlayAnimation(game, level, tools, "idle");
 	}
 }
 
@@ -103,9 +116,9 @@ void OnInput(Game* game, GameLevel* level, ecs_entity_t entity)
 		{
 			isRunning == 0 ? PlayAnimation(game, level, entity, "walking") : PlayAnimation(game, level, entity, "run");
 			if (child != 0)
-				PlayAnimation(game, level, child, "walking");
+				isRunning == 0 ? PlayAnimation(game, level, child, "walking") : PlayAnimation(game, level, child, "run");
 			if (hair != 0)
-				PlayAnimation(game, level, hair, "walking");
+				isRunning == 0 ? PlayAnimation(game, level, hair, "walking") : PlayAnimation(game, level, hair, "run");
 		}
 	}
 	if (IsKeyDown(KEY_A))
@@ -213,6 +226,7 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	ECS_COMPONENT(level->world, C_SpriteRender);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_Transform);
+	ECS_COMPONENT(level->world, C_RectCollider);
 
 	ecs_entity_t icon = ecs_lookup(level->world, "icon");
 	C_Transform* iconTransform = ecs_get(level->world, icon, C_Transform);
@@ -255,6 +269,10 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_MapRender);
 	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
+	ECS_COMPONENT(level->world, C_RectCollider);
+
+	ecs_entity_t circle = CreateBlankEntity(level, "circle", "circle");
+	AddComponentToEntity(game, level, circle, C_CIRCLE_COLLIDER_ID, "0.0,0.0,40,1");
 
 	ecs_entity_t skeleton = CreateBlankEntity(level, "skely", "skeleton");
 	AddComponentToEntity(game, level, skeleton, C_SPRITE_RENDER_ID, "skeleton,1,1.0,0,0");
@@ -272,10 +290,16 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	ecs_entity_t player = CreateBlankEntity(level, "icon", "icon");
 	AddComponentToEntity(game, level, player, C_SPRITE_RENDER_ID, "player,1,1.0,0,0");
 	AddComponentToEntity(game, level, player, "animation", "player");
-	AddEntityBehaviour(game, level, player, OnCreate, OnInput, NULL, NULL, NULL);
+	AddEntityBehaviour(game, level, player, OnCreate, OnInput, NULL, NULL, OnCollider);
+	AddComponentToEntity(game, level, player, C_RECT_COLLIDER_ID, "44.0,27.0,50,50,1");
 	C_Transform* itransform = ecs_get(level->world, player, C_Transform);
 	C_SpriteAnimation* playerSA = ecs_get(level->world, player, C_SpriteAnimation);
 	playerSA->OnEnd = OnPlayerEndAnim;
+	C_RectCollider* rcollider = ecs_get(level->world, player, C_RectCollider);
+	rcollider->offsetX = 44.0f * 4.0f;
+	rcollider->offsetY = 27.0f * 4.0f;
+	rcollider->width = 10.0f * 4.0f;
+	rcollider->height = 12.0f * 4.0f;
 
 	ecs_entity_t playerHair = AddChildToEntity(level, player, "longhair", "longhair");
 	AddComponentToEntity(game, level, playerHair, C_SPRITE_RENDER_ID, "long_hair,1,1.0,0,0");
@@ -298,4 +322,7 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	C_Transform* phTransform = ecs_get(level->world, playerHouse, C_Transform);
 	phTransform->scaleX = 4.0f;
 	phTransform->scaleY = 4.0f;
+
+	// test
+	
 }

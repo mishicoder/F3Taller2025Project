@@ -55,9 +55,6 @@
     <ClCompile Include="src\core\utilities.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\implementation\calefactor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\resources_manager.h">
@@ -91,12 +88,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\levels\farm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\implementation\calefactor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\implementation\impTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <raylib.h>
+#include "components.h"
 #include "gametypes.h"
 
 /**
@@ -42,6 +43,11 @@ void GetClosestPoint(Rectangle rect, Circle circle, float* closestX, float* clos
 int IntersectionCircleRectCollisionImplementation(Rectangle* rect, Circle circle);
 
 /**
+* 
+*/
+int IntersectionCircleRectTransformImplementation(C_Transform* transform, Rectangle rect, Circle circle, int isSolid);
+
+/**
 * Función para obtener el rectángulo de intersección entre dos rectángulos.
 *
 * @param[in]  a Rectángulo de colisión 1.
@@ -69,5 +75,51 @@ int ResolveRectRectCollision(Rectangle* a, Rectangle b, unsigned int isSolid);
 * @return Retorna 1 si se da la colisión, caso contrario, retorna 0.
 */
 int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b);
+
+// 9-slice
+/*
+#include "raylib.h"
+
+int main(void)
+{
+    // Inicializar ventana
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+    InitWindow(screenWidth, screenHeight, "9-Slice con NPatch");
+
+    // Cargar imagen
+    Texture2D texture = LoadTexture("panel.png");
+
+    // Definir el N-Patch (bordes que no se estiran)
+    int border = 16;  // Ajusta según la imagen
+    NPatchInfo patch = {
+        (Rectangle){ 0, 0, texture.width, texture.height },  // Región de la imagen completa
+        border, border, border, border,  // Márgenes (left, top, right, bottom)
+        NPATCH_NINE_PATCH  // Tipo de parche (9-Slice)
+    };
+
+    // Área donde se dibujará la imagen
+    Rectangle dest = { 200, 150, 400, 300 };
+
+    // Bucle principal
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        // Dibujar el N-Patch
+        DrawTextureNPatch(texture, patch, dest, (Vector2){ 0, 0 }, 0.0f, WHITE);
+
+        DrawText("9-Slice con NPatch", 10, 10, 20, DARKGRAY);
+        EndDrawing();
+    }
+
+    // Liberar recursos
+    UnloadTexture(texture);
+    CloseWindow();
+
+    return 0;
+}
+*/
 
 #endif // !UTILITIES_H

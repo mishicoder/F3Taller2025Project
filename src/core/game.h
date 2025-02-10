@@ -8,6 +8,7 @@
 #include <mxml.h>
 #include "resources_manager.h"
 #include "level.h"
+#include "utilities.h"
 
 /*
 * Configuracion del juego.
@@ -30,6 +31,8 @@ typedef struct GameConfig{
 	Color colorBackground;
 	// Determina si se hace un debug de las colisiones y otras cosas.
 	unsigned int activeDebug;
+	// indica la escala global del juego
+	float globalScale;
 } GameConfig;
 
 /**

@@ -1,0 +1,5 @@
+data=bush@3,1
+
+anim=empty@0,0,1,8
+anim=red@1,1,1,8
+anim=yellow@2,2,1,8

@@ -1,0 +1,11 @@
+sprite=carrot_seed[0,0,16,16
+sprite=cauliflower_seed[16,0,16,16
+sprite=pumpkin_seed[32,0,16,16
+sprite=sunflower_seed[48,0,16,16
+sprite=radish_seed[64,0,16,16
+sprite=parsnip_seed[80,0,16,16
+sprite=potato_seed[96,0,16,16
+sprite=cabbage_seed[112,0,16,16
+sprite=beetroot_seed[128,0,16,16
+sprite=wheat_seed[144,0,16,16
+sprite=kale_seed[160,0,16,16
