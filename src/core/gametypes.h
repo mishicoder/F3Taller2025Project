@@ -2,6 +2,8 @@
 #ifndef GAMETYPES_H
 #define GAMETYPES_H
 
+#define HELMET_SLOT 0
+
 typedef struct Circle
 {
 	float centerX;
@@ -17,7 +19,8 @@ typedef struct GameItem
 	// Cantidad maxima que puede haber de este item en el slot.
 	unsigned int maxStack;
 	// Calidad del material (-1 si el material no posee calidad)
-	signed int quality;
+	signed int minQuality;
+	signed int maxQuality;
 	// Indica si el item se puede vender (en tienda).
 	unsigned int canBeSold;
 	// Indica el precio de venta del item en tienda (solo si se puede vender en tienda).
@@ -74,6 +77,8 @@ typedef struct BuildItem
 {
 	// Tipo de construcción que se realizará
 	BUILD_TYPE type;
+	// precio de la estructura
+	unsigned int price;
 	// Cantidad de madera que se requiere para la construcción
 	unsigned int woodQuantity;
 	// Cantidad de roca que se requiere para la construcción

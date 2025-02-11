@@ -1,8 +1,8 @@
 # table de drops par las semillas
 
 # le da un item por defecto
-item=1,1,1.0
+item=13,1,1.0
 # tiene el 10% de posibilidad de obtener otra zanahoria
-item=1,1,0.1
+item=13,1,0.1
 # tiene el 1% de obtener otra zanahoria
-item=1,1,0.01
+item=13,1,0.01

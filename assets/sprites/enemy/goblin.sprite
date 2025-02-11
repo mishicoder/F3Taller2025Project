@@ -1,0 +1,16 @@
+data=goblin@10,7
+
+# frames: anim 0 - 8 (9 frames)
+anim=attack@0,8,1,8
+# frames: anim 10 - 18 (9 frames)
+anim=death@10,18,0,8
+# frames: anim 20 - 27 (8 frames)
+anim=hurt@20,27,0,8
+# frames: anim 30 - 37 (8 frames)
+anim=idle@30,37,1,8
+# frames: anim 40 - 49 (10 frames)
+anim=roll@40,49,0,8
+# frames: anim 50 - 57 (8 frames)
+anim=run@50,57,1,8
+# frames: 60 - 67 (8 frames)
+anim=walk@60,67,1,8

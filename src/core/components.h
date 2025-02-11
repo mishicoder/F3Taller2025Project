@@ -329,6 +329,8 @@ typedef struct C_PlayerStats
 	float nextCombatLevelExp;
 	*/
 
+	int money;
+
 	// Determina si el jugador se encuentra durmiendo o no.
 	unsigned int isSleeping;
 

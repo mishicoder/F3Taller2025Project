@@ -1,0 +1,8 @@
+sprite=watering can[0,0,16,16
+sprite=axe[16,0,16,16
+sprite=hammer[32,0,16,16
+sprite=sword[48,0,16,16
+sprite=shovel[64,0,16,16
+sprite=pickaxe[80,0,16,16
+sprite=advanced fishing rod[96,0,16,16
+sprite=basic fishing rod[112,0,16,16

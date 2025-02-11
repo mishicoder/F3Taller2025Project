@@ -14,26 +14,6 @@
 #include <float.h>
 #include "levels/menu.h"
 
-/*
-* 0 -> carrot
-* 1 -> cauliflower
-* 2 -> parsnip
-* 3 -> potato
-* 4 -> pumpkin
-* 5 -> sunflower
-* 6 -> wheat
-* 7 -> beetroot
-* 8 -> cabbage
-* 9 -> kale
-* 10 -> radish
-* 
-* 11 -> coal
-* 12 -> silver
-* 13 -> gold
-* 14 -> diamond
-* 15 -> stone
-*/
-
 void LoadResources(Game* game);
 
 int main()
@@ -61,17 +41,25 @@ int main()
 
 void LoadResources(Game* game)
 {
+	// Cursores
+	LoadCustomCursor(game, "default", "assets/sprites/ui/default.png", 2.0, 2.0);
+	LoadCustomAnimatedCursor(game, "hand", "assets/sprites/ui/hand.png", 2, 16, 16, 8, 2.0f, 2.0f);
+
 	// Cargar semillasy plantas
 	LoadSpriteAtlas(game, "assets/sprites/plants/crops.png", "assets/sprites/plants/crops.atlas");
 	LoadSpriteAtlas(game, "assets/sprites/plants/seeds.png", "assets/sprites/plants/seeds.atlas");
 	LoadSpriteWithOptions(game, "assets/sprites/plants/bushes.png", "assets/sprites/plants/bushes.sprite");
 
+	LoadSpriteAtlas(game, "assets/sprites/player/tools_items.png", "assets/sprites/player/tools_items.atlas");
+
 	LoadSpriteWithOptions(game, "assets/sprites/player/player.png", "assets/sprites/player/player.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/player/tools.png", "assets/sprites/player/tools.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/player/longhair.png", "assets/sprites/player/longhair.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/player/bowlhair.png", "assets/sprites/player/bowlhair.sprite");
 
 	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
 	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");
 
-	LoadSpriteWithOptions(game, "assets/sprites/skeleton.png", "assets/sprites/skeleton.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/enemy/skeleton.png", "assets/sprites/enemy/skeleton.sprite");
+	LoadSpriteWithOptions(game, "assets/sprites/enemy/goblin.png", "assets/sprites/enemy/goblin.sprite");
 }

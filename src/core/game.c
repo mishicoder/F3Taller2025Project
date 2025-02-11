@@ -5,6 +5,9 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 	game->config = config;
 	game->LoadResources = LoadResources;
 	InitResourcesManager(&game->resourcesManager);
+	game->cursors = NULL;
+	game->currentCursor = NULL;
+	game->cursorsCount = 0;
 
 	InitWindow(game->config.windowWidth, game->config.windowHeight, game->config.windowTitle);
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
@@ -38,8 +41,195 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 	game->levelStackCount = 0;
 	game->currentLevel = -1;
 
+	// gallina -> 350 | diario
+	// oveja -> 800 | cada 3 dias
+	// vaca -> 1200 | cada 2 dias
+
+	// sprite,minQuality,maxQuality,canBeSold,priceStore,pricesShipping,-1,-1
+	// MATERIALES
+	game->items[0] = (GameItem){ "wool", 100, 0, 3, 1, 50, 80, -1, -1 };
+	game->items[1] = (GameItem){ "milk", 100, 0, 3, 1, 80, 120, -1, -1 };
+	game->items[2] = (GameItem){ "egg", 100, 0, 3, 1, 20, 40, -1, -1 };
+	game->items[3] = (GameItem){ "clay", 100, -1, -1, 1, 5, 10, -1, -1 };
+	game->items[4] = (GameItem){ "wood", 100, -1, -1, 1, 2, 6, -1, -1 };
+	game->items[5] = (GameItem){ "acorn seed", 100, -1, -1, 1, 1, 1, -1, -1 };
+	game->items[6] = (GameItem){ "spruce seed", 100, -1, -1, 1, 1, 1, -1, -1 };
+	game->items[7] = (GameItem){ "fish", 100, 0, 3, 1, 35, 60, -1, -1 };
+	game->items[8] = (GameItem){ "stone", 100, -1, -1, 1, 2, 6, -1, -1 };
+	game->items[9] = (GameItem){ "coal", 100, -1, -1, 1, 30, 60, -1, -1 };
+	game->items[10] = (GameItem){ "silver", 100, 0, 3, 1, 50, 80, -1, -1 };
+	game->items[11] = (GameItem){ "gold", 100, 0, 3, 1, 80, 120, -1, -1 };
+	game->items[12] = (GameItem){ "diamond", 100, 0, 3, 1, 300, 500, -1, -1 };
+	// PLANTAS
+	// 3 dias
+	game->items[13] = (GameItem){ "carrot", 100, 0, 3, 1, 20, 35, -1, -1 };
+	// 12 dias
+	game->items[14] = (GameItem){ "cauliflower", 100, 0, 3, 1, 120, 175, -1, -1 };
+	// 13 dias
+	game->items[15] = (GameItem){ "pumpkin", 100, 0, 3, 1, 280, 320, -1, -1 };
+	// 8 dias
+	game->items[16] = (GameItem){ "sunflower", 100, 0, 3, 1, 50, 80, -1, -1 };
+	// 6 días
+	game->items[17] = (GameItem){ "radish", 100, 0, 3, 1, 50, 90, -1, -1 };
+	// 4 dias
+	game->items[18] = (GameItem){ "parsnip", 100, 0, 3, 1, 20, 35, -1, -1 };
+	// 6 dias
+	game->items[19] = (GameItem){ "potato", 100, 0, 3, 1, 50, 80, -1, -1 };
+	// 9 dias
+	game->items[20] = (GameItem){ "cabbage", 100, 0, 3, 1, 190, 260, -1, -1 };
+	// 6 dias
+	game->items[21] = (GameItem){ "beetroot", 100, 0, 3, 1, 60, 100, -1, -1 };
+	// 4 dias
+	game->items[22] = (GameItem){ "wheat", 100, 0, 3, 1, 10, 25, -1, -1 };
+	// 6 dias
+	game->items[23] = (GameItem){ "kale", 100, 0, 3, 1, 70, 110, -1, -1 };
+
+	// SEMILLAS
+	game->items[24] = (GameItem){ "carrot seed", 100, 0, 3, 1, 20, 35, -1, -1 };
+	game->items[25] = (GameItem){ "cauliflower seed", 100, 0, 3, 1, 120, 175, -1, -1 };
+	game->items[26] = (GameItem){ "pumpkin seed", 100, 0, 3, 1, 280, 320, -1, -1 };
+	game->items[27] = (GameItem){ "sunflower seed", 100, 0, 3, 1, 50, 80, -1, -1 };
+	game->items[28] = (GameItem){ "radish seed", 100, 0, 3, 1, 50, 90, -1, -1 };
+	game->items[29] = (GameItem){ "parsnip seed", 100, 0, 3, 1, 20, 35, -1, -1 };
+	game->items[30] = (GameItem){ "potato seed", 100, 0, 3, 1, 50, 80, -1, -1 };
+	game->items[31] = (GameItem){ "cabbage seed", 100, 0, 3, 1, 190, 260, -1, -1 };
+	game->items[32] = (GameItem){ "beetroot seed", 100, 0, 3, 1, 60, 100, -1, -1 };
+	game->items[33] = (GameItem){ "wheat seed", 100, 0, 3, 1, 10, 25, -1, -1 };
+	game->items[34] = (GameItem){ "kale seed", 100, 0, 3, 1, 70, 110, -1, -1 };
+	
+	// 
+	game->items[35] = (GameItem){ "watering can", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[36] = (GameItem){ "axe", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[37] = (GameItem){ "hammer", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[38] = (GameItem){ "sword", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[39] = (GameItem){ "shovel", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[40] = (GameItem){ "pickaxe", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[41] = (GameItem){ "watering can", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[42] = (GameItem){ "advanced fishing rod", 1, 0, -1, -1, 0, 0, -1, -1 };
+	game->items[43] = (GameItem){ "basic fishing rod", 1, 0, -1, -1, 0, 0, -1, -1 };
+
 	if (game->LoadResources != NULL)
 		game->LoadResources(game);
+}
+
+int LoadCustomCursor(Game* game, const char* name, const char* textureFilename, float scaleX, float scaleY)
+{
+	Texture2D texture = LoadTexture(textureFilename);
+	if (texture.id == 0) return 0;
+
+	CustomCursor* cursor = (CustomCursor*)malloc(sizeof(CustomCursor));
+	if (cursor == NULL)
+	{
+		UnloadTexture(texture);
+		printf("ERROR EN LA ASIGNACION DEL CURSOR\n");
+		return 0;
+	}
+
+	// reasignar el bloque de memoria
+	CustomCursor** cursorsMemTemp = (CustomCursor**)realloc(game->cursors, (size_t)(game->cursorsCount + 1) * sizeof(CustomCursor*));
+	if (cursorsMemTemp == NULL)
+	{
+		free(cursor);
+		UnloadTexture(texture);
+		printf("ERROR EN LA ASIGNACION DEL BLOQUE DE CURSORRES\n");
+		return 0;
+	}
+	printf("SE CREA EL CURSOR\n");
+
+	cursor->name = _strdup(name);
+	cursor->texture = texture;
+	cursor->scaleX = scaleX;
+	cursor->scaleY = scaleY;
+	cursor->frameWidth = 0;
+	cursor->frameHeight = 0;
+	cursor->currentFrame = -1;
+	cursor->frames = 0;
+	cursor->isAnimated = 0;
+	cursor->frameSpeed = 0;
+	cursor->frameCounter = 0;
+
+	game->cursors = cursorsMemTemp;
+	game->cursors[game->cursorsCount] = cursor;
+	game->cursorsCount += 1;
+
+	printf("CURSOR NAME: %s\n", cursor->name);
+
+	return 1;
+}
+
+int LoadCustomAnimatedCursor(Game* game, const char* name, const char* textureFilename, int frames, int frameWidth, int frameHeight, int frameSpeed, float scaleX, float scaleY)
+{
+	Texture2D texture = LoadTexture(textureFilename);
+	if (texture.id == 0) return 0;
+
+	CustomCursor* cursor = (CustomCursor*)malloc(sizeof(CustomCursor));
+	if(cursor == NULL)
+	{
+		UnloadTexture(texture);
+		return 0;
+	}
+
+	CustomCursor** memTemp = (CustomCursor**)realloc(game->cursors, (size_t)(game->cursorsCount + 1) * sizeof(CustomCursor*));
+	if (memTemp == NULL)
+	{
+		free(cursor);
+		UnloadTexture(texture);
+		return 0;
+	}
+
+	cursor->name = _strdup(name);
+	cursor->texture = texture;
+	cursor->frames = frames;
+	cursor->frameSpeed = frameSpeed;
+	cursor->frameWidth = frameWidth;
+	cursor->frameHeight = frameHeight;
+	cursor->currentFrame = 0;
+	cursor->scaleX = scaleX;
+	cursor->scaleY = scaleY;
+	cursor->isAnimated = 1;
+	cursor->frameCounter = 0;
+
+	game->cursors = memTemp;
+	game->cursors[game->cursorsCount] = cursor;
+	game->cursorsCount += 1;
+
+	return 1;
+}
+
+int SetCustomCursor(Game* game, const char* name)
+{
+	if (name == NULL)
+	{
+		ShowCursor();
+		return 0;
+	}
+
+	if (game->currentCursor != NULL)
+		if (strcmp(game->currentCursor->name, name) == 0)
+			return 0; // el cursos es el mismo
+
+	for (int i = 0; i < game->cursorsCount; i++)
+	{
+		if (strcmp(game->cursors[i]->name, name) == 0)
+		{
+			
+			if (game->currentCursor != NULL)
+			{
+				if (game->currentCursor->isAnimated == 1)
+				{
+					game->currentCursor->currentFrame = 0;
+					game->currentCursor->frameCounter = 0;
+				}
+			}
+
+			game->currentCursor = game->cursors[i];
+			HideCursor();
+
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 void SetGameWindowIcon(Game* game, const char* filename)
@@ -330,6 +520,8 @@ int LoadSpriteAtlas(Game* game, const char* textureFilename, const char* dataFil
 								(Vector2){ result.textureWidth/2.0f, result.textureHeight/2.0f },
 								0
 							);
+
+							printf("SPRITE COORDS: %d %d %d %d\n", coords[0], coords[1], coords[2], coords[3]);
 
 							if (newSprite != NULL)
 								AddSprite(&game->resourcesManager, newSprite);
@@ -1323,6 +1515,24 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 
 	/******************************************************************************
+	* ANIMATED MOUSE
+	******************************************************************************/
+	if (game->currentCursor != NULL)
+	{
+		if(game->currentCursor->isAnimated == 1)
+		{
+			game->currentCursor->frameCounter += 1;
+			if (game->currentCursor->frameCounter >= (game->config.targetFPS / game->currentCursor->frameSpeed))
+			{
+				game->currentCursor->currentFrame += 1;
+				if (game->currentCursor->currentFrame >= game->currentCursor->frames)
+					game->currentCursor->currentFrame = 0;
+				game->currentCursor->frameCounter = 0;
+			}
+		}
+	}
+
+	/******************************************************************************
 	* COMPORTAMIENTO PERSONALIZADO
 	******************************************************************************/
 	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
@@ -1365,7 +1575,7 @@ void UpdateLevel(Game* game, GameLevel* level)
 			}
 			animComp->frameCounter += 1;
 
-			if (animComp->frameCounter >= (60 / animComp->speed))
+			if (animComp->frameCounter >= (game->config.targetFPS / animComp->speed))
 			{
 				animComp->frameCounter = 0;
 				animComp->currentFrame += 1;
@@ -1638,7 +1848,11 @@ void RenderLevel(Game* game, GameLevel* level)
 				if(spriteRender->visible == 1)
 				{
 					Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
-					DrawTexturePro(
+					//DrawTexture(tex, -110, 10, WHITE);
+
+					//printf("SPRITE: %d %d %d %d\n", sprite->x, sprite->y, sprite->width, sprite->height);
+					DrawTexturePro(tex, (Rectangle) { sprite->x, sprite->y, sprite->width, sprite->height }, (Rectangle) { 0, 0, sprite->width * transform->scaleX, sprite->height * transform->scaleY }, (Vector2) { 0.0, 0.0 }, 0.0, WHITE);
+					/*DrawTexturePro(
 						tex,
 						(Rectangle) {
 						sprite->x, sprite->y, sprite->width, sprite->height
@@ -1651,7 +1865,7 @@ void RenderLevel(Game* game, GameLevel* level)
 						sprite->origin,
 						transform->rotation,
 						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color){ 255, 255, 255, 255 }
-					);
+					);*/
 				}
 			}
 		}
@@ -1687,6 +1901,45 @@ void RenderLevel(Game* game, GameLevel* level)
 	}
 
 	EndMode2D();
+
+	// Cursor (Por encima de todo)
+	if (game->currentCursor != NULL)
+	{
+		if (game->currentCursor->isAnimated == 0)
+		{
+			DrawTexturePro(
+				game->currentCursor->texture,
+				(Rectangle) {
+				0, 0, game->currentCursor->texture.width, game->currentCursor->texture.height
+			},
+				(Rectangle) {
+				GetMousePosition().x, GetMousePosition().y, game->currentCursor->texture.width* game->currentCursor->scaleX, game->currentCursor->texture.height* game->currentCursor->scaleY
+			},
+				(Vector2) {
+				0.0f, 0.0f
+			},
+				0.0,
+				WHITE
+			);
+		}
+		else 
+		{
+			DrawTexturePro(
+				game->currentCursor->texture,
+				(Rectangle) {
+				game->currentCursor->currentFrame * game->currentCursor->frameWidth, 0, game->currentCursor->frameWidth, game->currentCursor->texture.height
+			},
+				(Rectangle) {
+				GetMousePosition().x, GetMousePosition().y, game->currentCursor->frameWidth * game->currentCursor->scaleX, game->currentCursor->texture.height* game->currentCursor->scaleY
+			},
+				(Vector2) {
+				0.0f, 0.0f
+			},
+				0.0,
+				WHITE
+			);
+		}
+	}
 }
 
 void MapRenderDestroyHook(void* ptr)
@@ -1738,6 +1991,18 @@ void FreeGame(Game* game)
 	}
 
 	UnloadResourcesManager(&game->resourcesManager);
+
+	if(game->cursors != NULL)
+	{
+		for (int i = 0; i < game->cursorsCount; i++)
+		{
+			free(game->cursors[i]->name);
+			game->cursors[i]->name = NULL;
+			free(game->cursors[i]);
+			UnloadTexture(game->cursors[i]->texture);
+		}
+		free(game->cursors);
+	}
 
 	CloseWindow();
 }

@@ -219,6 +219,10 @@ void OnInput(Game* game, GameLevel* level, ecs_entity_t entity)
 	}
 }
 
+float currentTime = 0.0;
+float minutes = 0;
+int hours = 0;
+
 void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 {
 	ECS_COMPONENT(level->world, C_Camera2D);
@@ -227,6 +231,21 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_RectCollider);
+
+	currentTime += GetFrameTime();
+	
+	if (currentTime >= 0.625)
+	{
+		currentTime = 0.0f;
+		minutes += 1;
+		if (minutes >= 60)
+		{
+			minutes = 0;
+			hours += 1;
+		}
+	}
+
+	DrawText(TextFormat("Hour: %d | Minute: %.1f", hours, minutes), 120, 20, 20, WHITE);
 
 	ecs_entity_t icon = ecs_lookup(level->world, "icon");
 	C_Transform* iconTransform = ecs_get(level->world, icon, C_Transform);
@@ -268,11 +287,20 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_Behaviour);
 	ECS_COMPONENT(level->world, C_MapRender);
 	ECS_COMPONENT(level->world, C_Transform);
+	ECS_COMPONENT(level->world, C_SpriteRender);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_RectCollider);
 
+	SetCustomCursor(game, "default");
+
 	ecs_entity_t circle = CreateBlankEntity(level, "circle", "circle");
 	AddComponentToEntity(game, level, circle, C_CIRCLE_COLLIDER_ID, "0.0,0.0,40,1");
+
+	ecs_entity_t tool = CreateBlankEntity(level, "tool", "tool");
+	AddComponentToEntity(game, level, tool, C_SPRITE_RENDER_ID, "advanced fishing rod,1,1.0,0,0");
+	C_Transform* toolT = ecs_get(level->world, tool, C_Transform);
+	toolT->scaleX = 7.0f;
+	toolT->scaleY = 7.0f;
 
 	ecs_entity_t skeleton = CreateBlankEntity(level, "skely", "skeleton");
 	AddComponentToEntity(game, level, skeleton, C_SPRITE_RENDER_ID, "skeleton,1,1.0,0,0");
@@ -302,8 +330,8 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	rcollider->height = 12.0f * 4.0f;
 
 	ecs_entity_t playerHair = AddChildToEntity(level, player, "longhair", "longhair");
-	AddComponentToEntity(game, level, playerHair, C_SPRITE_RENDER_ID, "long_hair,1,1.0,0,0");
-	AddComponentToEntity(game, level, playerHair, C_SPRITE_ANIMATION_ID, "long_hair");
+	AddComponentToEntity(game, level, playerHair, C_SPRITE_RENDER_ID, "bowl_hair,1,1.0,0,0");
+	AddComponentToEntity(game, level, playerHair, C_SPRITE_ANIMATION_ID, "bowl_hair");
 	C_Transform* hairT = ecs_get(level->world, playerHair, C_Transform);
 	hairT->scaleX = 4.0f;
 	hairT->scaleY = 4.0f;
@@ -322,7 +350,4 @@ void MenuOnLoad(Game* game, GameLevel* level)
 	C_Transform* phTransform = ecs_get(level->world, playerHouse, C_Transform);
 	phTransform->scaleX = 4.0f;
 	phTransform->scaleY = 4.0f;
-
-	// test
-	
 }

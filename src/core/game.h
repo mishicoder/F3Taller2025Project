@@ -10,6 +10,33 @@
 #include "level.h"
 #include "utilities.h"
 
+#define MAX_ITEMS 44
+
+/* Cursos personalizado */
+typedef struct CustomCursor
+{
+	// Nombre del cursor
+	char* name;
+	// Textura del cursor (Independiente del gestor de recursor)
+	Texture2D texture;
+	// Determina si es un cursor animnado
+	int isAnimated;
+	// Cantidad de frames del cursor
+	int frames;
+	// Tamaño de cada frame
+	int frameWidth;
+	int frameHeight;
+	// Velocidad de animacion
+	int frameSpeed;
+	// Escala del cursor
+	float scaleX;
+	float scaleY;
+
+	// Frame actual
+	int currentFrame;
+	int frameCounter;
+} CustomCursor;
+
 /*
 * Configuracion del juego.
 */
@@ -53,6 +80,17 @@ typedef struct Game
 	unsigned int levelStackCount;
 	signed int currentLevel;
 
+	/* Cursores personalizados */
+
+	// Lista de cursores
+	CustomCursor** cursors;
+	// Cantidad de cursores cargados
+	int cursorsCount;
+	// Cursor actual
+	CustomCursor* currentCursor;
+
+	GameItem items[MAX_ITEMS];
+
 	/**
 	* Carga los recursos que se necesitan en el juego.
 	*
@@ -71,6 +109,47 @@ typedef struct Game
 * @param[in] void(*LoadResources)(Game* game) Función para cargar los recursos.
 */
 void InitGame(struct Game* game, GameConfig config, void(*LoadResources)(struct Game* game));
+
+/**
+* Carga un cursor personalizado (Sin animación)
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] name Nombre del cursor.
+* @param[in] textureFilename Ruta de la textura del cursor.
+* @param[in] scaleX Escala del cursor para el ancho.
+* @param[in] scaleY Escala del cursor para el alto.
+* 
+* @return Retorna 1 si se ha cargado el cursor, caso contrario retorna 0.
+*/
+int LoadCustomCursor(Game* game, const char* name, const char* textureFilename, float scaleX, float scaley);
+
+/**
+* Carga un cursor personalizado (Con animación)
+*
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] name Nombre del cursor.
+* @param[in] textureFilename Ruta de la textura del cursor.
+* @param[in] frame Cantidad de frames que tiene la animación del cursor.
+* @param[in] frameWidth Ancho del frame.
+* @param[in] frameHeight Alto del frame.
+* @param[in] frameSpeed Velocidad de la animacion del cursor.
+* @param[in] scaleX Escala del cursor para el ancho.
+* @param[in] scaleY Escala del cursor para el alto.
+*
+* @return Retorna 1 si se ha cargado el cursor, caso contrario retorna 0.
+*/
+int LoadCustomAnimatedCursor(Game* game, const char* name, const char* textureFilename, int frames, int frameWidth, int frameHeight, int frameSpeed, float scaleX, float scaley);
+
+/**
+* Establece el cursor personalizado actual.
+* Si se pasa NULL, se quita el cursor personalizado y se usa el del sistema.
+* 
+* @param[in] game Puntero a la instancia del juego.
+* @param[in] name Nombre del cursor.
+* 
+* @return Retorna 1 si el cambio a surtido efecto, caso contrario retorna 0.
+*/
+int SetCustomCursor(Game* game, const char* name);
 
 /**
 * Establece el ícono de la ventana del juego.
@@ -266,7 +345,7 @@ int PopLevel(Game* game);
 ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
 
 /**
-* Agrega un hijo una entidad, que solo tiene el componente "C_Transform".
+* Agrega un hijo a una entidad, que solo tiene el componente "C_Transform".
 * 
 * @param[in] level Puntero al nivel donde se agregará la entidad hija.
 * @param[in] parent Entidad padre para la entidad hija.
