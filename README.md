@@ -22,6 +22,7 @@ El proyecto **Family Error** es una iniciativa de un grupo de jóvenes que desea
 | Nombre      | Descarga   | Autor  | Web del Autor   |
 |:------------|:----------:|:------:|:---------------:|
 | Sunny Side  | [🔽 ir al enlace](https://danieldiggle.itch.io/sunnyside) | danieldiggle | [🔗 ir al enlace](https://www.danieldiggle.com/) |
+| Cursor Pixel Pack | [🔽 ir al enlace](https://kenney.nl/assets/cursor-pixel-pack) | Kenney | [🔗 ir al enlace](https://kenney.nl/) |
 
 ### Control de versiones del proyecto
 
