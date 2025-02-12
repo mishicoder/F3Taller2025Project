@@ -270,7 +270,7 @@ void OnUpdateCamera(Game* game, GameLevel* level, ecs_entity_t entity)
 	C_Transform* cameraTransform = ecs_get(level->world, entity, C_Transform);
 	C_Camera2D* camera = ecs_get(level->world, entity, C_Camera2D);
 
-	if (sprite != NULL)
+	if (sprite != NULL && camera != NULL)
 	{
 		camera->offsetX = GetRenderWidth() / 2.0f;
 		camera->offsetY = GetRenderHeight() / 2.0f;
@@ -313,12 +313,15 @@ void MenuOnLoad(Game* game, GameLevel* level)
 
 	ecs_entity_t mainCamera = CreateBlankEntity(level, "camera", "main_camera");
 	AddComponentToEntity(game, level, mainCamera, C_CAMERA_2D_ID, "1,0.0,0.0,0.0,0.0,0.0,1.0");
-	AddEntityBehaviour(game, level, mainCamera, NULL, NULL, OnUpdateCamera, NULL, NULL);
+	AddEntityBehaviour(game, level, mainCamera, NULL, NULL, OnUpdateCamera, NULL, NULL, NULL, NULL);
+	AddEntityNumberData(level, mainCamera, 45);
+	int dato = (int*)GetEntityNumberData(level, mainCamera, 0);
+	ModifyEntityNumberData(level, mainCamera, 0, 96);
 
 	ecs_entity_t player = CreateBlankEntity(level, "icon", "icon");
 	AddComponentToEntity(game, level, player, C_SPRITE_RENDER_ID, "player,1,1.0,0,0");
 	AddComponentToEntity(game, level, player, "animation", "player");
-	AddEntityBehaviour(game, level, player, OnCreate, OnInput, NULL, NULL, OnCollider);
+	AddEntityBehaviour(game, level, player, OnCreate, OnInput, NULL, NULL, OnCollider, NULL, NULL);
 	AddComponentToEntity(game, level, player, C_RECT_COLLIDER_ID, "44.0,27.0,50,50,1");
 	C_Transform* itransform = ecs_get(level->world, player, C_Transform);
 	C_SpriteAnimation* playerSA = ecs_get(level->world, player, C_SpriteAnimation);

@@ -283,6 +283,9 @@ void RunGame(Game* game)
 			}
 		}
 
+		// Cursor (Por encima de todo)
+		RenderCursor(game);
+
 		EndDrawing();
 	}
 }
@@ -615,7 +618,7 @@ int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	}
 	else
 	{
-		UnloadLevel(game->levelStack[game->currentLevel]);
+		UnloadLevel(game, game->levelStack[game->currentLevel]);
 		game->levelStack[game->currentLevel] = NULL;
 		game->levelStack[game->currentLevel] = level;
 		if (game->levelStack[game->currentLevel]->Load != NULL)
@@ -639,7 +642,7 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	GameLevel** levelsMemTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
 	if (levelsMemTemp == NULL)
 	{
-		UnloadLevel(level);
+		UnloadLevel(game, level);
 		return 0;
 	}
 
@@ -734,7 +737,7 @@ int LoadMemoryLevel(Game* game, const char* name)
 				cacheMemTemp = (GameLevel**)realloc(game->levelCache, (size_t)(game->levelCacheCount - 1) * sizeof(GameLevel*));
 
 			// Descargar el nivel actual
-			UnloadLevel(game->levelStack[game->currentLevel]);
+			UnloadLevel(game, game->levelStack[game->currentLevel]);
 			game->levelStack[game->currentLevel] = NULL;
 			game->levelStack[game->currentLevel] = game->levelCache[i];
 			game->levelCache[i] = NULL;
@@ -1448,18 +1451,88 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	return 0;
 }
 
-int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity, void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide))
+int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity, void(*OnCreate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity), void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide), void(*OnDestroyDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity), void(*OnUnloadDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity))
 {
 	if (entity == 0) return 0;
 
 	ECS_COMPONENT(level->world, C_Behaviour);
-	ecs_set(level->world, entity, C_Behaviour, { OnCreate, OnInput, OnUpdate, OnDestroy, OnCollision });
+	ecs_set(level->world, entity, C_Behaviour, { NULL, 0, NULL, 0, OnCreate, OnInput, OnUpdate, OnDestroy, OnCollision, OnDestroyDataHandler, OnUnloadDataHandler });
 
 	C_Behaviour* comp = ecs_get(level->world, entity, C_Behaviour);
 	if (comp->OnCreate != NULL)
 		comp->OnCreate(game, level, entity);
 
 	return 1;
+}
+
+int AddEntityData(GameLevel* level, ecs_entity_t entity, void* data)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	if (!ecs_has(level->world, entity, C_Behaviour)) return 0;
+
+	C_Behaviour* component = ecs_get(level->world, entity, C_Behaviour);
+
+	void** memTemp = (void**)realloc(component->data, (size_t)(component->dataCount + 1) * sizeof(void*));
+	if (memTemp == NULL) return 0;
+
+	component->data = memTemp;
+	component->data[component->dataCount] = data;
+	component->dataCount += 1;
+
+	return 1;
+}
+
+void* GetEntityData(GameLevel* level, ecs_entity_t entity, int index)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	if (!ecs_has(level->world, entity, C_Behaviour)) return NULL;
+
+	C_Behaviour* component = ecs_get(level->world, entity, C_Behaviour);
+	if (index < 0 || index >= component->dataCount) return NULL;
+
+	return component->data[index];
+}
+
+int AddEntityNumberData(GameLevel* level, ecs_entity_t entity, void* data)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	if (!ecs_has(level->world, entity, C_Behaviour)) return 0;
+
+	C_Behaviour* component = ecs_get(level->world, entity, C_Behaviour);
+
+	void** memTemp = (void**)realloc(component->numberData, (size_t)(component->numberDataCount + 1) * sizeof(void*));
+	if (memTemp == NULL) return 0;
+
+	component->numberData = memTemp;
+	component->numberData[component->numberDataCount] = data;
+	component->numberDataCount += 1;
+
+	return 1;
+}
+
+int ModifyEntityNumberData(GameLevel* level, ecs_entity_t entity, int index, void* data)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	if (!ecs_has(level->world, entity, C_Behaviour)) return 0;
+
+	C_Behaviour* component = ecs_get(level->world, entity, C_Behaviour);
+	if (component->numberDataCount <= 0) return 0;
+
+	if (index < 0 || index >= component->numberDataCount) return 0;
+
+	component->numberData[index] = data;
+	return 1;
+}
+
+void* GetEntityNumberData(GameLevel* level, ecs_entity_t entity, int index)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	if (!ecs_has(level->world, entity, C_Behaviour)) return NULL;
+
+	C_Behaviour* component = ecs_get(level->world, entity, C_Behaviour);
+	if (index < 0 || index >= component->numberDataCount) return NULL;
+
+	return component->numberData[index];
 }
 
 int AddLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*Run)(struct Game* game, struct GameLevel* level)
@@ -1471,7 +1544,7 @@ int AddLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned i
 	GameLevel** levelsMemTemp = (GameLevel**)realloc(game->levelStack, (size_t)(game->levelStackCount + 1) * sizeof(GameLevel*));
 	if (levelsMemTemp == NULL)
 	{
-		UnloadLevel(level);
+		UnloadLevel(game, level);
 		return 0;
 	}
 
@@ -1513,6 +1586,11 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_RectCollider);
 	ECS_COMPONENT(level->world, C_CircleCollider);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
+	ECS_COMPONENT(level->world, C_Camera2D);
+
+	// sure??
+	ecs_entity_t mainCamera = GetMainCamera(level);
+	if (mainCamera == 0) return;
 
 	/******************************************************************************
 	* ANIMATED MOUSE
@@ -1848,24 +1926,20 @@ void RenderLevel(Game* game, GameLevel* level)
 				if(spriteRender->visible == 1)
 				{
 					Texture2D tex = game->resourcesManager.textures[sprite->textureIndex];
-					//DrawTexture(tex, -110, 10, WHITE);
-
-					//printf("SPRITE: %d %d %d %d\n", sprite->x, sprite->y, sprite->width, sprite->height);
-					DrawTexturePro(tex, (Rectangle) { sprite->x, sprite->y, sprite->width, sprite->height }, (Rectangle) { 0, 0, sprite->width * transform->scaleX, sprite->height * transform->scaleY }, (Vector2) { 0.0, 0.0 }, 0.0, WHITE);
-					/*DrawTexturePro(
+					DrawTexturePro(
 						tex,
 						(Rectangle) {
-						sprite->x, sprite->y, sprite->width, sprite->height
+						sprite->x, sprite->y, spriteRender->flipX == 0 ? sprite->width : -sprite->width, spriteRender->flipY == 0 ? sprite->height : -sprite->height
 					},
 						(Rectangle) {
-						transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
+						transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x,
 						transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y,
-							(sprite->width * transform->scaleX)* spriteRender->flipX == 1 ? 1 : -1, (sprite->height * transform->scaleY)* spriteRender->flipY == 1 ? 1 : -1
+							(sprite->width * transform->scaleX), (sprite->height * transform->scaleY)
 					},
 						sprite->origin,
 						transform->rotation,
-						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color){ 255, 255, 255, 255 }
-					);*/
+						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color) { 255, 255, 255, 255 }
+					);
 				}
 			}
 		}
@@ -1874,35 +1948,19 @@ void RenderLevel(Game* game, GameLevel* level)
 	//EndBlendMode();
 
 	/* DEBUG */
-	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
-		.terms = {
-			{.id = ecs_id(C_RectCollider), .oper = EcsOr }, // 1
-			{.id = ecs_id(C_CircleCollider) } // 2
-		}
-	});
-
-	ecs_iter_t itCollider = ecs_query_iter(level->world, queryCollider);
-	while (ecs_query_next(&itCollider))
-	{
-		for (int i = 0; i < itCollider.count; i++)
-		{
-			C_RectCollider* rectCollider = ecs_get(level->world, itCollider.entities[i], C_RectCollider);
-			C_CircleCollider* circleCollider = ecs_get(level->world, itCollider.entities[i], C_CircleCollider);
-			if (rectCollider != NULL)
-			{
-				//printf("RECTANGLE > x: %.2f | y: %.2f | w: %.2f | h: %.2f\n", rectCollider->posX, rectCollider->posY, (float)rectCollider->width, (float)rectCollider->height);
-				DrawRectangleLinesEx((Rectangle){ rectCollider->posX, rectCollider->posY, rectCollider->width, rectCollider->height }, 2.0f, RED);
-			}
-			if (circleCollider != NULL)
-			{
-				DrawCircleLines(circleCollider->posX, circleCollider->posY, circleCollider->radius, RED);
-			}
-		}
-	}
+	RenderDebug(game, level);
 
 	EndMode2D();
 
-	// Cursor (Por encima de todo)
+	RenderUI(game, level);
+}
+
+void RenderUI(Game* game, GameLevel* level)
+{
+}
+
+void RenderCursor(Game* game)
+{
 	if (game->currentCursor != NULL)
 	{
 		if (game->currentCursor->isAnimated == 0)
@@ -1922,15 +1980,15 @@ void RenderLevel(Game* game, GameLevel* level)
 				WHITE
 			);
 		}
-		else 
+		else
 		{
 			DrawTexturePro(
 				game->currentCursor->texture,
 				(Rectangle) {
-				game->currentCursor->currentFrame * game->currentCursor->frameWidth, 0, game->currentCursor->frameWidth, game->currentCursor->texture.height
+				game->currentCursor->currentFrame* game->currentCursor->frameWidth, 0, game->currentCursor->frameWidth, game->currentCursor->texture.height
 			},
 				(Rectangle) {
-				GetMousePosition().x, GetMousePosition().y, game->currentCursor->frameWidth * game->currentCursor->scaleX, game->currentCursor->texture.height* game->currentCursor->scaleY
+				GetMousePosition().x, GetMousePosition().y, game->currentCursor->frameWidth* game->currentCursor->scaleX, game->currentCursor->texture.height* game->currentCursor->scaleY
 			},
 				(Vector2) {
 				0.0f, 0.0f
@@ -1940,6 +1998,52 @@ void RenderLevel(Game* game, GameLevel* level)
 			);
 		}
 	}
+}
+
+void RenderDebug(Game* game, GameLevel* level)
+{
+	ECS_COMPONENT(level->world, C_RectCollider);
+	ECS_COMPONENT(level->world, C_CircleCollider);
+
+	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{.id = ecs_id(C_RectCollider), .oper = EcsOr }, // 1
+			{.id = ecs_id(C_CircleCollider) } // 2
+		}
+	});
+
+	ecs_iter_t itCollider = ecs_query_iter(level->world, queryCollider);
+	while (ecs_query_next(&itCollider))
+	{
+		for (int i = 0; i < itCollider.count; i++)
+		{
+			C_RectCollider* rectCollider = ecs_get(level->world, itCollider.entities[i], C_RectCollider);
+			C_CircleCollider* circleCollider = ecs_get(level->world, itCollider.entities[i], C_CircleCollider);
+			if (rectCollider != NULL)
+			{
+				//printf("RECTANGLE > x: %.2f | y: %.2f | w: %.2f | h: %.2f\n", rectCollider->posX, rectCollider->posY, (float)rectCollider->width, (float)rectCollider->height);
+				DrawRectangleLinesEx((Rectangle) { rectCollider->posX, rectCollider->posY, rectCollider->width, rectCollider->height }, 2.0f, RED);
+			}
+			if (circleCollider != NULL)
+			{
+				DrawCircleLines(circleCollider->posX, circleCollider->posY, circleCollider->radius, RED);
+			}
+		}
+	}
+}
+
+void RegisterComponentsHooks(GameLevel* level)
+{
+	ECS_COMPONENT(level->world, C_MapRender);
+	ECS_COMPONENT(level->world, C_Behaviour);
+
+	ecs_set_hooks(level->world, C_MapRender, {
+		.dtor = MapRenderDestroyHook
+	});
+
+	ecs_set_hooks(level->world, C_Behaviour, {
+		.dtor = BehaviourDestroyHook
+	});
 }
 
 void MapRenderDestroyHook(void* ptr)
@@ -1952,21 +2056,45 @@ void MapRenderDestroyHook(void* ptr)
 	}
 }
 
+void BehaviourDestroyHook(void* ptr)
+{
+	C_Behaviour* comp = ptr;
+	if (comp->data != NULL)
+	{
+		free(comp->data);
+	}
+	if (comp->numberData != NULL)
+	{
+		free(comp->numberData);
+	}
+}
+
 void FreeGame(Game* game)
 {
 	for (int i = 0; i < game->levelCacheCount; i++)
 	{
 		ECS_COMPONENT(game->levelCache[i]->world, C_MapRender);
+		ECS_COMPONENT(game->levelCache[i]->world, C_Behaviour);
+
 		ecs_set_hooks(game->levelCache[i]->world, C_MapRender, {
 			.dtor = MapRenderDestroyHook
-			});
+		});
+
+		ecs_set_hooks(game->levelCache[i]->world, C_Behaviour, {
+			.dtor = BehaviourDestroyHook
+		});
 	}
 
 	for (int i = 0; i < game->levelStackCount; i++)
 	{
 		ECS_COMPONENT(game->levelStack[i]->world, C_MapRender);
+		ECS_COMPONENT(game->levelStack[i]->world, C_Behaviour);
+
 		ecs_set_hooks(game->levelStack[i]->world, C_MapRender, {
 			.dtor = MapRenderDestroyHook
+		});
+		ecs_set_hooks(game->levelStack[i]->world, C_Behaviour, {
+			.dtor = BehaviourDestroyHook
 		});
 	}
 
@@ -1974,7 +2102,7 @@ void FreeGame(Game* game)
 	{
 		for (int i = 0; i < game->levelCacheCount; i++)
 		{
-			UnloadLevel(game->levelCache[i]);
+			UnloadLevel(game, game->levelCache[i]);
 		}
 		free(game->levelCache);
 		game->levelCache = NULL;
@@ -1984,7 +2112,7 @@ void FreeGame(Game* game)
 	{
 		for (int i = 0; i < game->levelStackCount; i++)
 		{
-			UnloadLevel(game->levelStack[i]);
+			UnloadLevel(game, game->levelStack[i]);
 		}
 		free(game->levelStack);
 		game->levelStack = NULL;

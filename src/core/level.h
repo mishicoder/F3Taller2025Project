@@ -108,7 +108,7 @@ GameLevel* CreateLevel(
 * 
 * @param[in] level Dirección en memoria del nivel que será borrado.
 */
-void UnloadLevel(struct GameLevel* level);
+void UnloadLevel(struct Game* game, struct GameLevel* level);
 
 /**
 * Funcion para buscar a una entidad por etiqueta.

@@ -393,8 +393,33 @@ int AddEntityBehaviour(Game* game, GameLevel* level, ecs_entity_t entity,
 	void(*OnInput)(Game* game, GameLevel* level, ecs_entity_t entity),
 	void(*OnUpdate)(Game* game, GameLevel* level, ecs_entity_t entity),
 	void(*OnDestroy)(Game* game, GameLevel* level, ecs_entity_t entity),
-	void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide)
+	void(*OnCollision)(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t collide),
+	void(*OnDestroyDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity), 
+	void(*OnUnloadDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity)
 );
+
+/**
+* Agrega datos no numéricos a una entidad que tenga el componente Behaviour.
+* 
+* @param[in] level Nivel en el que se encuentra la entidad.
+* @param[in] entity Entidad a la que se le agregará el componente.
+*/
+int AddEntityData(GameLevel* level, ecs_entity_t entity, void* data);
+
+/**
+* Retorna el dato almacenado en una entidad con el componente Behaviour.
+*
+* @param[in] level Nivel en el que se encuentra la entidad.
+* @param[in] entity Entidad a la que se le agregará el componente.
+* @param[in] index Indice del dato que quiere obtener.
+*
+* @return Retorna el elemento que se encuentra en le indice, caso contrario, retorna NULL.
+*/
+void* GetEntityData(GameLevel* level, ecs_entity_t entity, int index);
+
+int AddEntityNumberData(GameLevel* level, ecs_entity_t entity, void* data);
+int ModifyEntityNumberData(GameLevel* level, ecs_entity_t entity, int index, void* data);
+void* GetEntityNumberData(GameLevel* level, ecs_entity_t entity, int index);
 
 // Temporal
 int AddLevel(struct Game* game, const char* name,
@@ -436,6 +461,13 @@ void RenderLevel(struct Game* gane, struct GameLevel* level);
 void RenderUI(struct Game* game, struct GameLevel* level);
 
 /**
+* Renderiza el cursor.
+* 
+* @param[in] game Puntero a la instancia de juego.
+*/
+void RenderCursor(Game* game);
+
+/**
 * Libera la memoria del nivel.
 *
 * @param[in] game Puntero a la instancia de juego.
@@ -452,11 +484,20 @@ void Unload(struct Game* game, struct GameLevel* level);
 void RenderDebug(struct Game* game, struct GameLevel* level);
 
 /**
+*/
+void RegisterComponentsHooks(GameLevel* level);
+
+/**
 * Hook para limpiar memoria del componente C_MapRender
 * 
 * @param[in] ptr Puntero del componente.
 */
 void MapRenderDestroyHook(void* ptr);
+
+/**
+* 
+*/
+void BehaviourDestroyHook(void* ptr);
 
 /**
 * Funcion para liberar memoria de una instancia de juego.

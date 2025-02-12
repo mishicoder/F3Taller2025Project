@@ -40,9 +40,31 @@ GameLevel* CreateLevel(const char* name, unsigned int keepInMemory,
 	return level;
 }
 
-void UnloadLevel(GameLevel* level)
+void UnloadLevel(struct Game* game, GameLevel* level)
 {
 	if (level == NULL) return;
+	ECS_COMPONENT(level->world, C_Behaviour);
+
+	ecs_query_t* query = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = { {.id = ecs_id(C_Behaviour)}}
+	});
+	ecs_iter_t it = ecs_query_iter(level->world, query);
+	while (ecs_iter_next(&it))
+	{
+		for (int i = 0; i < it.count; i++)
+		{
+			ecs_entity_t ent = it.entities[i];
+			printf("ID DE LA ENTIDAD: %llu\n", ent);
+			C_Behaviour* comp = ecs_get(level->world, ent, C_Behaviour);
+			if (comp != NULL)
+			{
+				if (comp->OnUnloadDataHandler != NULL)
+				{
+					comp->OnUnloadDataHandler(game, level, ent);
+				}
+			}
+		}
+	}
 
 	//free(level->name);
 	level->name = NULL;

@@ -3,9 +3,10 @@
 #define FARM_H
 
 #include "../../core/game.h"
+#include "../behaviours/daycycle.h"
 
 // funcion que se ejecuta cuando se crea el nivel
-void OnLoad(Game* game, GameLevel* level);
+void FarmOnLoad(Game* game, GameLevel* level);
 
 // 
 

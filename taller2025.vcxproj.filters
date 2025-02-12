@@ -55,6 +55,12 @@
     <ClCompile Include="src\core\utilities.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\behaviours\daycycle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\levels\farm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\resources_manager.h">
@@ -88,6 +94,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\levels\farm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\behaviours\daycycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

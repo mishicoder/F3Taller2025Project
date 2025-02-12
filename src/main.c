@@ -13,11 +13,25 @@
 #include <raylib.h>
 #include <float.h>
 #include "levels/menu.h"
+#include "game/levels/farm.h"
 
 void LoadResources(Game* game);
 
 int main()
 {
+	/*
+	InitWindow(800, 600, "test");
+
+	while (!WindowShouldClose())
+	{
+		BeginDrawing();
+		ClearBackground(GRAY);
+		EndDrawing();
+	}
+
+	CloseWindow();
+	*/
+	
 	GameConfig config = {0};
 	config.windowTitle = "Sunny Side";
 	config.windowWidth = 800;
@@ -31,11 +45,12 @@ int main()
 	InitGame(&game, config, LoadResources);
 	SetGameWindowIcon(&game, "assets/game_icon.png");
 
-	PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
+	//PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
+	PushLevel(&game, "farm", 0, 0, 0, FarmOnLoad);
 
 	RunGame(&game);
 	FreeGame(&game);
-
+	
 	return 0;
 }
 
@@ -43,6 +58,12 @@ void LoadResources(Game* game)
 {
 	// Cursores
 	LoadCustomCursor(game, "default", "assets/sprites/ui/default.png", 2.0, 2.0);
+	LoadCustomCursor(game, "action", "assets/sprites/ui/action.png", 2.0, 2.0);
+	LoadCustomCursor(game, "dig", "assets/sprites/ui/dig.png", 2.0, 2.0);
+	LoadCustomCursor(game, "chop", "assets/sprites/ui/chop.png", 2.0, 2.0);
+	LoadCustomCursor(game, "mine", "assets/sprites/ui/mine.png", 2.0, 2.0);
+	LoadCustomCursor(game, "slash", "assets/sprites/ui/slash.png", 2.0, 2.0);
+	LoadCustomCursor(game, "watering", "assets/sprites/ui/watering.png", 2.0, 2.0);
 	LoadCustomAnimatedCursor(game, "hand", "assets/sprites/ui/hand.png", 2, 16, 16, 8, 2.0f, 2.0f);
 
 	// Cargar semillasy plantas
@@ -62,4 +83,6 @@ void LoadResources(Game* game)
 
 	LoadSpriteWithOptions(game, "assets/sprites/enemy/skeleton.png", "assets/sprites/enemy/skeleton.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/enemy/goblin.png", "assets/sprites/enemy/goblin.sprite");
+
+	SetCustomCursor(game, "default");
 }

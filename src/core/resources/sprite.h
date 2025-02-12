@@ -29,8 +29,8 @@ typedef struct Sprite
 	unsigned int textureIndex;
 	unsigned int x;
 	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	int width;
+	int height;
 	Vector2 origin;
 
 	unsigned int framesCount;

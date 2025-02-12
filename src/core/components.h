@@ -151,6 +151,12 @@ typedef struct C_MapRender
 /* En desarrollo */
 typedef struct C_Behaviour
 {
+	// datos generales
+	void** data;
+	int dataCount;
+	void** numberData;
+	int numberDataCount;
+
 	// Comportamiento general
 	void(*OnCreate)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 	void(*OnInput)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
@@ -158,6 +164,10 @@ typedef struct C_Behaviour
 	void(*OnDestroy)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 	// Comportamiento para el tema de colisiones
 	void(*OnCollision)(struct Game* game, struct GameLevel* level, ecs_entity_t entity, ecs_entity_t collide);
+
+	// handlers adicional (para liverar datos dinámicos almacenados en memoria)
+	void(*OnDestroyDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	void(*OnUnloadDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 } C_Behaviour;
 
 /* Permite que la entidad tenga colisión en el mundo. */
@@ -200,6 +210,10 @@ typedef struct C_PointCollider{
 	float offsetX;
 	float offsetY;
 }C_PointCollider;
+
+typedef struct C_UIElement{
+	int layer;
+} C_UIElement;
 
 /*********************************************************
 * componentes para eljuego
