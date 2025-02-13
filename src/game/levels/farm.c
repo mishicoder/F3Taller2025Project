@@ -31,4 +31,13 @@ void FarmOnLoad(Game* game, GameLevel* level)
 	TileMap* map = GetTileMap(&game->resourcesManager, "player_house");
 	cameraTransform->positionX = gridT->positionX + ((map->mapTexture.texture.width * gridT->scaleX) / 2.0f);
 	cameraTransform->positionY = gridT->positionY + ((map->mapTexture.texture.height * gridT->scaleY) / 2.0f);
+
+	/*
+	PFNode* path = FindPath((Vector2) { 0, 0 }, (Vector2){4, 6}, mapController);
+	if (path != NULL)
+	{
+		printf("CAMINO ENCONTRADO\n");
+	}
+	free(path);
+	*/
 }

@@ -8,6 +8,24 @@
 #include "components.h"
 #include "gametypes.h"
 
+#define MAX_NODES 1000
+#define MAX_ITERATIONS 2000
+
+/**
+* Path Finding
+* 
+*/
+
+typedef struct PFNode {
+    int x, y;
+    int gcost, hcost, fcost;
+    struct PFNode* parent;
+}PFNode;
+
+int Heuristic(int x1, int y1, int x2, int y2);
+PFNode* FindPath(Vector2 start, Vector2 end, C_MapController* controller);
+void FreePath(PFNode* node);
+
 /**
 * Función para obtener limitar un valor entre un mínimo y un máximo.
 *

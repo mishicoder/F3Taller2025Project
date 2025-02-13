@@ -1120,6 +1120,8 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 			for (int j = 0; j < cols; j++)
 			{
 				grid[i][j].isFree = 1;
+				grid[i][j].isInteractable = 0;
+				grid[i][j].isBlocked = 0;
 			}
 		}
 

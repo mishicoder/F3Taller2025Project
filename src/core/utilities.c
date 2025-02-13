@@ -1,5 +1,89 @@
 #include "utilities.h"
 
+int Heuristic(int x1, int y1, int x2, int y2)
+{
+	return abs(x1 - x2) + abs(y1 - y2);
+}
+
+PFNode* FindPath(Vector2 start, Vector2 end, C_MapController* controller)
+{
+	PFNode* openList[MAX_NODES];
+	PFNode* closedList[MAX_NODES];
+	int openCount = 0, closedCount = 0;
+
+	PFNode* startNode = malloc(sizeof(PFNode));
+	if (startNode == NULL) return NULL;
+	startNode->x = start.x;
+	startNode->y = start.y;
+	startNode->gcost = 0;
+	startNode->hcost = Heuristic(start.x, start.y, end.x, end.y);
+	startNode->fcost = startNode->hcost;
+	startNode->parent = NULL;
+
+	openList[openCount++] = startNode;
+
+	int directions[4][2] = { {0, -1}, {0, 1}, {-1, 0}, {1.0} };
+
+	int iterations = 0;
+	while (openCount > 0)
+	{
+		if (iterations > MAX_ITERATIONS)
+			return NULL;
+
+		int lowestIndex = 0;
+		for (int i = 1; i < openCount; i++)
+		{
+			if (openList[i]->fcost < openList[lowestIndex]->fcost) {
+				lowestIndex = i;
+			}
+		}
+
+		PFNode* current = openList[lowestIndex];
+
+		if (current->x == end.x && current->y == end.y)
+		{
+			return current;
+		}
+
+		closedList[closedCount++] = current;
+		openList[lowestIndex] = openList[--openCount];
+
+		for (int i = 0; i < 4; i++)
+		{
+			int nx = current->x + directions[i][0];
+			int ny = current->y + directions[i][1];
+
+			if (nx < 0 || ny < 0 || nx >= controller->gridCols || ny >= controller->gridRows)
+				continue;
+
+			PFNode* neighbor = malloc(sizeof(PFNode));
+			if (neighbor == NULL)
+				continue;
+			neighbor->x = nx;
+			neighbor->y = ny;
+			neighbor->gcost = current->gcost + 1;
+			neighbor->hcost = Heuristic(nx, ny, end.x, end.y);
+			neighbor->fcost = neighbor ->gcost + neighbor->hcost;
+			neighbor->parent = current;
+
+			openList[openCount++] = neighbor;
+		}
+	}
+
+	return NULL;
+}
+
+void FreePath(PFNode* node)
+{
+	while (node)
+	{
+		PFNode* temp = node;
+		node = node->parent;
+		if(temp != NULL)
+			free(temp);
+	}
+}
+
 float GClamp(float value, float min, float max)
 {
 	return (value < min) ? min : (value > max) ? max : value;
