@@ -915,7 +915,8 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	ECS_COMPONENT(level->world, C_Crop);
 	ECS_COMPONENT(level->world, C_Tree);
 	ECS_COMPONENT(level->world, C_Ore);
-	
+	ECS_COMPONENT(level->world, C_Button);
+	ECS_COMPONENT(level->world, C_MapController);
 
 	if (strcmp(component, C_CAMERA_2D_ID) == 0)
 	{
@@ -1079,6 +1080,65 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 
 		ecs_set(level->world, entity, C_MapRender, { name });
 
+		free(data);
+		return 1;
+	}
+	else if (strcmp(component, C_MAP_CONTROLLER_ID) == 0)
+	{
+		if (ecs_has(level->world, entity, C_MapController)) return 0;
+
+		char* data = strdup(cdata);
+		char* name = strdup(data);
+
+		TileMap* map = GetTileMap(&game->resourcesManager, name);
+		if (map == NULL)
+		{
+			free(name);
+			free(data);
+			return 0;
+		}
+
+		int rows = map->mapHeight;
+		int cols = map->mapWidth;
+		Cell** grid = (Cell**)malloc(rows * sizeof(Cell*));
+		if (grid == NULL)
+		{
+			free(name);
+			free(data);
+			return 0;
+		}
+		int fail = 0;
+		for (int i = 0; i < rows; i++)
+		{
+			grid[i] = (Cell*)malloc(cols * sizeof(Cell));
+			if (grid[i] == NULL)
+			{
+				fail += 1;
+				continue;
+			}
+
+			for (int j = 0; j < cols; j++)
+			{
+				grid[i][j].isFree = 1;
+			}
+		}
+
+		if (fail > 0)
+		{
+			for (int i = 0; i < rows; i++)
+			{
+				if (grid[i] != NULL)
+					free(grid[i]);
+			}
+			free(name);
+			free(data);
+			free(grid);
+			return 0;
+		}
+
+		ecs_set(level->world, entity, C_MapController, { rows, cols, map->tileWidth, map->tileHeight, 1, 1, grid });
+
+		free(name);
 		free(data);
 		return 1;
 	}
@@ -1447,6 +1507,29 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	else if (strcmp(component, C_CROP_ID) == 0) {}
 	else if (strcmp(component, C_TREE_ID) == 0) {}
 	else if (strcmp(component, C_ORE_ID) == 0) {}
+	else if (strcmp(component, C_BUTTON_ID) == 0)
+	{
+		if (ecs_has(level->world, entity, C_Button)) return 0;
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		int type = atoi(token);
+		token = strtok_s(NULL, ",", &context);
+		char* text = strdup(token);
+		token = strtok_s(NULL, ",", &context);
+		float width = atof(token);
+		token = strtok_s(NULL, ",", &context);
+		float height = atof(token);
+		token = strtok_s(NULL, ",", &context);
+		int isActive = atoi(token);
+		token = strtok_s(NULL, ",", &context);
+
+		ecs_set(level->world, entity, C_Button, { type, text, width, height, isActive, 0, NULL, NULL, NULL, NULL });
+
+		free(data);
+		return 1;
+	}
 
 	return 0;
 }
@@ -1579,6 +1662,48 @@ ecs_entity_t GetMainCamera(GameLevel* level)
 	return 0;
 }
 
+Vector2 GetGridPosition(Game* game, GameLevel* level, C_MapController* controller, C_Transform* transform)
+{
+	ECS_COMPONENT(level->world, C_Camera2D);
+	ECS_COMPONENT(level->world, C_Transform);
+
+	ecs_entity_t mainCamera = GetMainCamera(level);
+	C_Camera2D* compCamera = ecs_get(level->world, mainCamera, C_Camera2D);
+	C_Transform* cameraTransform = ecs_get(level->world, mainCamera, C_Transform);
+	Camera2D camera = { 0 };
+	camera.offset.x = compCamera->offsetX;
+	camera.offset.y = compCamera->offsetY;
+	camera.target.x = cameraTransform->positionX;
+	camera.target.y = cameraTransform->positionY;
+	camera.rotation = compCamera->rotation;
+	camera.zoom = compCamera->zoom;
+
+	Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), camera);
+
+	Vector2 gridPos = { 0 };
+	if (worldPos.x < transform->positionX)
+		gridPos.x = worldPos.x;
+	else
+		gridPos.x = (int)((worldPos.x - transform->positionX) / (controller->cellHeight * transform->scaleX));
+	
+	if (worldPos.y < transform->positionY)
+		gridPos.y = worldPos.y;
+	else
+		gridPos.y = (int)((worldPos.y - transform->positionY) / (controller->cellWidth * transform->scaleY));
+	
+	return gridPos;
+}
+
+Cell* GetCellAt(Game* game, GameLevel* level, C_MapController* controller, C_Transform* transform)
+{
+	Vector2 gridPos = GetGridPosition(game, level, controller, transform);
+
+	if (gridPos.x >= 0 && gridPos.x < controller->gridCols && gridPos.y >= 0 && gridPos.y < controller->gridRows)
+		return &controller->grid[(int)gridPos.y][(int)gridPos.x];
+
+	return NULL;
+}
+
 void UpdateLevel(Game* game, GameLevel* level)
 {
 	ECS_COMPONENT(level->world, C_Behaviour);
@@ -1587,6 +1712,7 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_CircleCollider);
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_Camera2D);
+	ECS_COMPONENT(level->world, C_MapController);
 
 	// sure??
 	ecs_entity_t mainCamera = GetMainCamera(level);
@@ -1634,7 +1760,37 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ecs_query_fini(query);
 
 	/******************************************************************************
-	* UPDATE COMPONENTS
+	* UPDATE GRID
+	******************************************************************************/
+	ecs_query_t* mapQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{ .id = ecs_id(C_MapController) }
+		}
+	});
+
+	ecs_iter_t mapIter = ecs_query_iter(level->world, mapQuery);
+	while (ecs_iter_next(&mapIter))
+	{
+		for (int i = 0; i < mapIter.count; i++)
+		{
+			ecs_entity_t ent = mapIter.entities[i];
+			C_MapController* controller = ecs_get(level->world, ent, C_MapController);
+			C_Transform* transform = ecs_get(level->world, ent, C_Transform);
+
+			if (controller != NULL)
+			{
+				for (int j = 0; j < controller->gridRows; j++)
+				{
+					for(int i = 0; i < controller->gridCols; i++)
+					{
+					}
+				}
+			}
+		}
+	}
+
+	/******************************************************************************
+	* UPDATE ANIMATIONS
 	******************************************************************************/
 	ecs_query_t* animQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = {{ .id = ecs_id(C_SpriteAnimation)}}
@@ -1675,7 +1831,9 @@ void UpdateLevel(Game* game, GameLevel* level)
 
 	ecs_query_fini(animQuery);
 
-	// Actualizar entidades que tienen hijos
+	/******************************************************************************
+	* UPDATE CHILD ENTITIES
+	******************************************************************************/
 	ecs_query_t* childsQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = {
 			{ .id = ecs_id(C_Transform) },
@@ -1708,7 +1866,7 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ecs_query_fini(childsQuery);
 
 	/******************************************************************************
-	* GESTION DE COLISIONES
+	* COLLISION MANAGER
 	******************************************************************************/
 	ecs_query_t* queryCollider = ecs_query_init(level->world, &(ecs_query_desc_t){
 		.terms = { 
@@ -1796,6 +1954,7 @@ void RenderLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_RectCollider);
 	ECS_COMPONENT(level->world, C_CircleCollider);
+	ECS_COMPONENT(level->world, C_MapController);
 
 	ecs_entity_t mainCamera = GetMainCamera(level);
 	if (mainCamera == 0)
@@ -1945,6 +2104,50 @@ void RenderLevel(Game* game, GameLevel* level)
 		}
 	}
 
+	ecs_query_t* mapQuery = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{.id = ecs_id(C_MapController) }
+		}
+	});
+
+	ecs_iter_t mapIter = ecs_query_iter(level->world, mapQuery);
+	while (ecs_iter_next(&mapIter))
+	{
+		for (int i = 0; i < mapIter.count; i++)
+		{
+			ecs_entity_t ent = mapIter.entities[i];
+			C_MapController* controller = ecs_get(level->world, ent, C_MapController);
+			C_Transform* transform = ecs_get(level->world, ent, C_Transform);
+
+			if (controller != NULL)
+			{
+				if (controller->showGrid == 1)
+				{
+					for (int j = 0; j < controller->gridRows; j++)
+					{
+						for (int i = 0; i < controller->gridCols; i++)
+						{
+							DrawRectangleLines(transform->positionX + (i * (controller->cellWidth * transform->scaleX)), transform->positionY + (j * (controller->cellHeight * transform->scaleY)), controller->cellWidth * transform->scaleX, controller->cellHeight * transform->scaleY, WHITE);
+						}
+					}
+				}
+
+				Vector2 gridPos = GetGridPosition(game, level, controller, transform);
+
+				if (gridPos.x >= 0.0 && gridPos.x < controller->gridCols && gridPos.y >= 0.0 && gridPos.y < controller->gridRows)
+				{
+					Cell* currentCell = GetCellAt(game, level, controller, transform);
+					if(currentCell != NULL)
+					{
+						DrawRectangle(transform->positionX + gridPos.x * (controller->cellWidth * transform->scaleX), transform->positionY
+							+ gridPos.y * (controller->cellHeight * transform->scaleY), controller->cellWidth * transform->scaleX, controller->cellHeight * transform->scaleY, currentCell->isFree == 1 ? Fade(GREEN, 0.3f) : Fade(RED, 0.3f));
+					}
+					DrawText(TextFormat("X: %.2f | Y: %.2f", gridPos.x, gridPos.y), -40, -40, 20, WHITE);
+				}
+			}
+		}
+	}
+
 	//EndBlendMode();
 
 	/* DEBUG */
@@ -1957,6 +2160,18 @@ void RenderLevel(Game* game, GameLevel* level)
 
 void RenderUI(Game* game, GameLevel* level)
 {
+	ECS_COMPONENT(level->world, C_UIElement);
+	ECS_COMPONENT(level->world, C_Button);
+
+	// update
+	ecs_query_t* queryUpdate = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{ .id = ecs_id(C_UIElement) },
+			{ .id = ecs_id(C_Button) }
+		}
+	});
+
+	// render
 }
 
 void RenderCursor(Game* game)
@@ -2036,6 +2251,8 @@ void RegisterComponentsHooks(GameLevel* level)
 {
 	ECS_COMPONENT(level->world, C_MapRender);
 	ECS_COMPONENT(level->world, C_Behaviour);
+	ECS_COMPONENT(level->world, C_Button);
+	ECS_COMPONENT(level->world, C_MapController);
 
 	ecs_set_hooks(level->world, C_MapRender, {
 		.dtor = MapRenderDestroyHook
@@ -2043,6 +2260,14 @@ void RegisterComponentsHooks(GameLevel* level)
 
 	ecs_set_hooks(level->world, C_Behaviour, {
 		.dtor = BehaviourDestroyHook
+	});
+
+	ecs_set_hooks(level->world, C_Button, {
+		.dtor = ButtonDestroyHook
+	});
+
+	ecs_set_hooks(level->world, C_MapController, {
+		.dtor = MapControllerDestroyHook
 	});
 }
 
@@ -2054,6 +2279,27 @@ void MapRenderDestroyHook(void* ptr)
 		free(comp->name);
 		comp->name = NULL;
 	}
+}
+
+void ButtonDestroyHook(void* ptr)
+{
+	C_Button* comp = ptr;
+	if (comp->text)
+	{
+		free(comp->text);
+		comp->text = NULL;
+	}
+}
+
+void MapControllerDestroyHook(void* ptr)
+{
+	C_MapController* comp = ptr;
+	for (int i = 0; i < comp->gridRows; i++)
+	{
+		if (comp->grid[i] != NULL)
+			free(comp->grid[i]);
+	}
+	free(comp->grid);
 }
 
 void BehaviourDestroyHook(void* ptr)
@@ -2075,6 +2321,8 @@ void FreeGame(Game* game)
 	{
 		ECS_COMPONENT(game->levelCache[i]->world, C_MapRender);
 		ECS_COMPONENT(game->levelCache[i]->world, C_Behaviour);
+		ECS_COMPONENT(game->levelCache[i]->world, C_Button);
+		ECS_COMPONENT(game->levelCache[i]->world, C_MapController);
 
 		ecs_set_hooks(game->levelCache[i]->world, C_MapRender, {
 			.dtor = MapRenderDestroyHook
@@ -2083,18 +2331,32 @@ void FreeGame(Game* game)
 		ecs_set_hooks(game->levelCache[i]->world, C_Behaviour, {
 			.dtor = BehaviourDestroyHook
 		});
+		ecs_set_hooks(game->levelCache[i]->world, C_Button, {
+			.dtor = ButtonDestroyHook
+		});
+		ecs_set_hooks(game->levelCache[i]->world, C_MapController, {
+			.dtor = MapControllerDestroyHook
+		});
 	}
 
 	for (int i = 0; i < game->levelStackCount; i++)
 	{
 		ECS_COMPONENT(game->levelStack[i]->world, C_MapRender);
 		ECS_COMPONENT(game->levelStack[i]->world, C_Behaviour);
+		ECS_COMPONENT(game->levelStack[i]->world, C_Button);
+		ECS_COMPONENT(game->levelStack[i]->world, C_MapController);
 
 		ecs_set_hooks(game->levelStack[i]->world, C_MapRender, {
 			.dtor = MapRenderDestroyHook
 		});
 		ecs_set_hooks(game->levelStack[i]->world, C_Behaviour, {
 			.dtor = BehaviourDestroyHook
+		});
+		ecs_set_hooks(game->levelStack[i]->world, C_Button, {
+			.dtor = ButtonDestroyHook
+		});
+		ecs_set_hooks(game->levelStack[i]->world, C_MapController, {
+			.dtor = MapControllerDestroyHook
 		});
 	}
 

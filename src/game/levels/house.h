@@ -1,11 +1,11 @@
 #pragma once
-#ifndef FARM_H
-#define FARM_H
+#ifndef HOUSE_H
+#define HOUSE_H
 
 #include "../../core/game.h"
 #include "../behaviours/daycycle.h"
 
 // funcion que se ejecuta cuando se crea el nivel
-void FarmOnLoad(Game* game, GameLevel* level);
+void HouseOnLoad(Game* game, GameLevel* level);
 
-#endif // !FARM_H
+#endif // !HOUSE_H

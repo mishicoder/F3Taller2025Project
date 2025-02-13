@@ -437,6 +437,14 @@ int AddLevel(struct Game* game, const char* name,
 ecs_entity_t GetMainCamera(GameLevel* level);
 
 /**
+*/
+Vector2 GetGridPosition(Game* game, GameLevel* level, C_MapController* controller, C_Transform* transform);
+
+/**
+*/
+Cell* GetCellAt(Game* game, GameLevel* level, C_MapController* controller, C_Transform* transform);
+
+/**
 * Actualiza todas las entidades del nivel.
 *
 * @param[in] game Puntero a la instancia de juego.
@@ -493,6 +501,8 @@ void RegisterComponentsHooks(GameLevel* level);
 * @param[in] ptr Puntero del componente.
 */
 void MapRenderDestroyHook(void* ptr);
+void ButtonDestroyHook(void* ptr);
+void MapControllerDestroyHook(void* ptr);
 
 /**
 * 

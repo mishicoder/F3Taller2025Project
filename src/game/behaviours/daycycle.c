@@ -67,7 +67,6 @@ void DayCycleOnUpdate(Game* game, GameLevel* level, ecs_entity_t entity)
 					controller->currentHour = 0;
 				}
 			}
-			printf("Hour: %d | Minute: %d | Total time: %d\n", controller->currentHour, controller->currentMinute, controller->totalTime);
 		}
 	}
 }

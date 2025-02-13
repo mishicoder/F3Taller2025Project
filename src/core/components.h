@@ -14,6 +14,7 @@
 #define C_SPRITE_ANIMATION_ID "animation"
 #define C_COLOR_ID            "color"
 #define C_MAP_RENDER_ID       "map"
+#define C_MAP_CONTROLLER_ID   "mapController"
 #define C_BEHAVIOUR_ID        "script"
 #define C_RECT_COLLIDER_ID	  "rect"
 #define C_CIRCLE_COLLIDER_ID  "circle"
@@ -34,6 +35,7 @@
 #define C_CROP_ID             "crop"
 #define C_TREE_ID             "tree"
 #define C_ORE_ID              "ore"
+#define C_BUTTON_ID			  "button"
 
 struct Game;
 struct Level;
@@ -148,6 +150,20 @@ typedef struct C_MapRender
 	const char* name;
 } C_MapRender;
 
+typedef struct C_MapController
+{
+	// reja de control
+	int gridRows;
+	int gridCols;
+	int cellWidth;
+	int cellHeight;
+
+	int showGrid;
+	int showCurrentCell;
+	
+	Cell** grid;
+} C_MapController;
+
 /* En desarrollo */
 typedef struct C_Behaviour
 {
@@ -211,9 +227,36 @@ typedef struct C_PointCollider{
 	float offsetY;
 }C_PointCollider;
 
+/* Determina que un elemento es de tipo UI */
 typedef struct C_UIElement{
 	int layer;
+	int visible;
 } C_UIElement;
+
+typedef struct C_Button {
+	// Determina que tipo de boton es (1 texto | 2 sprite)
+	int type;
+	// Texto que renderiza el boton en caso sea de tipo 1, caso contrario, sería el nombre del sprite.
+	char* text;
+	// Ancho del boton (si es 0.0 al ser creado, toma el ancho del sprite o texto)
+	float widtth;
+	// Alto del boton (si es 0.0 al ser creado, toma el alto del sprite o texto)
+	float height;
+
+	// Determina si el boton está activo.
+	int isActive;
+	// Determina si el cursor está encima del botón (por defecto es cero).
+	int isHovered;
+
+	// funcion que se ejecuta cuando el cursor está sobre el boton
+	void(*OnHover)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	// Se ejecuta cuando el usuario presiona el botón
+	void(*OnClick)(struct Game* gamee, struct GameLevel* level, ecs_entity_t entity);
+	// Se ejecuta cuando el mouse está sobre el elemento solo una vez
+	void(*OnMouseEnter)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+	// Se ejecuta cuando el mouse ya no está sbore el elemento, una sola vez
+	void (*OnMouseExit)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
+} C_Button;
 
 /*********************************************************
 * componentes para eljuego

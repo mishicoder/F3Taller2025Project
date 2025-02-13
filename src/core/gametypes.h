@@ -4,6 +4,12 @@
 
 #define HELMET_SLOT 0
 
+typedef struct Cell {
+	int isFree; // está libre?
+	int isInteractable; // se puede interactuar?
+	int isBlocked; // está bloqueado para el uso de A*?
+} Cell;
+
 typedef struct Circle
 {
 	float centerX;
