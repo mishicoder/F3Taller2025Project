@@ -20,16 +20,42 @@ void LoadResources(Game* game);
 int main()
 {
 	/*
-	InitWindow(800, 600, "test");
+	// Inicializar ventana
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+    InitWindow(screenWidth, screenHeight, "9-Slice con NPatch");
 
-	while (!WindowShouldClose())
-	{
-		BeginDrawing();
-		ClearBackground(GRAY);
-		EndDrawing();
-	}
+    // Cargar imagen
+    Texture2D texture = LoadTexture("assets/sprites/ui/panel2.png");
 
-	CloseWindow();
+    // Definir el N-Patch (bordes que no se estiran)
+    int border = 3;  // Ajusta según la imagen
+    NPatchInfo patch = {
+        (Rectangle){ 0, 0, texture.width, texture.height },  // Región de la imagen completa
+        7, 7, 7, 11,  // Márgenes (left, top, right, bottom)
+        NPATCH_NINE_PATCH  // Tipo de parche (9-Slice)
+    };
+
+    // Área donde se dibujará la imagen
+    Rectangle dest = { 200, 150, 400, 300 };
+
+    // Bucle principal
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        // Dibujar el N-Patch
+        DrawTextureNPatch(texture, patch, dest, (Vector2){ 0, 0 }, 0.0f, WHITE);
+		DrawTexturePro(texture, (Rectangle) { 0, 0, texture.width, texture.height }, (Rectangle) { 20, 50, texture.width * 4, texture.height * 4 }, (Vector2) { 0.0, 0.0 }, 0.0, WHITE);
+
+        DrawText("9-Slice con NPatch", 10, 10, 20, DARKGRAY);
+        EndDrawing();
+    }
+
+    // Liberar recursos
+    UnloadTexture(texture);
+    CloseWindow();
 	*/
 	
 	GameConfig config = {0};

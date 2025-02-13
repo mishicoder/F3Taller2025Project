@@ -21,7 +21,7 @@ void FarmOnLoad(Game* game, GameLevel* level)
 	AddComponentToEntity(game, level, grid, C_MAP_CONTROLLER_ID, "player_house");
 	C_Transform* gridT = ecs_get(level->world, grid, C_Transform);
 	C_MapController* mapController = ecs_get(level->world, grid, C_MapController);
-	mapController->showGrid = 0;
+	mapController->showGrid = 1;
 	gridT->scaleX = 4.0f;
 	gridT->scaleY = 4.0f;
 	gridT->positionX = 0.0f;
@@ -33,7 +33,7 @@ void FarmOnLoad(Game* game, GameLevel* level)
 	cameraTransform->positionY = gridT->positionY + ((map->mapTexture.texture.height * gridT->scaleY) / 2.0f);
 
 	/*
-	PFNode* path = FindPath((Vector2) { 0, 0 }, (Vector2){4, 6}, mapController);
+	PFNode* path = FindPath((Vector2) { 0, 0 }, (Vector2){2, 2}, mapController);
 	if (path != NULL)
 	{
 		printf("CAMINO ENCONTRADO\n");

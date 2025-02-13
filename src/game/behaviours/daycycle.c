@@ -86,7 +86,6 @@ void DayCycleOnUnloadDataHandler(Game* game, GameLevel* level, ecs_entity_t enti
 			free(controller->dayChangeCallbacks);
 		}
 		free(controller);
-		printf("DATOS ELIMINADOS\n");
 	}
 }
 
