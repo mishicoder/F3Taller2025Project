@@ -1,4 +1,4 @@
-data=player@15,19
+data=player@15,23
 
 # anim es el identificador para una animacion
 # seguido del = para asignar los datos
@@ -29,6 +29,14 @@ anim=swimming@225,236,1,8
 anim=waiting@240,248,1,8
 anim=walking@255,262,1,8
 anim=watering@270,274,1,8
+# 285 - 299
+anim=attack2@285,294,1,8
+# 300 - 314
+anim=attack3@300,309,1,8
+# 315 - 329
+anim=attack4@315,324,1,8
+# 330 - 344
+anim=attack5@330,339,1,8
 
 @break
 # @break indica que el bucle de lectura se detenga
@@ -39,12 +47,12 @@ anim=watering@270,274,1,8
 # 1 : ataque        : 10 -> indices:   0 -  14 -> anim:   0 - 9   X
 # 2 : acha          : 10 -> indices:  15 -  29 -> anim:  15 - 24  X
 # 3 : cargar        : 08 -> indices:  30 -  44 -> anim:  30 - 39  X
-# 4 : lanzar caña   : 15 -> indices:  45 -  59 -> anim:  45 - 59  X
+# 4 : lanzar ca a   : 15 -> indices:  45 -  59 -> anim:  45 - 59  X
 # 5 : mordio anzuelo: 10 -> indices:  60 -  74 -> anim:  60 - 69  X
 # 6 : muerte        : 13 -> indices:  75 -  89 -> anim:  75 - 87  X
 # 7 : cavar         : 13 -> indices:  90 - 104 -> anim:  90 - 102 X
 # 8 : hacer         : 08 -> indices: 105 - 119 -> anim: 105 - 112 X
-# 9 : daño          : 08 -> indices: 120 - 134 -> anim: 120 - 127 X
+# 9 : da o          : 08 -> indices: 120 - 134 -> anim: 120 - 127 X
 # 10: reposo        : 09 -> indices: 135 - 149 -> anim: 135 - 143 X 
 # 11: salto         : 09 -> indices: 150 - 164 -> anim: 150 - 158 X
 # 12: minar         : 10 -> indices: 165 - 179 -> anim: 165 - 174 X

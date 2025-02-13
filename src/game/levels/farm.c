@@ -32,8 +32,24 @@ void FarmOnLoad(Game* game, GameLevel* level)
 	cameraTransform->positionX = gridT->positionX + ((map->mapTexture.texture.width * gridT->scaleX) / 2.0f);
 	cameraTransform->positionY = gridT->positionY + ((map->mapTexture.texture.height * gridT->scaleY) / 2.0f);
 
+	ecs_entity_t player = CreateBlankEntity(level, "player", "player");
+	AddComponentToEntity(game, level, player, C_SPRITE_RENDER_ID, "player,1,1.0,0,0");
+	AddComponentToEntity(game, level, player, C_SPRITE_ANIMATION_ID, "player");
+	C_Transform* pTransform = ecs_get(level->world, player, C_Transform);
+	pTransform->scaleX = 4.0f;
+	pTransform->scaleY = 4.0f;
+	PlayAnimation(game, level, player, "idle");
+
+	ecs_entity_t tools = AddChildToEntity(level, player, "tools", "tools");
+	AddComponentToEntity(game, level, tools, C_SPRITE_RENDER_ID, "tools,1,1.0,0,0");
+	AddComponentToEntity(game, level, tools, C_SPRITE_ANIMATION_ID, "tools");
+	C_Transform* toolsT = ecs_get(level->world, tools, C_Transform);
+	toolsT->scaleX = 4.0f;
+	toolsT->scaleY = 4.0f;
+	PlayAnimation(game, level, tools, "idle");
+
 	/*
-	PFNode* path = FindPath((Vector2) { 0, 0 }, (Vector2){2, 2}, mapController);
+	PFNode* path = FindPath((Vector2) { 0, 0 }, (Vector2){4, 6}, mapController);
 	if (path != NULL)
 	{
 		printf("CAMINO ENCONTRADO\n");
