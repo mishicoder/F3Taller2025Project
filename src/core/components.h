@@ -202,6 +202,7 @@ typedef struct C_RectCollider
 	unsigned int height;
 	// Determina si la caja de colisión es solida.
 	unsigned short isSolid;
+	int isStatic;
 } C_RectCollider;
 
 typedef struct C_CircleCollider 

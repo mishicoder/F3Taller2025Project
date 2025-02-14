@@ -245,13 +245,15 @@ int ResolveRectRectCollision(Rectangle* a, Rectangle b, unsigned int isSolid)
 	return 0;
 }
 
-int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b)
+int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b, C_Transform* transform, int isSolid, int isStatic)
 {
 	if (a->x < b.x + b.width &&
 		a->x + a->width > b.x &&
 		a->y < b.y + b.height &&
-		a->y + a->height > b.y)
-	{
+		a->y + a->height > b.y){
+
+		if (isSolid == 0) return 1;
+
 		float overlapLeft = (a->x + a->width) - b.x;
 		float overlapRight = (b.x + b.width) - a->x;
 		float overlapTop = (a->y + a->height) - b.y;
@@ -260,13 +262,64 @@ int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangl
 		float minOverlap = fminf(fminf(overlapLeft, overlapRight), fminf(overlapTop, overlapBottom));
 
 		if (minOverlap == overlapLeft)
-			a->x -= overlapLeft;
+		{
+			//a->x -= overlapLeft;
+			if(isStatic == 0)
+				transform->positionX -= overlapLeft;
+		}
 		else if (minOverlap == overlapRight)
-			a->x += overlapRight;
+		{
+			//a->x += overlapRight;
+			if (isStatic == 0)
+				transform->positionX += overlapRight;
+		}
 		else if (minOverlap == overlapTop)
-			a->y -= overlapTop;
+		{
+			//a->y -= overlapTop;
+			if(isStatic == 0)
+				transform->positionY -= overlapTop;
+		}
 		else if (minOverlap == overlapBottom)
-			a->y += overlapBottom;
+		{
+			//a->y += overlapBottom;
+			if (isStatic == 0)
+				transform->positionY += overlapBottom;
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+int IntersectionRectRectTransformImplementation(C_Transform* transform, Rectangle a, Rectangle b, int isSolid)
+{
+	if (a.x < b.x + b.width &&
+		a.x + a.width > b.x &&
+		a.y < b.y + b.height &&
+		a.y + a.height > b.y)
+	{
+		if (isSolid == 0)
+			return 1;
+
+		// Calculamos cuánto se está superponiendo en cada dirección
+		float overlapLeft = (a.x + a.width) - b.x;
+		float overlapRight = (b.x + b.width) - a.x;
+		float overlapTop = (a.y + a.height) - b.y;
+		float overlapBottom = (b.y + b.height) - a.y;
+
+		// Determinamos la dirección de la mínima superposición
+		float minOverlap = fminf(fminf(overlapLeft, overlapRight), fminf(overlapTop, overlapBottom));
+
+		// Ajustamos la posición de `a` para que salga de la colisión
+		if (minOverlap == overlapLeft)
+			transform->positionX -= overlapLeft; // Mueve `a` hacia la izquierda
+		else if (minOverlap == overlapRight)
+			transform->positionX += overlapRight; // Mueve `a` hacia la derecha
+		else if (minOverlap == overlapTop)
+			transform->positionY -= overlapTop; // Mueve `a` hacia arriba
+		else if (minOverlap == overlapBottom)
+			transform->positionY += overlapBottom; // Mueve `a` hacia abajo
 
 		return 1;
 	}

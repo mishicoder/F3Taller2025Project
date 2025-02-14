@@ -4,7 +4,10 @@
 
 #include "../../core/game.h"
 #include "../behaviours/daycycle.h"
+#include "../behaviours/player.h"
+#include "../levels/farm.h"
 
+void DoorOnCollision(Game* game, GameLevel* level, ecs_entity_t entity, ecs_entity_t other);
 // funcion que se ejecuta cuando se crea el nivel
 void HouseOnLoad(Game* game, GameLevel* level);
 

@@ -4,6 +4,7 @@
 
 #include "../../core/game.h"
 #include "../behaviours/daycycle.h"
+#include "../behaviours/player.h"
 
 // funcion que se ejecuta cuando se crea el nivel
 void FarmOnLoad(Game* game, GameLevel* level);

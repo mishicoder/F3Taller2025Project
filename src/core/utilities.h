@@ -92,7 +92,9 @@ int ResolveRectRectCollision(Rectangle* a, Rectangle b, unsigned int isSolid);
 * 
 * @return Retorna 1 si se da la colisión, caso contrario, retorna 0.
 */
-int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b);
+int IntersectionRectangleRectangleCollisionImplementation(Rectangle* a, Rectangle b, C_Transform* transform, int isSolid, int isStatic);
+
+int IntersectionRectRectTransformImplementation(C_Transform* transform, Rectangle a, Rectangle b, int isSolid);
 
 // 9-slice
 /*

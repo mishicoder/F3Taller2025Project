@@ -57,7 +57,7 @@ typedef struct GameConfig{
 	// colo de fondo de la pantalla del juego
 	Color colorBackground;
 	// Determina si se hace un debug de las colisiones y otras cosas.
-	unsigned int activeDebug;
+	int activeDebug;
 	// indica la escala global del juego
 	float globalScale;
 } GameConfig;
@@ -367,6 +367,7 @@ ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char*
 */
 ecs_entity_t GetChildFromIndex(GameLevel* level, ecs_entity_t parent, int index);
 
+int AddRectCollision(GameLevel* level, ecs_entity_t ent, float ox, float oy, int w, int h, int s);
 /**
 * Agrega un componente a una entidad cargada en base a cadenas de texto.
 * El componente "C_Behaviour" no funciona en esta función, para ello se debe usar

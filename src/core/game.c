@@ -886,6 +886,12 @@ ecs_entity_t GetChildFromIndex(GameLevel* level, ecs_entity_t parent, int index)
 	return child;
 }
 
+int AddRectCollision(GameLevel* level, ecs_entity_t ent, float ox, float oy, int w, int h, int s)
+{
+	ECS_COMPONENT(level->world, C_RectCollider);
+	ecs_set(level->world, ent, C_RectCollider, { 0.0f, 0.0f, ox, oy, w, h, s });
+}
+
 int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, const char* component, const char* cdata)
 {
 	ECS_COMPONENT(level->world, C_Camera2D);
@@ -1146,23 +1152,41 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	}
 	else if (strcmp(component, C_RECT_COLLIDER_ID) == 0) 
 	{
+		
 		if (ecs_has(level->world, entity, C_RectCollider)) return 0;
 
+		if (cdata == NULL | *cdata == '\0') return 0;
+		printf("C_DATA: %s\n", cdata);
+
 		char* data = strdup(cdata);
+		printf("DATA: %s\n", data);
+		if (data == NULL) return 0;
 
 		char* context = NULL;
-		char* token = strtok_s(data, ",", &context);
+		char* token = strtok_s(data, ",", &context); // 1
+		if (token == NULL) { free(data); return 0; }
 		float offsetX = atof(token);
-		token = strtok_s(NULL, ",", &context);
+		token = strtok_s(NULL, ",", &context); // 2
+		if (token == NULL) { free(data); return 0; }
 		float offsetY = atof(token);
-		token = strtok_s(NULL, ",", &context);
+		token = strtok_s(NULL, ",", &context); // 3
+		if (token == NULL) { free(data); return 0; }
 		int width = atoi(token);
-		token = strtok_s(NULL, ",", &context);
+		token = strtok_s(NULL, ",", &context); // 4
+		if (token == NULL) { free(data); return 0; }
 		int height = atoi(token);
-		token = strtok_s(NULL, ",", &context);
+		token = strtok_s(NULL, ",", &context); // 5
+		if (token == NULL) { free(data); return 0; }
 		int isSolid = atoi(token);
+		token = strtok_s(NULL, ",", &context); // 6
+		if (token == NULL) { free(data); return 0; }
+		int isStatic = atoi(token);
 
-		ecs_set(level->world, entity, C_RectCollider, { 0.0f, 0.0f, offsetX, offsetY, width, height, isSolid });
+		
+		if (!ecs_is_valid(level->world, entity)) {
+			printf("ENTIDAD: %llu no valida\n", entity);
+		}
+		ecs_set(level->world, entity, C_RectCollider, { 0.0f, 0.0f, offsetX, offsetY, width, height, isSolid, isStatic });
 
 		free(data);
 		return 1;
@@ -1914,11 +1938,13 @@ void UpdateLevel(Game* game, GameLevel* level)
 			{
 				for (int j = 0; j < itinner.count; j++)
 				{
-					ecs_entity_t innerEnt = itinner.entities[i];
+					ecs_entity_t innerEnt = itinner.entities[j];
 					if (ent == innerEnt) continue;
+					if (!ecs_is_valid(level->world, innerEnt)) continue;
 
 					C_RectCollider* innerRectColl = ecs_get(level->world, innerEnt, C_RectCollider);
 					C_CircleCollider* innerCircColl = ecs_get(level->world, innerEnt, C_CircleCollider);
+					C_Transform* innerT = ecs_get(level->world, innerEnt, C_Transform);
 
 					if (entRecColl != NULL && innerCircColl != NULL)
 					{
@@ -1937,13 +1963,60 @@ void UpdateLevel(Game* game, GameLevel* level)
 							}
 						}
 					}
-					if(entRecColl != NULL && innerRectColl != NULL) {}
+					if(entRecColl != NULL && innerRectColl != NULL) 
+					{
+						Rectangle a = { entRecColl->posX, entRecColl->posY, entRecColl->width, entRecColl->height };
+						Rectangle b = { innerRectColl->posX, innerRectColl->posY, innerRectColl->width, innerRectColl->height };
+						if(IntersectionRectangleRectangleCollisionImplementation(&a, b, entTransform, innerRectColl->isSolid, entRecColl->isStatic))
+						{
+							if (ecs_has(level->world, ent, C_Behaviour))
+							{
+								C_Behaviour* beh = ecs_get(level->world, ent, C_Behaviour);
+								if (beh->OnCollision != NULL)
+									beh->OnCollision(game, level, ent, innerEnt);
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 
 	ecs_query_fini(queryCollider);
+
+	/******************************************************************************
+	* UPDATE CHILD ENTITIES
+	******************************************************************************/
+	ecs_query_t* childsQueryPos = ecs_query_init(level->world, &(ecs_query_desc_t){
+		.terms = {
+			{.id = ecs_id(C_Transform) },
+			{.id = ecs_pair(EcsChildOf, EcsWildcard) }
+		}
+	});
+	ecs_iter_t itChildsPos = ecs_query_iter(level->world, childsQueryPos);
+	while (ecs_query_next(&itChildsPos))
+	{
+		for (int i = 0; i < itChildsPos.count; i++)
+		{
+			ecs_entity_t ent = itChildsPos.entities[i];
+			ecs_entity_t par = ecs_get_target(level->world, ent, EcsChildOf, 0);
+			if (par)
+			{
+				//printf("ID DE LA ENTIDAD: %llu | PARA: %llu\n", ent, par);
+				const C_Transform* t = ecs_get(level->world, par, C_Transform);
+				if (t)
+				{
+					C_Transform* childT = ecs_get(level->world, ent, C_Transform);
+					C_Transform* parentT = ecs_get(level->world, par, C_Transform);
+
+					childT->relX = parentT->positionX + childT->positionX;
+					childT->relY = parentT->positionY + childT->positionY;
+				}
+			}
+		}
+	}
+
+	ecs_query_fini(childsQueryPos);
 }
 
 void RenderLevel(Game* game, GameLevel* level)
@@ -2219,6 +2292,8 @@ void RenderCursor(Game* game)
 
 void RenderDebug(Game* game, GameLevel* level)
 {
+	if (game->config.activeDebug == 0) return;
+
 	ECS_COMPONENT(level->world, C_RectCollider);
 	ECS_COMPONENT(level->world, C_CircleCollider);
 

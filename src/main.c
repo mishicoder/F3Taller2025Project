@@ -14,6 +14,7 @@
 #include <float.h>
 #include "levels/menu.h"
 #include "game/levels/farm.h"
+#include "game/levels/house.h"
 
 void LoadResources(Game* game);
 
@@ -62,7 +63,7 @@ int main()
 	config.windowTitle = "Sunny Side";
 	config.windowWidth = 800;
 	config.windowHeight = 600;
-	config.windowFullscreen = 0;
+	config.windowFullscreen = 1;
 	config.useEscapeToExit = 1;
 	config.activeDebug = 0;
 	config.colorBackground = (Color){ 20, 23, 21, 255 };
@@ -72,7 +73,7 @@ int main()
 	SetGameWindowIcon(&game, "assets/game_icon.png");
 
 	//PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
-	PushLevel(&game, "farm", 0, 0, 0, FarmOnLoad);
+	PushLevel(&game, "house", 0, 0, 0, HouseOnLoad);
 
 	RunGame(&game);
 	FreeGame(&game);
