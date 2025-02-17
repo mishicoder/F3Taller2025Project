@@ -23,7 +23,7 @@ GameLevel* CreateLevel(const char* name, unsigned int keepInMemory,
 		return NULL;
 	}
 
-	level->name = name;
+	level->name = _strdup(name);
 	if (level->name == NULL)
 	{
 		printf("Error al asignar memoria para el nombre del nivel %s.\n", name);
@@ -54,7 +54,6 @@ void UnloadLevel(struct Game* game, GameLevel* level)
 		for (int i = 0; i < it.count; i++)
 		{
 			ecs_entity_t ent = it.entities[i];
-			printf("ID DE LA ENTIDAD: %llu\n", ent);
 			C_Behaviour* comp = ecs_get(level->world, ent, C_Behaviour);
 			if (comp != NULL)
 			{
@@ -67,8 +66,9 @@ void UnloadLevel(struct Game* game, GameLevel* level)
 	}
 
 	//free(level->name);
-	level->name = NULL;
+	//level->name = NULL;
 	ecs_fini(level->world);
+	level->world = NULL;
 	free(level);
 }
 

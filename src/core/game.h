@@ -12,6 +12,12 @@
 
 #define MAX_ITEMS 44
 
+typedef struct LevelNode
+{
+	GameLevel* level;
+	struct LevelNode* next;
+} LevelNode;
+
 /* Cursos personalizado */
 typedef struct CustomCursor
 {
@@ -73,15 +79,17 @@ typedef struct Game
 	/* gestor de recursos del juego. */
 	ResourcesManager resourcesManager;
 	/* Niveles que se quedan cargados en memoria al cambiar a otro nivel.*/
-	GameLevel** levelCache;
-	unsigned int levelCacheCount;
+	//GameLevel** levelCache;
+	//unsigned int levelCacheCount;
 	/* Stack de niveles. */
-	struct GameLevel** levelStack;
-	unsigned int levelStackCount;
-	signed int currentLevel;
+	//struct GameLevel** levelStack;
+	//unsigned int levelStackCount;
+	//signed int currentLevel;
+
+	LevelNode* levelStack;
+	LevelNode* cacheLevels;
 
 	/* Cursores personalizados */
-
 	// Lista de cursores
 	CustomCursor** cursors;
 	// Cantidad de cursores cargados
@@ -242,6 +250,12 @@ int LoadTilsetsPack(Game* game, const char* filename, const char* name);
 */
 int LoadTileMap(Game* game, const char* filename, const char* pack, const char* name);
 
+void SetLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level));
+void PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level));
+void PopLevel(Game* game);
+GameLevel* GetCurrentLevel(Game* game);
+void MoveEntityToLevel(Game* game, ecs_entity_t entity, GameLevel* fromLevel, GameLevel* toLevel);
+
 /**
 * Comprueba si el nivel ya ha sido agregado.
 * 
@@ -265,7 +279,7 @@ int CheckLevel(Game* game, const char* name);
 * 
 * @return Retorna GameLevel si la carga ha tenido éxito, caso contrario, retorna 0.
 */
-int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+//int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
 
 /**
 * Carga una capa de objectos desde tiled como nivel.
@@ -280,7 +294,7 @@ int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 *
 * @return Retorna 1 si la carga ha tenido éxito, caso contrario, retorna 0.
 */
-int LoadLevelF(Game* game, const char* filename, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+//int LoadLevelF(Game* game, const char* filename, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
 
 /**
 * Agrega un nivel a la escena.
@@ -292,7 +306,7 @@ int LoadLevelF(Game* game, const char* filename, const char* name, unsigned int 
 * @param[in] updateInStack Indica si el nivel se sigue actualizando cuando se estaquea un nuevo nivel.
 * @param[in] void(*OnLoad)(struct Game* game, struct GameLevel* level) Función que se ejecuta cuando la escena termina de ser cargada.
 */
-int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
+//int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(struct Game* game, struct GameLevel* level));
 
 /**
 * Agrega un nivel guardado en memoria al stack de niveles.
@@ -302,7 +316,7 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 * 
 * @return Retorna 1 si encuentra y agrega el nivel, caso contrario, retorna 0.
 */
-int PushMemoryLevel(Game* game, const char* name);
+//int PushMemoryLevel(Game* game, const char* name);
 
 /**
 * Carga un nivel en memoria, reemplazando al actual.
@@ -312,7 +326,7 @@ int PushMemoryLevel(Game* game, const char* name);
 * 
 * @return Retorna 1 si la operación fue exitosa, caso contrario, retorna 0.
 */
-int LoadMemoryLevel(Game* game, const char* name);
+//int LoadMemoryLevel(Game* game, const char* name);
 
 /**
 * Agrega un nivel al stack de cache.
@@ -322,7 +336,7 @@ int LoadMemoryLevel(Game* game, const char* name);
 * 
 * @return Retorna 1 si la operación se completa con éxito, caso contrario, retorna 0.
 */
-int AddLevelToCacheStack(Game* game, GameLevel* level);
+//int AddLevelToCacheStack(Game* game, GameLevel* level);
 
 /**
 * Quita el último nivel agregado en el stack.
@@ -331,7 +345,7 @@ int AddLevelToCacheStack(Game* game, GameLevel* level);
 * 
 * @return Retorna 1 si la operación resulta exitosa, caso contrario, retorna 0.
 */
-int PopLevel(Game* game);
+//int PopLevel(Game* game);
 
 /**
 * Crea un entidad en blanco, solo tendrá el componente "C_Transform".
@@ -343,6 +357,9 @@ int PopLevel(Game* game);
 * @return Retorna ecs_entity_t cuando se crear correctamente la entidad, caso contrario, retorna 0.
 */
 ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
+
+void* GetComponent(GameLevel* level, ecs_entity_t entity, const char* cid);
+void DestroyEntity(Game* game, GameLevel* level, ecs_entity_t entity);
 
 /**
 * Agrega un hijo a una entidad, que solo tiene el componente "C_Transform".
@@ -504,6 +521,7 @@ void RegisterComponentsHooks(GameLevel* level);
 void MapRenderDestroyHook(void* ptr);
 void ButtonDestroyHook(void* ptr);
 void MapControllerDestroyHook(void* ptr);
+void PersistenDestroyHook(void* ptr);
 
 /**
 * 

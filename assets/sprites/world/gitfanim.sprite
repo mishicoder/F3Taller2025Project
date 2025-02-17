@@ -1,0 +1,5 @@
+data=giftanim@13,1
+# animacion
+anim=idle@0,12,1,8
+
+@break

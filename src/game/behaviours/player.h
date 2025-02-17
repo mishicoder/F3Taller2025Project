@@ -8,8 +8,10 @@ typedef struct PlayerMovement
 {
 	int dirX;
 	int dirY;
+	Vector2 dirV;
 	int speed;
 	int inRoll;
+	int isRun;
 	int vulnerable;
 } PlayerMovement;
 

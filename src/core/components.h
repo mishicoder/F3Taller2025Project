@@ -36,6 +36,7 @@
 #define C_TREE_ID             "tree"
 #define C_ORE_ID              "ore"
 #define C_BUTTON_ID			  "button"
+#define C_PERSISTENT_ID		  "persistent"
 
 struct Game;
 struct Level;
@@ -43,6 +44,18 @@ struct Level;
 /*********************************************************
 * componentes generales
 **********************************************************/
+
+/**/
+typedef struct C_Persistent
+{
+	// indica si la entidad existirá en todos los niveles
+	int forAll;
+	// lista de nombres en los que la entidad será persistente
+	char** levelNames;
+	// cantidad de elementos en la lista de niveles
+	int count;
+} C_Persistent;
+
 
 /* Componente para la gestión de cámaras en el juego. */
 typedef struct C_Camera2D
@@ -101,6 +114,9 @@ typedef struct C_Transform
 	// posicion relativa (parents)
 	float relX;
 	float relY;
+	// posicion relativa de la entidad
+	float relSX;
+	float relSY;
 } C_Transform;
 
 /* Permite a la entidad renderizar un sprite en el mundo. */

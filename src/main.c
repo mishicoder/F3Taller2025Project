@@ -61,11 +61,12 @@ int main()
 	
 	GameConfig config = {0};
 	config.windowTitle = "Sunny Side";
-	config.windowWidth = 800;
-	config.windowHeight = 600;
-	config.windowFullscreen = 1;
+	config.windowWidth = 1400;
+	config.windowHeight = 1000;
+	config.windowFullscreen = 0;
 	config.useEscapeToExit = 1;
-	config.activeDebug = 0;
+	config.activeDebug = 1;
+	config.globalScale = 4.0f;
 	config.colorBackground = (Color){ 20, 23, 21, 255 };
 
 	Game game;
@@ -73,7 +74,7 @@ int main()
 	SetGameWindowIcon(&game, "assets/game_icon.png");
 
 	//PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
-	PushLevel(&game, "house", 0, 0, 0, HouseOnLoad);
+	SetLevel(&game, "house", 0, 0, 0, HouseOnLoad);
 
 	RunGame(&game);
 	FreeGame(&game);
@@ -110,6 +111,9 @@ void LoadResources(Game* game)
 
 	LoadSpriteWithOptions(game, "assets/sprites/enemy/skeleton.png", "assets/sprites/enemy/skeleton.sprite");
 	LoadSpriteWithOptions(game, "assets/sprites/enemy/goblin.png", "assets/sprites/enemy/goblin.sprite");
+
+	LoadSprite(game, "assets/sprites/world/gift.png", "gift");
+	LoadSpriteWithOptions(game, "assets/sprites/world/giftanim.png", "assets/sprites/world/gitfanim.sprite");
 
 	SetCustomCursor(game, "default");
 }

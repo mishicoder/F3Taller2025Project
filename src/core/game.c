@@ -16,7 +16,6 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 		game->config.targetFPS = 60;
 	if (config.globalScale == 0.0)
 		game->config.globalScale = 1.0f;
-	printf("GLOBAL SCALE: %.1ff\n", game->config.globalScale);
 
 	SetTargetFPS(game->config.targetFPS);
 
@@ -35,11 +34,16 @@ void InitGame(Game* game, GameConfig config, void(*LoadResources)(struct Game* g
 		ToggleFullscreen();
 	}
 
+	game->levelStack = NULL;
+	game->cacheLevels = NULL;
+
+	/*
 	game->levelCache = NULL;
 	game->levelStack = NULL;
 	game->levelCacheCount = 0;
 	game->levelStackCount = 0;
 	game->currentLevel = -1;
+	*/
 
 	// gallina -> 350 | diario
 	// oveja -> 800 | cada 3 dias
@@ -241,7 +245,34 @@ void SetGameWindowIcon(Game* game, const char* filename)
 
 void RunGame(Game* game)
 {
+	while (!WindowShouldClose())
+	{
+		BeginDrawing();
+		ClearBackground(game->config.colorBackground);
+		// UPDATE
 
+		LevelNode* node = game->levelStack;
+		while (node)
+		{
+			GameLevel* level = node->level;
+
+			if (node == game->levelStack || level->updateInStack)
+			{
+				if (level->Update) level->Update(game, level);
+			}
+
+			if (node == game->levelStack || level->renderInStack)
+			{
+				if (level->Render) level->Render(game, level);
+			}
+
+			node = node->next;
+		}
+		RenderCursor(game);
+		EndDrawing();
+	}
+
+	/*
 	while (!WindowShouldClose())
 	{
 		for (int i = 0; i < game->levelStackCount; i++)
@@ -271,14 +302,14 @@ void RunGame(Game* game)
 			{
 				if (i == game->currentLevel)
 				{
-					if(game->levelStack[i]->Render != NULL)
+					if (game->levelStack[i]->Render != NULL)
 						game->levelStack[i]->Render(game, game->levelStack[i]);
 				}
 				else
 				{
 					if (game->levelStack[i]->renderInStack == 1)
 						game->levelStack[i]->Render(game, game->levelStack[i]);
-					
+
 				}
 			}
 		}
@@ -288,6 +319,7 @@ void RunGame(Game* game)
 
 		EndDrawing();
 	}
+	*/
 }
 
 int LoadSprite(Game* game, const char* textureFilename, const char* name)
@@ -578,8 +610,132 @@ int LoadTileMap(Game* game, const char* filename, const char* pack, const char* 
 	return 1;
 }
 
+void SetLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
+{
+	while (game->levelStack)
+	{
+		PopLevel(game);
+	}
+
+	PushLevel(game, name, keepInMemory, renderInStack, updateInStack, OnLoad);
+}
+
+void PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
+{
+	LevelNode* cached = game->cacheLevels;
+	LevelNode* prev = NULL;
+	while (cached)
+	{
+		if (strcmp(cached->level->name, name) == 0)
+		{
+			if (prev) prev->next = cached->next;
+			else game->cacheLevels = cached->next;
+
+			cached->next = game->levelStack;
+			game->levelStack = cached;
+			return;
+		}
+		prev = cached;
+		cached = cached->next;
+	}
+
+	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, OnLoad);
+	if (!level) return;
+
+	LevelNode* newNode = (LevelNode*)malloc(sizeof(LevelNode));
+	if (!newNode)
+	{
+		free(level);
+		return;
+	}
+	level->Load = OnLoad;
+	level->Render = RenderLevel;
+	level->Update = UpdateLevel;
+	RegisterComponentsHooks(level);
+	newNode->level = level;
+	newNode->next = game->levelStack;
+	game->levelStack = newNode;
+
+	if (level->Load != NULL) level->Load(game, level);
+}
+
+void PopLevel(Game* game)
+{
+	if (!game->levelStack) return;
+
+	LevelNode* temp = game->levelStack;
+	game->levelStack = game->levelStack->next;
+
+	if (temp->level->keepInMemory)
+	{
+		temp->next = game->cacheLevels;
+		game->cacheLevels = temp;
+	}
+	else
+	{
+		Unload(game, temp->level);
+		free(temp);
+	}
+}
+
+GameLevel* GetCurrentLevel(Game* game)
+{
+	if (!game->levelStack) return NULL;
+	return game->levelStack->level;
+}
+
+void MoveEntityToLevel(Game* game, ecs_entity_t entity, GameLevel* fromLevel, GameLevel* toLevel)
+{
+	if (!fromLevel || !toLevel || !entity) return;
+
+	const char* name = ecs_get_name(fromLevel->world, entity);
+
+	ecs_entity_t newEntity;
+	if (name)
+	{
+		newEntity = ecs_entity_init(toLevel, name);
+	}
+	else
+	{
+		newEntity = ecs_new(toLevel->world);
+	}
+
+	ecs_table_t* table = ecs_get_table(fromLevel->world, entity);
+	if (table)
+	{
+		int32_t count = ecs_table_count(table);
+		const ecs_id_t* ids = ecs_table_get_type(table);
+
+		for (int i = 0; i < count; i++)
+		{
+			ecs_id_t componentID = ids[i];
+
+			if (!ecs_id_is_tag(fromLevel->world, componentID))
+			{
+				const ecs_type_info_t* typeInfo = ecs_get_type_info(fromLevel->world, componentID);
+				if (typeInfo)
+				{
+					size_t size = typeInfo->size;
+					const void* componentData = ecs_get_id(fromLevel->world, entity, componentID);
+					if (componentData)
+					{
+						ecs_set_id(toLevel->world, newEntity, componentID, size, componentData);
+					}
+				}
+			}
+			else
+			{
+				ecs_add_id(toLevel->world, newEntity, componentID);
+			}
+		}
+	}
+
+	ecs_delete(fromLevel->world, entity);
+}
+
 int CheckLevel(Game* game, const char* name)
 {
+	/*
 	for (int i = 0; i < game->levelCacheCount; i++)
 	{
 		int cmp = strcmp(game->levelCache[i]->name, name);
@@ -593,8 +749,10 @@ int CheckLevel(Game* game, const char* name)
 	}
 
 	return 0;
+	*/
 }
 
+/*
 int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
 {
 	if (CheckLevel(game, name) == 1) return 0;
@@ -618,17 +776,23 @@ int LoadLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	}
 	else
 	{
-		UnloadLevel(game, game->levelStack[game->currentLevel]);
-		game->levelStack[game->currentLevel] = NULL;
+		GameLevel* temp = game->levelStack[game->currentLevel];
+		//UnloadLevel(game, game->levelStack[game->currentLevel]);
+		//game->levelStack[game->currentLevel] = NULL;
 		game->levelStack[game->currentLevel] = level;
 		if (game->levelStack[game->currentLevel]->Load != NULL)
+		{
 			game->levelStack[game->currentLevel]->Load(game, game->levelStack[game->currentLevel]);
+		}
+		Unload(game, temp);
 		return 1;
 	}
 
 	return 0;
 }
+*/
 
+/*
 int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*OnLoad)(Game* game, GameLevel* level))
 {
 	if (CheckLevel(game, name) == 1) return 0;
@@ -654,7 +818,9 @@ int PushLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned 
 	if (level->Load != NULL) level->Load(game, level);
 	return 1;
 }
+*/
 
+/*
 int PushMemoryLevel(Game* game, const char* name)
 {
 	if (game->levelCacheCount <= 0) return 0;
@@ -686,7 +852,7 @@ int PushMemoryLevel(Game* game, const char* name)
 
 			if(cacheMemTemp != NULL)
 			{ 
-				/* reordernar */ 
+				/* reordernar
 				for (int j = i; j < game->levelCacheCount; j++)
 				{
 					game->levelCache[j] = game->levelCache[j + 1];
@@ -710,7 +876,9 @@ int PushMemoryLevel(Game* game, const char* name)
 
 	return 0;
 }
+*/ 
 
+/*
 int LoadMemoryLevel(Game* game, const char* name)
 {
 	if (game->levelCacheCount <= 0) return 0;
@@ -768,7 +936,9 @@ int LoadMemoryLevel(Game* game, const char* name)
 
 	return 0;
 }
+*/
 
+/*
 int AddLevelToCacheStack(Game* game, GameLevel* level)
 {
 	if (level == NULL) return;
@@ -782,7 +952,9 @@ int AddLevelToCacheStack(Game* game, GameLevel* level)
 
 	return 1;
 }
+*/
 
+/*
 int PopLevel(Game* game)
 {
 	if (game->levelStackCount <= 0) return 0;
@@ -794,13 +966,13 @@ int PopLevel(Game* game)
 	{
 		game->levelStack[game->levelStackCount - 1] = NULL;
 		game->levelStack = levelStackMemTemp;
-		game->currentLevel = game->levelStackCount;
+		game->currentLevel -= 1;
 		game->levelStackCount -= 1;
-		
 	}
 
 	return 0;
 }
+*/
 
 /*int LoadLevel(Game* game, const char* filename)
 {
@@ -843,6 +1015,56 @@ ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* t
 	ecs_set(level->world, entity, C_Transform, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f });
 
 	return entity;
+}
+
+void* GetComponent(GameLevel* level, ecs_entity_t entity, const char* cid)
+{
+	ECS_COMPONENT(level->world, C_Camera2D); ECS_COMPONENT(level->world, C_Info); ECS_COMPONENT(level->world, C_RenderLayer); ECS_COMPONENT(level->world, C_Transform); ECS_COMPONENT(level->world, C_SpriteRender); ECS_COMPONENT(level->world, C_SpriteAnimation); ECS_COMPONENT(level->world, C_Color); ECS_COMPONENT(level->world, C_MapRender); ECS_COMPONENT(level->world, C_RectCollider); ECS_COMPONENT(level->world, C_CircleCollider); ECS_COMPONENT(level->world, C_DayCicle); ECS_COMPONENT(level->world, C_Collector); ECS_COMPONENT(level->world, C_Dialog); ECS_COMPONENT(level->world, C_Inventory); ECS_COMPONENT(level->world, C_HotBar); ECS_COMPONENT(level->world, C_Movement); ECS_COMPONENT(level->world, C_PlayerStats); ECS_COMPONENT(level->world, C_WorldItem); ECS_COMPONENT(level->world, C_Build); ECS_COMPONENT(level->world, C_Builder); ECS_COMPONENT(level->world, C_Trader); ECS_COMPONENT(level->world, C_DropTable); ECS_COMPONENT(level->world, C_FarmLand); ECS_COMPONENT(level->world, C_Crop); ECS_COMPONENT(level->world, C_Tree); ECS_COMPONENT(level->world, C_Ore); ECS_COMPONENT(level->world, C_Button); ECS_COMPONENT(level->world, C_MapController); ECS_COMPONENT(level->world, C_Persistent); ECS_COMPONENT(level->world, C_Behaviour);
+
+	if (strcmp(cid, C_CAMERA_2D_ID) == 0)
+		return ecs_has(level->world, entity, C_Camera2D) ? ecs_get(level->world, entity, C_Camera2D) : NULL;
+	else if (strcmp(cid, C_INFO_ID) == 0)
+		return ecs_has(level->world, entity, C_Info) ? ecs_get(level->world, entity, C_Info) : NULL;
+	else if (strcmp(cid, C_RENDER_LAYER_ID) == 0)
+		return ecs_has(level->world, entity, C_RenderLayer) ? ecs_get(level->world, entity, C_RenderLayer) : NULL;
+	else if (strcmp(cid, C_TRANSFORM_ID) == 0)
+		return ecs_has(level->world, entity, C_Transform) ? ecs_get(level->world, entity, C_Transform) : NULL;
+	else if (strcmp(cid, C_SPRITE_RENDER_ID) == 0)
+		return ecs_has(level->world, entity, C_SpriteRender) ? ecs_get(level->world, entity, C_SpriteRender) : NULL;
+	else if (strcmp(cid, C_SPRITE_ANIMATION_ID) == 0)
+		return ecs_has(level->world, entity, C_SpriteAnimation) ? ecs_get(level->world, entity, C_SpriteAnimation) : NULL;
+	else if (strcmp(cid, C_COLOR_ID) == 0)
+		return ecs_has(level->world, entity, C_Color) ? ecs_get(level->world, entity, C_Color) : NULL;
+	else if (strcmp(cid, C_MAP_RENDER_ID) == 0)
+		return ecs_has(level->world, entity, C_MapRender) ? ecs_get(level->world, entity, C_MapRender) : NULL;
+	else if (strcmp(cid, C_RECT_COLLIDER_ID) == 0)
+		return ecs_has(level->world, entity, C_RectCollider) ? ecs_get(level->world, entity, C_RectCollider) : NULL;
+	else if (strcmp(cid, C_CIRCLE_COLLIDER_ID) == 0)
+		return ecs_has(level->world, entity, C_CircleCollider) ? ecs_get(level->world, entity, C_CircleCollider) : NULL;
+	else if (strcmp(cid, C_MAP_CONTROLLER_ID) == 0)
+		return ecs_has(level->world, entity, C_MapController) ? ecs_get(level->world, entity, C_MapController) : NULL;
+	else if (strcmp(cid, C_PERSISTENT_ID) == 0)
+		return ecs_has(level->world, entity, C_Persistent) ? ecs_get(level->world, entity, C_Persistent) : NULL;
+	else if (strcmp(cid, C_BEHAVIOUR_ID) == 0)
+		return ecs_has(level->world, entity, C_Behaviour) ? ecs_get(level->world, entity, C_Behaviour) : NULL;
+
+	return NULL;
+}
+
+void DestroyEntity(Game* game, GameLevel* level, ecs_entity_t entity)
+{
+	ECS_COMPONENT(level->world, C_Behaviour);
+	// remove data from behaviour
+	C_Behaviour* comp = ecs_get(level->world, entity, C_Behaviour);
+	if (comp != NULL)
+	{
+		if (comp->OnDestroyDataHandler != NULL)
+			comp->OnDestroyDataHandler(game, level, entity);
+		if (comp->OnDestroy != NULL)
+			comp->OnDestroy(game, level, entity);
+	}
+
+	ecs_delete(level->world, entity);
 }
 
 ecs_entity_t AddChildToEntity(GameLevel* level, ecs_entity_t parent, const char* name, const char* tag)
@@ -923,6 +1145,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 	ECS_COMPONENT(level->world, C_Ore);
 	ECS_COMPONENT(level->world, C_Button);
 	ECS_COMPONENT(level->world, C_MapController);
+	ECS_COMPONENT(level->world, C_Persistent);
 
 	if (strcmp(component, C_CAMERA_2D_ID) == 0)
 	{
@@ -1012,7 +1235,7 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		token = strtok_s(NULL, ",", &context);
 		float rotation = atof(token);
 
-		ecs_set(level->world, entity, C_Transform, { posX, posY, scaleX, scaleY, rotation });
+		ecs_set(level->world, entity, C_Transform, { posX, posY, scaleX, scaleY, rotation, 0.0f, 0.0f, 0.0f, 0.0f });
 		free(data);
 		return 1;
 
@@ -1556,6 +1779,35 @@ int AddComponentToEntity(Game* game, GameLevel* level, ecs_entity_t entity, cons
 		free(data);
 		return 1;
 	}
+	else if (strcmp(component, C_PERSISTENT_ID) == 0)
+	{
+		if (ecs_has(level->world, entity, C_Persistent)) return 0;
+
+		char* data = strdup(cdata);
+
+		char* context = NULL;
+		char* token = strtok_s(data, ",", &context);
+		int forAll = atoi(token);
+		// levels
+		char** levels = NULL;
+		size_t count = 0;
+		token = strtok_s(NULL, ",", &context);
+		while (token)
+		{
+			char** memTemp = (char**)realloc(levels, (count + 1) * sizeof(char*));
+			if (memTemp != NULL)
+			{
+				levels = memTemp;
+				levels[count] = _strdup(token);
+				count++;
+			}
+
+			token = strtok_s(NULL, ",", &context);
+		}
+
+		free(data);
+		return 1;
+	}
 
 	return 0;
 }
@@ -1647,6 +1899,7 @@ void* GetEntityNumberData(GameLevel* level, ecs_entity_t entity, int index)
 int AddLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned int renderInStack, unsigned int updateInStack, void(*Run)(struct Game* game, struct GameLevel* level)
 )
 {
+	/*
 	GameLevel* level = CreateLevel(name, keepInMemory, renderInStack, updateInStack, Run);
 	if (level == NULL) return 0;
 
@@ -1663,6 +1916,7 @@ int AddLevel(Game* game, const char* name, unsigned int keepInMemory, unsigned i
 	game->levelStackCount += 1;
 
 	return 1;
+	*/
 }
 
 ecs_entity_t GetMainCamera(GameLevel* level)
@@ -1710,12 +1964,12 @@ Vector2 GetGridPosition(Game* game, GameLevel* level, C_MapController* controlle
 	if (worldPos.x < transform->positionX)
 		gridPos.x = worldPos.x;
 	else
-		gridPos.x = (int)((worldPos.x - transform->positionX) / (controller->cellHeight * transform->scaleX));
+		gridPos.x = (int)((worldPos.x - transform->positionX) / (controller->cellHeight * transform->scaleX * game->config.globalScale));
 	
 	if (worldPos.y < transform->positionY)
 		gridPos.y = worldPos.y;
 	else
-		gridPos.y = (int)((worldPos.y - transform->positionY) / (controller->cellWidth * transform->scaleY));
+		gridPos.y = (int)((worldPos.y - transform->positionY) / (controller->cellWidth * transform->scaleY * game->config.globalScale));
 	
 	return gridPos;
 }
@@ -1739,6 +1993,10 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_SpriteAnimation);
 	ECS_COMPONENT(level->world, C_Camera2D);
 	ECS_COMPONENT(level->world, C_MapController);
+
+	GameLevel* currentLevel = GetCurrentLevel(game);
+
+	if (currentLevel == NULL) return;
 
 	// sure??
 	ecs_entity_t mainCamera = GetMainCamera(level);
@@ -1882,8 +2140,10 @@ void UpdateLevel(Game* game, GameLevel* level)
 					C_Transform* childT = ecs_get(level->world, ent, C_Transform);
 					C_Transform* parentT = ecs_get(level->world, par, C_Transform);
 
-					childT->relX = parentT->positionX + childT->positionX;
-					childT->relY = parentT->positionY + childT->positionY;
+					childT->relX = parentT->positionX + (game->config.globalScale * childT->positionX);
+					childT->relY = parentT->positionY + (game->config.globalScale * childT->positionY);
+					childT->relSX = parentT->scaleX * childT->scaleX * game->config.globalScale;
+					childT->relSY = parentT->scaleY * childT->scaleY * game->config.globalScale;
 				}
 			}
 		}
@@ -1912,8 +2172,8 @@ void UpdateLevel(Game* game, GameLevel* level)
 			C_CircleCollider* circleCollider = ecs_get(level->world, itCollider.entities[i], C_CircleCollider);
 			if (rectCollider != NULL)
 			{
-				float px = transform->positionX + rectCollider->offsetX;
-				float py = transform->positionY + rectCollider->offsetY;
+				float px = transform->positionX + (rectCollider->offsetX * game->config.globalScale * transform->scaleX );
+				float py = transform->positionY + (rectCollider->offsetY * game->config.globalScale * transform->scaleY);
 				rectCollider->posX = px;
 				rectCollider->posY = py;
 			}
@@ -1974,12 +2234,19 @@ void UpdateLevel(Game* game, GameLevel* level)
 								C_Behaviour* beh = ecs_get(level->world, ent, C_Behaviour);
 								if (beh->OnCollision != NULL)
 									beh->OnCollision(game, level, ent, innerEnt);
+								// update outher coll
+								float newCollX = entTransform->positionX + (entRecColl->offsetX * game->config.globalScale * entTransform->scaleX);
+								float newCollY = entTransform->positionY + (entRecColl->offsetY * game->config.globalScale * entTransform->scaleY);
+								entRecColl->posX = newCollX;
+								entRecColl->posY = newCollY;
 							}
 						}
 					}
 				}
 			}
 		}
+
+
 	}
 
 	ecs_query_fini(queryCollider);
@@ -2009,8 +2276,8 @@ void UpdateLevel(Game* game, GameLevel* level)
 					C_Transform* childT = ecs_get(level->world, ent, C_Transform);
 					C_Transform* parentT = ecs_get(level->world, par, C_Transform);
 
-					childT->relX = parentT->positionX + childT->positionX;
-					childT->relY = parentT->positionY + childT->positionY;
+					childT->relX = parentT->positionX + (childT->positionX * game->config.globalScale);
+					childT->relY = parentT->positionY + (childT->positionY * game->config.globalScale);
 				}
 			}
 		}
@@ -2021,6 +2288,9 @@ void UpdateLevel(Game* game, GameLevel* level)
 
 void RenderLevel(Game* game, GameLevel* level)
 {
+	GameLevel* currentLevel = GetCurrentLevel(game);
+	if (currentLevel == NULL) return;
+
 	ECS_COMPONENT(level->world, C_Transform);
 	ECS_COMPONENT(level->world, C_Color);
 	ECS_COMPONENT(level->world, C_SpriteRender);
@@ -2049,6 +2319,7 @@ void RenderLevel(Game* game, GameLevel* level)
 	renderCamera.rotation = cameraComponent->rotation;
 	renderCamera.zoom = cameraComponent->zoom;
 
+	ClearBackground(game->config.colorBackground);
 	BeginMode2D(renderCamera);
 
 	ecs_query_t* queryRender = ecs_query_init(level->world, &(ecs_query_desc_t){
@@ -2101,7 +2372,8 @@ void RenderLevel(Game* game, GameLevel* level)
 								(Rectangle) {
 									transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
 									transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y,
-									frame->width* transform->scaleX, frame->height* transform->scaleY
+									transform->relSX == 0.0f ? frame->width * transform->scaleX * game->config.globalScale : frame->width * transform->relSX, 
+									transform->relSY == 0.0f ? frame->height * transform->scaleY * game->config.globalScale : frame->height * transform->relSY
 							},
 								sprite->origin,
 								transform->rotation,
@@ -2122,7 +2394,9 @@ void RenderLevel(Game* game, GameLevel* level)
 						},
 							(Rectangle) {
 								transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x, 
-								transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y, (zeroFrame->width)* transform->scaleX, zeroFrame->height* transform->scaleY
+								transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y, 
+								transform->relSX == 0.0f ? zeroFrame->width * transform->scaleX * game->config.globalScale : zeroFrame->width * transform->relSX,
+								transform->relSY == 0.0f ? zeroFrame->height* transform->scaleY * game->config.globalScale : zeroFrame->height * transform->relSY
 						},
 							sprite->origin,
 							transform->rotation,
@@ -2144,7 +2418,8 @@ void RenderLevel(Game* game, GameLevel* level)
 					(Rectangle){ 
 					transform->relX == 0.0f ? transform->positionX : transform->relX, 
 					transform->relY == 0.0f ? transform->positionY : transform->relY, 
-					map->mapTexture.texture.width * transform->scaleX, map->mapTexture.texture.height * transform->scaleY },
+					transform->relSX == 0.0f ? map->mapTexture.texture.width * transform->scaleX * game->config.globalScale : map->mapTexture.texture.width * transform->relSX,
+					transform->relSY == 0.0f ? map->mapTexture.texture.height * transform->scaleY * game->config.globalScale : map->mapTexture.texture.height * transform->relSY },
 					(Vector2){ 0.0f, 0.0f },
 					0.0f,
 					color != NULL ? (Color){ color->r, color->g, color->b, 255 } : WHITE
@@ -2168,11 +2443,12 @@ void RenderLevel(Game* game, GameLevel* level)
 						(Rectangle) {
 						transform->relX == 0.0f ? transform->positionX : transform->relX + sprite->origin.x,
 						transform->relY == 0.0f ? transform->positionY : transform->relY + sprite->origin.y,
-							(sprite->width * transform->scaleX), (sprite->height * transform->scaleY)
+						transform->relSX == 0.0f ? sprite->width * transform->scaleX * game->config.globalScale : sprite->width * transform->relSX,
+						transform->relSY == 0.0f ? sprite->height * transform->scaleY * game->config.globalScale : sprite->height * transform->relSY
 					},
 						sprite->origin,
 						transform->rotation,
-						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color) { 255, 255, 255, 255 }
+						color != NULL ? (Color) { color->r, color->g, color->b, (int)255 * spriteRender->opacity } : (Color) { 255, 255, 255, (int)(255 * spriteRender->opacity) }
 					);
 				}
 			}
@@ -2202,7 +2478,13 @@ void RenderLevel(Game* game, GameLevel* level)
 					{
 						for (int i = 0; i < controller->gridCols; i++)
 						{
-							DrawRectangleLines(transform->positionX + (i * (controller->cellWidth * transform->scaleX)), transform->positionY + (j * (controller->cellHeight * transform->scaleY)), controller->cellWidth * transform->scaleX, controller->cellHeight * transform->scaleY, WHITE);
+							DrawRectangleLines(
+								transform->positionX + (i * (controller->cellWidth * transform->scaleX * game->config.globalScale)), 
+								transform->positionY + (j * (controller->cellHeight * transform->scaleY * game->config.globalScale)), 
+								controller->cellWidth * transform->scaleX * game->config.globalScale, 
+								controller->cellHeight * transform->scaleY * game->config.globalScale, 
+								WHITE
+							);
 						}
 					}
 				}
@@ -2214,8 +2496,12 @@ void RenderLevel(Game* game, GameLevel* level)
 					Cell* currentCell = GetCellAt(game, level, controller, transform);
 					if(currentCell != NULL)
 					{
-						DrawRectangle(transform->positionX + gridPos.x * (controller->cellWidth * transform->scaleX), transform->positionY
-							+ gridPos.y * (controller->cellHeight * transform->scaleY), controller->cellWidth * transform->scaleX, controller->cellHeight * transform->scaleY, currentCell->isFree == 1 ? Fade(GREEN, 0.3f) : Fade(RED, 0.3f));
+						DrawRectangle(
+							transform->positionX + gridPos.x * (controller->cellWidth * transform->scaleX * game->config.globalScale), 
+							transform->positionY + gridPos.y * (controller->cellHeight * transform->scaleY * game->config.globalScale),
+							controller->cellWidth * transform->scaleX * game->config.globalScale, 
+							controller->cellHeight * transform->scaleY * game->config.globalScale, 
+							currentCell->isFree == 1 ? Fade(GREEN, 0.3f) : Fade(RED, 0.3f));
 					}
 					DrawText(TextFormat("X: %.2f | Y: %.2f", gridPos.x, gridPos.y), -40, -40, 20, WHITE);
 				}
@@ -2290,6 +2576,27 @@ void RenderCursor(Game* game)
 	}
 }
 
+void Unload(Game* game, GameLevel* level)
+{
+	if (level == NULL) return;
+
+	RegisterComponentsHooks(level);
+
+	if (level->name != NULL)
+	{
+		printf("DEBUG: NIVEL %s -> NOMBRE ELIMINADO\n", level->name);
+		free(level->name);
+	}
+
+	if (level->world != NULL)
+	{
+		ecs_fini(level->world);
+		level->world = NULL;
+	}
+
+	free(level);
+}
+
 void RenderDebug(Game* game, GameLevel* level)
 {
 	if (game->config.activeDebug == 0) return;
@@ -2314,7 +2621,7 @@ void RenderDebug(Game* game, GameLevel* level)
 			if (rectCollider != NULL)
 			{
 				//printf("RECTANGLE > x: %.2f | y: %.2f | w: %.2f | h: %.2f\n", rectCollider->posX, rectCollider->posY, (float)rectCollider->width, (float)rectCollider->height);
-				DrawRectangleLinesEx((Rectangle) { rectCollider->posX, rectCollider->posY, rectCollider->width, rectCollider->height }, 2.0f, RED);
+				DrawRectangleLinesEx((Rectangle) { rectCollider->posX, rectCollider->posY, rectCollider->width, rectCollider->height }, 2.0f, GREEN);
 			}
 			if (circleCollider != NULL)
 			{
@@ -2330,22 +2637,13 @@ void RegisterComponentsHooks(GameLevel* level)
 	ECS_COMPONENT(level->world, C_Behaviour);
 	ECS_COMPONENT(level->world, C_Button);
 	ECS_COMPONENT(level->world, C_MapController);
+	ECS_COMPONENT(level->world, C_Persistent);
 
-	ecs_set_hooks(level->world, C_MapRender, {
-		.dtor = MapRenderDestroyHook
-	});
-
-	ecs_set_hooks(level->world, C_Behaviour, {
-		.dtor = BehaviourDestroyHook
-	});
-
-	ecs_set_hooks(level->world, C_Button, {
-		.dtor = ButtonDestroyHook
-	});
-
-	ecs_set_hooks(level->world, C_MapController, {
-		.dtor = MapControllerDestroyHook
-	});
+	ecs_set_hooks(level->world, C_MapRender, { .dtor = MapRenderDestroyHook });
+	ecs_set_hooks(level->world, C_Behaviour, { .dtor = BehaviourDestroyHook });
+	ecs_set_hooks(level->world, C_Button, { .dtor = ButtonDestroyHook });
+	ecs_set_hooks(level->world, C_MapController, { .dtor = MapControllerDestroyHook });
+	ecs_set_hooks(level->world, C_Persistent, { .dtor = PersistenDestroyHook });
 }
 
 void MapRenderDestroyHook(void* ptr)
@@ -2374,9 +2672,30 @@ void MapControllerDestroyHook(void* ptr)
 	for (int i = 0; i < comp->gridRows; i++)
 	{
 		if (comp->grid[i] != NULL)
+		{
+			printf("FILA %d DEL MAPA DESTRUIDA\n");
 			free(comp->grid[i]);
+		}
 	}
 	free(comp->grid);
+	printf("MAPA DESTRUIDO DE MEMORIA AL ELIMINAR LA ENTIDAD\n");
+}
+
+void PersistenDestroyHook(void* ptr)
+{
+	C_Persistent* comp = ptr;
+	if(comp->levelNames != NULL)
+	{
+		for (int i = 0; i < comp->count; i++)
+		{
+			if (comp->levelNames[i] != NULL)
+			{
+				printf("HOOK <PERSISTENT> UNLOAD LEVEL NAME: %s\n", comp->levelNames[i]);
+				free(comp->levelNames[i]);
+			}
+		}
+		free(comp->levelNames);
+	}
 }
 
 void BehaviourDestroyHook(void* ptr)
@@ -2394,6 +2713,95 @@ void BehaviourDestroyHook(void* ptr)
 
 void FreeGame(Game* game)
 {
+	// Level Stack
+	while (game->levelStack)
+	{
+		LevelNode* temp = game->levelStack;
+		game->levelStack = game->levelStack->next;
+
+		ECS_COMPONENT(temp->level->world, C_MapRender);
+		ECS_COMPONENT(temp->level->world, C_Behaviour);
+		ECS_COMPONENT(temp->level->world, C_Button);
+		ECS_COMPONENT(temp->level->world, C_MapController);
+		ECS_COMPONENT(temp->level->world, C_Persistent);
+
+		ecs_set_hooks(temp->level->world, C_MapRender, { .dtor = MapRenderDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Behaviour, { .dtor = BehaviourDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Button, { .dtor = ButtonDestroyHook });
+		ecs_set_hooks(temp->level->world, C_MapController, { .dtor = MapControllerDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Persistent, { .dtor = PersistenDestroyHook });
+
+		/* Destruir los datos dinámicos de las entidades */
+		ecs_query_t* query = ecs_query_init(temp->level->world, &(ecs_query_desc_t){
+			.terms = {
+				{.id = ecs_id(C_Behaviour) }
+			}
+		});
+		ecs_iter_t it = ecs_query_iter(temp->level->world, query);
+		while (ecs_iter_next(&it))
+		{
+			for (int i = 0; i < it.count; i++)
+			{
+				ecs_entity_t ent = it.entities[i];
+				C_Behaviour* comp = ecs_get(temp->level->world, ent, C_Behaviour);
+				if (comp)
+				{
+					if (comp->OnUnloadDataHandler)
+						comp->OnUnloadDataHandler(game, temp->level, ent);
+				}
+			}
+		}
+		ecs_query_fini(query);
+
+		Unload(game, temp->level);
+		free(temp);
+	}
+
+	// Level Caché
+	while (game->cacheLevels)
+	{
+		LevelNode* temp = game->cacheLevels;
+		game->cacheLevels = game->cacheLevels->next;
+
+		ECS_COMPONENT(temp->level->world, C_MapRender);
+		ECS_COMPONENT(temp->level->world, C_Behaviour);
+		ECS_COMPONENT(temp->level->world, C_Button);
+		ECS_COMPONENT(temp->level->world, C_MapController);
+		ECS_COMPONENT(temp->level->world, C_Persistent);
+
+		ecs_set_hooks(temp->level->world, C_MapRender, { .dtor = MapRenderDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Behaviour, { .dtor = BehaviourDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Button, { .dtor = ButtonDestroyHook });
+		ecs_set_hooks(temp->level->world, C_MapController, { .dtor = MapControllerDestroyHook });
+		ecs_set_hooks(temp->level->world, C_Persistent, { .dtor = PersistenDestroyHook });
+
+		/* Destruir los datos dinámicos de las entidades */
+		ecs_query_t* query = ecs_query_init(temp->level->world, &(ecs_query_desc_t){
+			.terms = {
+				{.id = ecs_id(C_Behaviour) }
+			}
+		});
+		ecs_iter_t it = ecs_query_iter(temp->level->world, query);
+		while (ecs_iter_next(&it))
+		{
+			for (int i = 0; i < it.count; i++)
+			{
+				ecs_entity_t ent = it.entities[i];
+				C_Behaviour* comp = ecs_get(temp->level->world, ent, C_Behaviour);
+				if (comp)
+				{
+					if (comp->OnUnloadDataHandler)
+						comp->OnUnloadDataHandler(game, temp->level, ent);
+				}
+			}
+		}
+		ecs_query_fini(query);
+
+		Unload(game, temp->level);
+		free(temp);
+	}
+
+	/*
 	for (int i = 0; i < game->levelCacheCount; i++)
 	{
 		ECS_COMPONENT(game->levelCache[i]->world, C_MapRender);
@@ -2456,6 +2864,7 @@ void FreeGame(Game* game)
 		free(game->levelStack);
 		game->levelStack = NULL;
 	}
+	*/
 
 	UnloadResourcesManager(&game->resourcesManager);
 
