@@ -1,0 +1,100 @@
+# Carga de los sprites para que el jugador y los npcs muestren
+# expresiones
+
+@Sprite
+  name: expresion_happy
+  x: 0
+  y: 0
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_confused
+  x: 16
+  y: 0
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_sad
+  x: 32
+  y: 0
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_angry
+  x: 48
+  y: 0
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_discomfort
+  x: 0
+  y: 16
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_concerned
+  x: 16
+  y: 16
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_attack
+  x: 32
+  y: 16
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_love
+  x: 48
+  y: 16
+  w: 16
+  h: 1
+
+@Sprite
+  name: expresion_attack
+  x: 32
+  y: 16
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_love
+  x: 48
+  y: 16
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_stunned
+  x: 0
+  y: 32
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_alert
+  x: 16
+  y: 32
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_questioning
+  x: 32
+  y: 32
+  w: 16
+  h: 16
+
+@Sprite
+  name: expresion_speaking
+  x: 48
+  y: 32
+  w: 16
+  h: 16

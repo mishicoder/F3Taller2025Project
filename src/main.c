@@ -1,119 +1,63 @@
-﻿/**
-* @file: main.c
-* @author: Mishicoder
-* 
-* Punto de entrada del videojuego.
-* Raylib: https://github.com/raysan5/raylib/blob/master/src/raylib.h
-* Hoja de Raylib: https://www.raylib.com/cheatsheet/cheatsheet.html
-*/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <raylib.h>
-#include <float.h>
-#include "levels/menu.h"
-#include "game/levels/farm.h"
-#include "game/levels/house.h"
+#include "game.h"
 
-void LoadResources(Game* game);
+void LoadResources();
+void LoadTestLevel(Game* game, Level* level);
 
 int main()
 {
-	/*
-	// Inicializar ventana
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-    InitWindow(screenWidth, screenHeight, "9-Slice con NPatch");
-
-    // Cargar imagen
-    Texture2D texture = LoadTexture("assets/sprites/ui/panel2.png");
-
-    // Definir el N-Patch (bordes que no se estiran)
-    int border = 3;  // Ajusta según la imagen
-    NPatchInfo patch = {
-        (Rectangle){ 0, 0, texture.width, texture.height },  // Región de la imagen completa
-        7, 7, 7, 11,  // Márgenes (left, top, right, bottom)
-        NPATCH_NINE_PATCH  // Tipo de parche (9-Slice)
+    GameConfig config = {
+        .targetFPS = 60,
+        .windowTitle = "My Game Window",
+        .windowWidth = 800,
+        .windowHeight = 600,
+        .windowColor = (Color){33, 33, 33, 255},
+        .activeDebug = false,
+        .globalScale = 1.0f,
+        .useEscapeToExit = true,
+        .windowFullscreen = false
     };
 
-    // Área donde se dibujará la imagen
-    Rectangle dest = { 200, 150, 400, 300 };
+    InitGame(config, LoadResources);
 
-    // Bucle principal
-    while (!WindowShouldClose())
-    {
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
+    PushLevel("MyLevel", false, false, false, LoadTestLevel);
+  
+    RunGame();
+    GameDestroy();
 
-        // Dibujar el N-Patch
-        DrawTextureNPatch(texture, patch, dest, (Vector2){ 0, 0 }, 0.0f, WHITE);
-		DrawTexturePro(texture, (Rectangle) { 0, 0, texture.width, texture.height }, (Rectangle) { 20, 50, texture.width * 4, texture.height * 4 }, (Vector2) { 0.0, 0.0 }, 0.0, WHITE);
-
-        DrawText("9-Slice con NPatch", 10, 10, 20, DARKGRAY);
-        EndDrawing();
-    }
-
-    // Liberar recursos
-    UnloadTexture(texture);
-    CloseWindow();
-	*/
-	
-	GameConfig config = {0};
-	config.windowTitle = "Sunny Side";
-	config.windowWidth = 1400;
-	config.windowHeight = 1000;
-	config.windowFullscreen = 0;
-	config.useEscapeToExit = 1;
-	config.activeDebug = 1;
-	config.globalScale = 4.0f;
-	config.colorBackground = (Color){ 20, 23, 21, 255 };
-
-	Game game;
-	InitGame(&game, config, LoadResources);
-	SetGameWindowIcon(&game, "assets/game_icon.png");
-
-	//PushLevel(&game, "test", 1, 0, 0, MenuOnLoad);
-	SetLevel(&game, "house", 0, 0, 0, HouseOnLoad);
-
-	RunGame(&game);
-	FreeGame(&game);
-	
-	return 0;
+    return 0;
 }
 
-void LoadResources(Game* game)
+void LoadTestLevel(Game* game, Level* level)
 {
-	// Cursores
-	LoadCustomCursor(game, "default", "assets/sprites/ui/default.png", 2.0, 2.0);
-	LoadCustomCursor(game, "action", "assets/sprites/ui/action.png", 2.0, 2.0);
-	LoadCustomCursor(game, "dig", "assets/sprites/ui/dig.png", 2.0, 2.0);
-	LoadCustomCursor(game, "chop", "assets/sprites/ui/chop.png", 2.0, 2.0);
-	LoadCustomCursor(game, "mine", "assets/sprites/ui/mine.png", 2.0, 2.0);
-	LoadCustomCursor(game, "slash", "assets/sprites/ui/slash.png", 2.0, 2.0);
-	LoadCustomCursor(game, "watering", "assets/sprites/ui/watering.png", 2.0, 2.0);
-	LoadCustomAnimatedCursor(game, "hand", "assets/sprites/ui/hand.png", 2, 16, 16, 8, 2.0f, 2.0f);
+    ecs_entity_t camera = Create2DEntity(level, "camera", "camera");
+    AddComponent(level, camera, CAMERA_2D_ID, "main=true");
+    AddComponent(level, camera, LUA_SCRIPT_ID, "module=scripts/camera.lua");
 
-	// Cargar semillasy plantas
-	LoadSpriteAtlas(game, "assets/sprites/plants/crops.png", "assets/sprites/plants/crops.atlas");
-	LoadSpriteAtlas(game, "assets/sprites/plants/seeds.png", "assets/sprites/plants/seeds.atlas");
-	LoadSpriteWithOptions(game, "assets/sprites/plants/bushes.png", "assets/sprites/plants/bushes.sprite");
 
-	LoadSpriteAtlas(game, "assets/sprites/player/tools_items.png", "assets/sprites/player/tools_items.atlas");
+    ecs_entity_t mySprite = Create2DEntity(level, "player", "player");
+    AddComponent(level, mySprite, SPRITE_RENDERER_ID, "sprite=player,opacity=1.0");
+    AddComponent(level, mySprite, ANIMATION_CONTROLLER_ID, "sprite=player");
+    AddComponent(level, mySprite, DYEING_ID, "red=1.0");
+    AddComponent(level, mySprite, LUA_SCRIPT_ID, "module=scripts/player.lua");
 
-	LoadSpriteWithOptions(game, "assets/sprites/player/player.png", "assets/sprites/player/player.sprite");
-	LoadSpriteWithOptions(game, "assets/sprites/player/tools.png", "assets/sprites/player/tools.sprite");
-	LoadSpriteWithOptions(game, "assets/sprites/player/longhair.png", "assets/sprites/player/longhair.sprite");
-	LoadSpriteWithOptions(game, "assets/sprites/player/bowlhair.png", "assets/sprites/player/bowlhair.sprite");
+    ecs_entity_t hair = AddEntity2DChild(level, mySprite, "hair", "hair");
+    AddComponent(level, hair, SPRITE_RENDERER_ID, "sprite=long_hair");
+    AddComponent(level, hair, ANIMATION_CONTROLLER_ID, "sprite=long_hair");
 
-	LoadTilsetsPack(game, "assets/tilesets/pack_0.tspack", "base");
-	LoadTileMap(game, "assets/maps/farmhouse.tmx", "base", "player_house");
+    ecs_entity_t tools = AddEntity2DChild(level, mySprite, "tools", "tools");
+    AddComponent(level, tools, SPRITE_RENDERER_ID, "sprite=tools");
+    AddComponent(level, tools, ANIMATION_CONTROLLER_ID, "sprite=tools");
+}
 
-	LoadSpriteWithOptions(game, "assets/sprites/enemy/skeleton.png", "assets/sprites/enemy/skeleton.sprite");
-	LoadSpriteWithOptions(game, "assets/sprites/enemy/goblin.png", "assets/sprites/enemy/goblin.sprite");
+void LoadResources()
+{
+    LoadCustomCursor("default", "assets/ui/default.png", 2.0f, 2.0f);
+    SetCustomCursor("default");
 
-	LoadSprite(game, "assets/sprites/world/gift.png", "gift");
-	LoadSpriteWithOptions(game, "assets/sprites/world/giftanim.png", "assets/sprites/world/gitfanim.sprite");
-
-	SetCustomCursor(game, "default");
+    LoadSprite("assets/industrial_assets.png", "test");
+    LoadSpriteWithOptions("assets/sprites/player/player.png", "assets/sprites/player/player.sprite");
+    LoadSpriteWithOptions("assets/sprites/player/longhair.png", "assets/sprites/player/longhair.sprite");
+    LoadSpriteWithOptions("assets/sprites/player/tools.png", "assets/sprites/player/tools.sprite");
+    LoadSpriteAtlas("assets/sprites/ui/expresions.png", "assets/sprites/ui/expresion.atlas");
 }

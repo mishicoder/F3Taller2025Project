@@ -1,0 +1,339 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\player.lua||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:scripts\\player.lua||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\game.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\luascripting.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\luascripting.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\sprite.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\sprite.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\handlers.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\level.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\level.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\callbacks.lua||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:scripts\\callbacks.lua||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\camera.lua||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:scripts\\camera.lua||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\longhair.sprite||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\sprites\\player\\longhair.sprite||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\player.sprite||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\sprites\\player\\player.sprite||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\tools.sprite||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\sprites\\player\\tools.sprite||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\components.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\components.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\handlers.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\resources_manager.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\resources_manager.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:src\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{4FCE03DF-C181-43E1-9327-F70177F7E825}|cgamecore.vcxproj|solutionrelative:packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 134,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 948,
+          "SelectedChildIndex": 18,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "main.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\main.c",
+              "RelativeDocumentMoniker": "src\\main.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\main.c",
+              "RelativeToolTip": "src\\main.c",
+              "ViewState": "AgIAABwAAAAAAAAAAAASwDEAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-14T23:09:08.115Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "handlers.h",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.h",
+              "RelativeDocumentMoniker": "src\\handlers.h",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.h",
+              "RelativeToolTip": "src\\handlers.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-03-25T22:47:38.274Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "callbacks.lua",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\callbacks.lua",
+              "RelativeDocumentMoniker": "scripts\\callbacks.lua",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\callbacks.lua",
+              "RelativeToolTip": "scripts\\callbacks.lua",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-25T22:15:17.059Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "tools.sprite",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\tools.sprite",
+              "RelativeDocumentMoniker": "assets\\sprites\\player\\tools.sprite",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\tools.sprite",
+              "RelativeToolTip": "assets\\sprites\\player\\tools.sprite",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-24T23:39:38.511Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "longhair.sprite",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\longhair.sprite",
+              "RelativeDocumentMoniker": "assets\\sprites\\player\\longhair.sprite",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\longhair.sprite",
+              "RelativeToolTip": "assets\\sprites\\player\\longhair.sprite",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAIwIgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-24T22:22:54.333Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "resources_manager.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\resources_manager.c",
+              "RelativeDocumentMoniker": "src\\resources_manager.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\resources_manager.c",
+              "RelativeToolTip": "src\\resources_manager.c",
+              "ViewState": "AgIAAEYAAAAAAAAAAAASwGYAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-24T21:44:38.226Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "packages.config",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\packages.config",
+              "RelativeDocumentMoniker": "packages.config",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\packages.config",
+              "RelativeToolTip": "packages.config",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAAAAIAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-03-24T21:44:25.746Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "sprite.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\sprite.c",
+              "RelativeDocumentMoniker": "src\\sprite.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\sprite.c",
+              "RelativeToolTip": "src\\sprite.c",
+              "ViewState": "AgIAAB0AAAAAAAAAAAASwCsAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-24T21:40:22.67Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "player.sprite",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\player.sprite",
+              "RelativeDocumentMoniker": "assets\\sprites\\player\\player.sprite",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\assets\\sprites\\player\\player.sprite",
+              "RelativeToolTip": "assets\\sprites\\player\\player.sprite",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAAAIgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-24T21:20:23.636Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "level.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.c",
+              "RelativeDocumentMoniker": "src\\level.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.c",
+              "RelativeToolTip": "src\\level.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-23T06:55:03.262Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "level.h",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.h",
+              "RelativeDocumentMoniker": "src\\level.h",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\level.h",
+              "RelativeToolTip": "src\\level.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-03-23T06:54:28.307Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "camera.lua",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\camera.lua",
+              "RelativeDocumentMoniker": "scripts\\camera.lua",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\camera.lua",
+              "RelativeToolTip": "scripts\\camera.lua",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-18T05:42:45.697Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "game.h",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.h",
+              "RelativeDocumentMoniker": "src\\game.h",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.h",
+              "RelativeToolTip": "src\\game.h",
+              "ViewState": "AgIAAFAAAAAAAAAAAAASwGIAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-03-17T17:20:36.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "game.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.c",
+              "RelativeDocumentMoniker": "src\\game.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\game.c",
+              "RelativeToolTip": "src\\game.c",
+              "ViewState": "AgIAAEQGAAAAAAAAAAASwFYGAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-17T15:50:31.118Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "handlers.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.c",
+              "RelativeDocumentMoniker": "src\\handlers.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\handlers.c",
+              "RelativeToolTip": "src\\handlers.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-17T15:49:38.634Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "components.h",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\components.h",
+              "RelativeDocumentMoniker": "src\\components.h",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\components.h",
+              "RelativeToolTip": "src\\components.h",
+              "ViewState": "AgIAABQAAAAAAAAAAAAiwFEAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-03-17T02:55:17.057Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "player.lua",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\player.lua",
+              "RelativeDocumentMoniker": "scripts\\player.lua",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\scripts\\player.lua",
+              "RelativeToolTip": "scripts\\player.lua",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-16T18:50:43.393Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "luascripting.h",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.h",
+              "RelativeDocumentMoniker": "src\\luascripting.h",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.h",
+              "RelativeToolTip": "src\\luascripting.h",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABgAAABjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-03-16T18:46:54.547Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "luascripting.c",
+              "DocumentMoniker": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.c",
+              "RelativeDocumentMoniker": "src\\luascripting.c",
+              "ToolTip": "C:\\Users\\mishi\\OneDrive\\Documentos\\workspaces\\GameDev\\cgamecore\\src\\luascripting.c",
+              "RelativeToolTip": "src\\luascripting.c",
+              "ViewState": "AgIAAKABAAAAAAAAAAASwNsBAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-03-16T18:46:48.841Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

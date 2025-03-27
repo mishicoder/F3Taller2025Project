@@ -1,21 +1,137 @@
-data=tools@15,19
+@Info
+  name: tools
+  slice_x: 15
+  slice_y: 19
 
-anim=attack@0,9,1,8
-anim=axe@15,24,1,8
-anim=carry@30,37,1,8
-anim=casting@45,59,1,8
-anim=caught@60,69,1,8
-anim=death@75,87,1,8
-anim=dig@90,102,1,8
-anim=doing@105,112,1,8
-anim=hurt@120,127,1,8
-anim=idle@135,143,1,8
-anim=jump@150,158,1,8
-anim=mining@165,174,1,8
-anim=reeling@180,192,1,8
-anim=roll@195,204,1,8
-anim=run@210,217,1,8
-anim=swimming@225,236,1,8
-anim=waiting@240,248,1,8
-anim=walking@255,262,1,8
-anim=watering@270,274,1,8
+@Animation
+  name: attack
+  from: 0
+  to: 9
+  loop: true
+  speed: 8
+
+@Animation
+  name: axe
+  from: 15
+  to: 24
+  loop: true
+  speed: 8
+
+@Animation
+  name: carry
+  from: 30
+  to: 37
+  loop: true
+  speed: 8
+
+@Animation
+  name: casting
+  from: 45
+  to: 59
+  loop: true
+  speed: 8
+
+@Animation
+  name: caught
+  from: 60
+  to: 69
+  loop: true
+  speed: 8
+
+@Animation
+  name: death
+  from: 75
+  to: 87
+  loop: false
+  sped: 8
+
+@Animation
+  name: dig
+  from: 90
+  to: 102
+  loop: true
+  sped: 8
+
+@Animation
+  name: doing
+  from: 105
+  to: 112
+  loop: true
+  speed: 8
+
+@Animation
+  name: hurt
+  from: 120
+  to: 127
+  loop: false
+  speed: 8
+
+@Animation
+  name: idle
+  from: 135
+  to: 143
+  loop: true
+  speed: 8
+
+@Animation
+  name: jump
+  from: 150
+  to: 158
+  loop: true
+  speed: 8
+
+@Animation
+  name: mine
+  from: 165
+  to: 174
+  loop: true
+  speed: 8
+
+@Animation
+  name: reeling
+  from: 180
+  to: 192
+  loop: true
+  speed: 8
+
+@Animation
+  name: roll
+  from: 195
+  to: 204
+  loop: true
+  speed: 8
+
+@Animation
+  name: run
+  from: 210
+  to: 217
+  loop: true
+  speed: 8
+
+@Animation
+  name: swimming
+  from: 225
+  to: 236
+  loop: true
+  speed: 8
+
+@Animation
+  name: waiting
+  from: 240
+  to: 248
+  loop: true
+  speed: 8
+
+@Animation
+  name: walk
+  from: 255
+  to: 262
+  loop: true
+  speed: 8
+
+@Animation
+  name: watering
+  from: 270
+  to: 274
+  loop: true
+  speed: 8
