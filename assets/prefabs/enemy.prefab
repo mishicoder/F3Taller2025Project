@@ -1,0 +1,20 @@
+@Component: Info
+	name [Generic]: enemy
+	tag: enemy
+
+@Component: Transform2D
+	x: 0
+	y: 0
+	scalex: 3.0
+	scaley: 3.0
+	rotation: 0
+
+@Component: SpriteRender
+	sprite: enemy
+
+@Component: Animation
+	sprite: enemy
+	animation: idle
+
+@Component: LuaScript
+	module: scripts/enemy.lua

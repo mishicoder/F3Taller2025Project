@@ -11,6 +11,8 @@ Level* CreateLevel(const char* name, bool keepInMemory, bool renderInStack, bool
   level->name = _strdup(name);
   if(!level->name){ ecs_fini(level->world); free(level); return NULL; }
 
+  level->destroyQueueCount = 0;
+
   level->keepInMemory = keepInMemory;
   level->renderInStack = renderInStack;
   level->updateInStack = updateInStack;

@@ -1,6 +1,7 @@
 #pragma once
 #ifndef COMPONENTS_H
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <lua.h>
 #include <lualib.h>
@@ -62,6 +63,35 @@ typedef struct
   // Escala x relativa al padre (si no tiene, es 0.0)
   float relsy;
 } Transform2D;
+
+typedef struct
+{
+	float posx;
+	float posy;
+	float posz;
+
+	float scalex;
+	float scaley;
+	float scalez;
+
+	float rotx;
+	float roty;
+	float rotz;
+
+	bool isParent;
+
+	float realx;
+	float realy;
+	float realz;
+
+	float realsx;
+	float realsy;
+	float realsz;
+
+	float realrotx;
+	float realroty;
+	float realrotz;
+} Transform3D;
 
 /* Permite renderizar un sprite */
 typedef struct
@@ -156,6 +186,16 @@ typedef struct
   bool isStatic;
 } CircleCollider;
 
-/* all for now */
+// Physics
+typedef struct
+{
+	unsigned int id;
+}RigidBody;
+
+// RigidBody Required
+typedef struct PhysicMaterial
+{
+	unsigned int id;
+};
 
 #endif // !COMPONENTS_H

@@ -1,6 +1,8 @@
 #pragma once
 #ifndef GAME_H
 
+#define MAX_ENTITY_TO_DESTROY 256
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +18,9 @@
 #include "utilities.h"
 #include "handlers.h"
 #include "luascripting.h"
+
+//static ecs_entity_t destroyQueue[MAX_ENTITY_TO_DESTROY];
+//static int destroyQueueCount = 0;
 
 typedef struct
 {
@@ -56,11 +61,15 @@ typedef struct
   bool activeDebug;
   //const char* luaCallbacksFile;
   float globalScale;
+
+  // sistema de físicas
 }GameConfig;
 
 typedef struct Game
 {
   GameConfig config;
+  bool isRunning;
+  int exitCode;
   ResourcesManager resManager;
 
   //lua_State* LuaCallbacksSate;
@@ -91,12 +100,30 @@ int LuaPlayAnimation(lua_State* L);
 int LuaGetComponentField(lua_State* L);
 // Funcion para obtener el componente de una entidad desde Lua
 int LuaGetComponent(lua_State* L);
+// Funcion para agregar un componente a una entidad desde Lua
+int LuaAddComponent(lua_State* L);
+// Funcion para destruir una entidad desde Lua
+int LuaDestroyEntity(lua_State* L);
+// Funcion para remover un componente de una entidad desdelua
+int LuaRemoveComponent(lua_State* L);
+// Funcion para crear una entidad 2D desde lua
+int LuaCreate2DEntity(lua_State* L);
+// Funcion para crear una entidad 3D desde lua
+//int LuaCreate3DEntity(lua_State* L);
+// Funcion para crear un prefab desde Lua (a traves de un archivo ".prefab")
+//int LuaIntantiatePrefab(lua_State* L);
 // Funcíon para establecer el valor de los datos de los componentes desde Lua
 int LuaSetComponentField(lua_State* L);
 // Funcion para obtener una entidad por nombre
 int LuaGetEntityByName(lua_State* L);
 // Funcion para obtener una entidad por etiqueta
 int LuaGetEntityByTag(lua_State* L);
+
+// Funcion para cerrar la aplicación
+int LuaQuitGame(lua_State* L);
+
+void AddEntityToDestroyQueue(Level* level, ecs_entity_t entity);
+//void FlushEntityDestroyQueue(ecs_world_t* world);
 
 /**
  * @brief Inicializa la instancia de juego con las configuraciones dadas y una función de carga de recursos.
@@ -106,9 +133,9 @@ int LuaGetEntityByTag(lua_State* L);
 */
 void InitGame(GameConfig config, void(*LoadResources)(void));
 
-void RegisterCallback(const char* name);
-void ExecuteCallback(const char* name);
-void CleanupLuaCallbacks(lua_State* L);
+//void RegisterCallback(const char* name);
+//void ExecuteCallback(const char* name);
+//void CleanupLuaCallbacks(lua_State* L);
 
 /**
  * @brief Establece el ícono de la ventana para el juego.
@@ -264,7 +291,7 @@ void UnloadLevel(Level* level);
 */
 ecs_entity_t Create2DEntity(Level* level, const char* name, const char* tag);
 void* GetComponent(Level* level, ecs_entity_t entity, const char* componentID);
-void DestroyEntity(Level* level, ecs_entity_t entity);
+void DestroyEntity(ecs_world_t* world, ecs_entity_t entity);
 ecs_entity_t AddEntity2DChild(Level* level, ecs_entity_t parent, const char* name, const char* tag);
 ecs_entity_t GetChildFromIndex(Level* level, ecs_entity_t parent, int index);
 void* AddComponent(Level* level, ecs_entity_t entity, const char* component, const char* cdata);
@@ -274,6 +301,7 @@ ecs_entity_t GetMainCamera(Level* level);
 void InitEntities(Game* gameInstance, Level* level);
 void UpdateLevel(Game* gameInstance, Level* level);
 void RenderLevel(Game* gameInstance, Level* level);
+void FLushDestroyEntities(Level* level);
 void RenderUI(Level* level);
 void RenderDebug(Level* level);
 
@@ -285,6 +313,6 @@ void RunGame();
 /**
  * @brief Libera de memoria la instancia del juego.
 */
-void GameDestroy();
+int GameDestroy();
 
 #endif // !GAME_H

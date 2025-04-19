@@ -1,12 +1,12 @@
 #include "luascripting.h"
 
-void InitLuaScript(LuaScript* script, ecs_entity_t entity, const char* module, ecs_world_t* world, int(*LuaGetComponent)(lua_State* L), int (*LuaGetEntityByName)(lua_State* L), int (*LuaGetEntityByTag)(lua_State* L), int(*LuaPlayAnimation)(lua_State* L))
+void InitLuaScript(LuaScript* script, ecs_entity_t entity, const char* module, ecs_world_t* world, struct Level* level, int(*LuaGetComponent)(lua_State* L), int (*LuaGetEntityByName)(lua_State* L), int (*LuaGetEntityByTag)(lua_State* L), int(*LuaPlayAnimation)(lua_State* L), int(*LuaDestroyEntity)(lua_State* L), int(*LuaAddComponent)(lua_State* L), int(*LuaRemoveComponent)(lua_State* L), int(*LuaCreate2DEntity)(lua_State* L), int (*LuaQuitGame)(lua_State* L))
 {
   script->L = luaL_newstate();
   luaL_openlibs(script->L);
 
   RegisterInputConstants(script->L);
-  RegisterLuaFunctions(script->L, world, LuaGetComponent, LuaGetEntityByName, LuaGetEntityByTag, LuaPlayAnimation);
+  RegisterLuaFunctions(script->L, world,level, LuaGetComponent, LuaGetEntityByName, LuaGetEntityByTag, LuaPlayAnimation, LuaDestroyEntity, LuaAddComponent, LuaRemoveComponent, LuaCreate2DEntity, LuaQuitGame);
 
   lua_getglobal(script->L, "Entities");
   if(!lua_istable(script->L, -1)){
@@ -25,6 +25,9 @@ void InitLuaScript(LuaScript* script, ecs_entity_t entity, const char* module, e
   lua_pushlightuserdata(script->L, world);
   lua_setfield(script->L, -2, "world");
 
+  lua_pushlightuserdata(script->L, level);
+  lua_setfield(script->L, -2, "level");
+
   lua_newtable(script->L);
   lua_pushlightuserdata(script->L, world);
   lua_pushcclosure(script->L, LuaGetComponent, 1);
@@ -33,6 +36,22 @@ void InitLuaScript(LuaScript* script, ecs_entity_t entity, const char* module, e
   lua_pushlightuserdata(script->L, world);
   lua_pushcclosure(script->L, LuaPlayAnimation, 1);
   lua_setfield(script->L, -2, "PlayAnimation");
+
+  lua_pushlightuserdata(script->L, world);
+  lua_pushcclosure(script->L, LuaDestroyEntity, 1);
+  lua_setfield(script->L, -2, "Destroy");
+
+  lua_pushlightuserdata(script->L, world);
+  lua_pushcclosure(script->L, LuaAddComponent, 1);
+  lua_setfield(script->L, -2, "AddComponent");
+
+  lua_pushlightuserdata(script->L, world);
+  lua_pushcclosure(script->L, LuaRemoveComponent, 1);
+  lua_setfield(script->L, -2, "RemoveComponent");
+
+  lua_pushlightuserdata(script->L, world);
+  lua_pushcclosure(script->L, LuaQuitGame, 1);
+  lua_setfield(script->L, -2, "Quit");
 
   lua_pushvalue(script->L, -1);
   lua_setfield(script->L, -2, "__index");
@@ -59,7 +78,7 @@ void InitLuaScript(LuaScript* script, ecs_entity_t entity, const char* module, e
   
 }
 
-void RegisterLuaFunctions(lua_State *L, ecs_world_t *world, int(*LuaGetComponent)(lua_State * L), int(*LuaGetEntityByName)(lua_State* L), int (*LuaGetEntityByTag)(lua_State* L), int(*LuaPlayAnimation)(lua_State* L))
+void RegisterLuaFunctions(lua_State *L, ecs_world_t *world, struct Level* level, int(*LuaGetComponent)(lua_State * L), int(*LuaGetEntityByName)(lua_State* L), int (*LuaGetEntityByTag)(lua_State* L), int(*LuaPlayAnimation)(lua_State* L), int(*LuaDestroyEntity)(lua_State* L), int(*LuaAddComponent)(lua_State* L), int(*LuaRemoveComponent)(lua_State* L), int(*LuaCreate2DEntity)(lua_State* L), int (*LuaQuitGame)(lua_State* L))
 {
     lua_register(L, "KeyDown", LuaKeyDown);
     lua_register(L, "KeyDownOnce", LuaKeyDownOnce);
@@ -67,6 +86,8 @@ void RegisterLuaFunctions(lua_State *L, ecs_world_t *world, int(*LuaGetComponent
     lua_register(L, "KeyUpOnce", LuaKeyUpOnce);
     lua_register(L, "GetMousePosition", LuaGetMousePosition);
     lua_register(L, "GetMouseDelta", LuaGetMouseDelta);
+    // lua_register(L, "Quit", LuaQuitApplication); -> context error
+    //lua_register(L, "CreateEntity2D", LuaCreate2DEntity);
 
     lua_pushlightuserdata(L, world);
     lua_pushcclosure(L, LuaGetComponent, 1);
@@ -83,6 +104,27 @@ void RegisterLuaFunctions(lua_State *L, ecs_world_t *world, int(*LuaGetComponent
     lua_pushlightuserdata(L, world);
     lua_pushcclosure(L, LuaGetEntityByTag, 1);
     lua_setglobal(L, "GetEntityByTag");
+
+    lua_pushlightuserdata(L, world);
+    lua_pushlightuserdata(L, level);
+    lua_pushcclosure(L, LuaDestroyEntity, 1);
+    lua_setglobal(L, "Destroy");
+
+    lua_pushlightuserdata(L, world);
+    lua_pushcclosure(L, LuaAddComponent, 1);
+    lua_setglobal(L, "AddComponent");
+
+    lua_pushlightuserdata(L, world);
+    lua_pushcclosure(L, LuaRemoveComponent, 1);
+    lua_setglobal(L, "RemoveComponent");
+
+    lua_pushlightuserdata(L, world);
+    lua_pushcclosure(L, LuaCreate2DEntity, 1);
+    lua_setglobal(L, "CreateEntity2D");
+
+    lua_pushlightuserdata(L, world);
+    lua_pushcclosure(L, LuaQuitGame, 1);
+    lua_setglobal(L, "Quit");
 }
 
 void AssignEntityMethods(lua_State *L, lua_Integer entity, int(*LuaGetComponent)(lua_State * L))
@@ -562,7 +604,7 @@ void LuaOnCollision(LuaScript* script, ecs_entity_t entity, ecs_entity_t other, 
     lua_pop(L, 1);
 }
 
-void LuaOnDestroy(LuaScript* script, ecs_entity_t entity, void* level)
+void LuaOnDestroy(LuaScript* script, ecs_entity_t entity)
 {
     lua_State* L = script->L;
 
@@ -580,8 +622,8 @@ void LuaOnDestroy(LuaScript* script, ecs_entity_t entity, void* level)
     }
 
     lua_setglobal(L, "self");
-    lua_pushlightuserdata(L, level);
-    lua_setglobal(L, "level");
+    //lua_pushlightuserdata(L, level);
+    //lua_setglobal(L, "level");
 
     lua_getglobal(L, "OnDestroy");
     if (lua_isfunction(L, -1)) {

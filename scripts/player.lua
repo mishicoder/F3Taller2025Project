@@ -34,6 +34,31 @@ function OnEndAnimation(animation)
 end
 
 function OnUpdate(dt)
+
+	if KeyDownOnce(Input.KEY_Y) then
+		self:Destroy(self.id)
+	end
+
+	if KeyDownOnce(Input.KEY_F) then
+		CreateEntity2D("prueba", "prueba")
+		local ent = GetEntityByTag("prueba")
+		ent:AddComponent("SpriteRender", {
+			sprite = "player"
+		})
+		ent:AddComponent("Animation", {
+			sprite = "player"
+		})
+		ent:AddComponent("LuaScript", {
+			module = "scripts/test.lua"
+		})
+		ent:GetComponent("Transform2D").sxy = 4.0
+		ent:PlayAnimation("run")
+	end
+
+	if KeyDownOnce(Input.KEY_Q) then
+		self:Quit(1)
+	end
+
 	if KeyDown(Input.KEY_LEFT_SHIFT) then
 		self.isRunning = true
 		self.speed = 120
@@ -136,6 +161,7 @@ function OnUpdate(dt)
 end
 
 function OnDestroy()
+	print("He sido destruido pipipipipipipi")
 end
 
 function OnCollision(other)

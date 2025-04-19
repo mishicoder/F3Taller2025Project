@@ -8,7 +8,7 @@ int main()
 {
     GameConfig config = {
         .targetFPS = 60,
-        .windowTitle = "My Game Window",
+        .windowTitle = "Sunny Side",
         .windowWidth = 800,
         .windowHeight = 600,
         .windowColor = (Color){33, 33, 33, 255},
@@ -23,9 +23,7 @@ int main()
     PushLevel("MyLevel", false, false, false, LoadTestLevel);
   
     RunGame();
-    GameDestroy();
-
-    return 0;
+    return GameDestroy();
 }
 
 void LoadTestLevel(Game* game, Level* level)

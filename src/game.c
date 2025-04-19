@@ -283,24 +283,6 @@ int LuaGetComponent(lua_State *L)
     entity = lua_tointeger(L, -1);
     lua_pop(L, 1);
 
-    /*if (lua_istable(L, 1)) {
-        lua_getfield(L, 1, "id");
-        if (!lua_isinteger(L, -1)) {
-            lua_pushnil(L);
-            return 1;
-        }
-        entity = lua_tointeger(L, -1);
-        lua_pop(L, 1);
-    }
-    else if (lua_isinteger(L, 1)) {
-        entity = lua_tointeger(L, 1);
-    }
-    else {
-        lua_pushnil(L);
-        return 1;
-    }
-    */
-
     const char* componentID = luaL_checkstring(L, 2);
     void* componentPtr = NULL;
 
@@ -352,190 +334,571 @@ int LuaGetComponent(lua_State *L)
     lua_setfield(L, -2, "__index");
     lua_setmetatable(L, -2);
 
-    /*if (lua_istable(L, 1)) {
-        lua_getfield(L, 1, "id");
-        if (!lua_isinteger(L, -1)) {
+    return 1;
+}
+
+/*
+* Transform2D e Info, se ignoran, ya que son componentes que posee
+* la entidad por defecto, por lo que simplemente se tendría que llamar a
+* self:GetComponent("Transform2D") y
+* self:GetComponent("Info") desde lua y operar con sus propiedades
+*/
+int LuaAddComponent(lua_State* L)
+{
+    lua_getfield(L, 1, "world");
+    ecs_world_t* world = (ecs_world_t*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    if (!world) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_Integer entity;
+
+    lua_getfield(L, 1, "id");
+    if (!lua_isinteger(L, -1))
+    {
+        printf("Error al recuperar el id de la entidad en <PlayAnimation>\n");
+        lua_pushnil(L);
+        return 1;
+    }
+    entity = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+    
+    const char* component = luaL_checkstring(L, 2);
+    if(strcmp(component, "SpriteRender") == 0){
+        if (ecs_has(world, entity, SpriteRender)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        lua_getfield(L, 3, "sprite");
+        if (!lua_isstring(L, -1)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        const char* spriteName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        ResSprite* spr = GetSprite(&game.resManager, spriteName);
+        if (!spr) {
+            printf("El sprite <%s> no existe en el sistema de recursos.\n", spriteName);
             lua_pushnil(L);
             return 1;
         }
 
-        lua_Integer entity = lua_tointeger(L, -1);
+        float opacity = 1.0f;
+        bool visible = true;
+        bool flipx = false;
+        bool flipy = false;
+
+        lua_getfield(L, 3, "opacity");
+        if (lua_isnumber(L, -1)) {
+            opacity = (float)lua_tonumber(L, -1);
+        }
         lua_pop(L, 1);
 
-        const char* componentID = luaL_checkstring(L, 2);
-        void* componentPtr = NULL;
-
-        if (strcmp(componentID, "Transform2D") == 0) {
-            componentPtr = ecs_get_mut(world, entity, Transform2D);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
-
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
+        lua_getfield(L, 3, "visible");
+        if (lua_isboolean(L, -1)) {
+            visible = lua_toboolean(L, -1);
         }
-        else if (strcmp(componentID, "Info") == 0) {
-            componentPtr = ecs_get_mut(world, entity, Info);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
+        lua_pop(L, 1);
 
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
+        lua_getfield(L, 3, "flipx");
+        if (lua_isboolean(L, -1)) {
+            flipx = lua_toboolean(L, -1);
         }
-        else if (strcmp(componentID, "Color") == 0) {
-            componentPtr = ecs_get_mut(world, entity, Dyeing);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
+        lua_pop(L, 1);
 
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
+        lua_getfield(L, 3, "flipy");
+        if (lua_isboolean(L, -1)) {
+            flipy = lua_toboolean(L, -1);
         }
-        else if (strcmp(componentID, "SpriteRender") == 0) {
-            componentPtr = ecs_get_mut(world, entity, SpriteRender);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
+        lua_pop(L, 1);
 
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
-        }
-        else if (strcmp(componentID, "Camera2D") == 0) {
-            componentPtr = ecs_get_mut(world, entity, Camera2d);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
+        ecs_set(world, entity, SpriteRender, { _strdup(spriteName), visible, opacity, flipx, flipy });
 
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
-        }
-        else if (strcmp(componentID, "RectCollider") == 0) {
-            componentPtr = ecs_get_mut(world, entity, RectCollider);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
-
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
-        }
-        else if (strcmp(componentID, "CircleCollider") == 0) {
-            componentPtr = ecs_get_mut(world, entity, CircleCollider);
-            if (!componentPtr) {
-                lua_pushnil(L);
-                return 1;
-            }
-            lua_newtable(L);
-            lua_pushlightuserdata(L, componentPtr);
-            lua_setfield(L, -2, "__ptr");
-            lua_pushlightuserdata(L, world);
-            lua_setfield(L, -2, "__world");
-            lua_pushinteger(L, entity);
-            lua_setfield(L, -2, "__entity");
-            lua_pushstring(L, componentID);
-            lua_setfield(L, -2, "__component");
-
-            lua_newtable(L);
-            lua_pushcfunction(L, LuaSetComponentField);
-            lua_setfield(L, -2, "__newindex");
-            lua_pushcfunction(L, LuaGetComponentField);
-            lua_setfield(L, -2, "__index");
-            lua_setmetatable(L, -2);
-            return 1;
-        }
+        lua_pushboolean(L, 1);
         return 1;
+    }
+    else if (strcmp(component, "Animation") == 0){
+        if (ecs_has(world, entity, AnimationController)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        lua_getfield(L, 3, "sprite");
+        if (!lua_isstring(L, -1)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        const char* spriteName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        ResSprite* spr = GetSprite(&game.resManager, spriteName);
+        if (!spr) {
+            printf("El sprite <%s> no existe en el sistema de recursos.\n", spriteName);
+            lua_pushnil(L);
+            return 1;
+        }
+
+        lua_getfield(L, 3, "animation");
+        const char* animName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, AnimationController, { 
+            _strdup(spriteName),
+            animName ? _strdup(animName) : NULL,
+            0,
+            0,
+            0,
+            0,
+            false,
+            0
+        });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "Camera2D") == 0) {
+        if (ecs_has(world, entity, Camera2d)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        float offsetx = 0.0f;
+        float offsety = 0.0f;
+        float zoom = 1.0f;
+
+        lua_getfield(L, 3, "offsetx");
+        if (lua_isnumber(L, -1)) {
+            offsetx = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "offsety");
+        if (lua_isnumber(L, -1)) {
+            offsety = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "zoom");
+        if (lua_isnumber(L, -1)) {
+            zoom = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, Camera2d, { false, offsetx, offsety, zoom });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "Color") == 0){
+        if (ecs_has(world, entity, Dyeing)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        float r = 1.0f;
+        float g = 1.0f;
+        float b = 1.0f;
+
+        lua_getfield(L, 3, "red");
+        if (lua_isnumber(L, -1)) {
+            r = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "green");
+        if (lua_isnumber(L, -1)) {
+            g = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "blue");
+        if (lua_isnumber(L, -1)) {
+            b = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, Dyeing, { r, g, b });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "MapRender") == 0){
+        if (ecs_has(world, entity, MapRender)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        lua_getfield(L, 3, "map");
+        if (!lua_isstring(L, -1)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        const char* mapName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, MapRender, { _strdup(mapName) });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "LuaScript") == 0){
+        if (ecs_has(world, entity, LuaScript)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        lua_getfield(L, 3, "module");
+        if (!lua_isstring(L, -1)) {
+            lua_pushnil(L);
+            return 1;
+        }
+        const char* moduleName = lua_tostring(L, -1);
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, LuaScript, { _strdup(moduleName) });
+        LuaScript* script = ecs_get(world, entity, LuaScript);
+        script->isValid = true;
+        InitLuaScript(script, entity, script->module, world, NULL, LuaGetComponent, LuaGetEntityByName, LuaGetEntityByTag, LuaPlayAnimation, LuaDestroyEntity, LuaAddComponent, LuaRemoveComponent, LuaCreate2DEntity, LuaQuitGame);
+
+        if(script->isValid)
+        {
+            lua_getglobal(script->L, "OnCreate");
+            if (lua_isfunction(script->L, -1)) {
+                if (lua_pcall(script->L, 0, 0, 0) != LUA_OK) {
+                    printf("Error en el script <%s>: %s\n", script->module, lua_tostring(script->L, -1));
+                }
+            }
+            else {
+                lua_pop(script->L, 1);
+            }
+        }
+
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "PythonScript") == 0){
+        // in dev...
+    }
+    else if (strcmp(component, "RectCollider") == 0) {
+        if (ecs_has(world, entity, RectCollider)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        float offsetx = 0;
+        float offsety = 0;
+        int width = 50;
+        int height = 50;
+        bool isSolid = true;
+        bool isStatic = true;
+
+        lua_getfield(L, 3, "offsetx");
+        if (lua_isnumber(L, -1)) {
+            offsetx = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "offsety");
+        if (lua_isnumber(L, -1)) {
+            offsety = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "width");
+        if (lua_isnumber(L, -1)) {
+            width = (int)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "height");
+        if (lua_isnumber(L, -1)) {
+            height = (int)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "solid");
+        if (lua_isboolean(L, -1)) {
+            isSolid = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "static");
+        if (lua_isboolean(L, -1)) {
+            isStatic = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, RectCollider, { 0.0f, 0.0f, offsetx, offsety, width, height, isSolid, isStatic });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else if (strcmp(component, "CircleCollider") == 0){
+        if (ecs_has(world, entity, CircleCollider)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        if (!lua_istable(L, 3)) {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        float offsetx = 0.0f;
+        float offsety = 0.0f;
+        float radius = 10.0f;
+        bool isSolid = true;
+        bool isStatic = true;
+
+        lua_getfield(L, 3, "offsetx");
+        if (lua_isnumber(L, -1)) {
+            offsetx = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "offsety");
+        if (lua_isnumber(L, -1)) {
+            offsety = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "radius");
+        if (lua_isnumber(L, -1)) {
+            radius = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "solid");
+        if (lua_isboolean(L, -1)) {
+            isSolid = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 3, "static");
+        if (lua_isboolean(L, -1)) {
+            isStatic = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+
+        ecs_set(world, entity, CircleCollider, { 0.0f, 0.0f, offsetx, offsety, radius, isSolid, isStatic });
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    else {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    return 1;
+}
+
+int LuaDestroyEntity(lua_State* L)
+{
+    lua_getfield(L, 1, "world");
+    ecs_world_t* world = (ecs_world_t*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 1, "level");
+    Level* level = (Level*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    if (!level) {
+        printf("Imposible recuperar el nivel de la entidad´.\n");
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+    /*else {
+        printf("Level pointer direction: %p\n", level);
+        printf("Level name: %s\n", level->name);
     }*/
 
+    if (!world) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    ecs_entity_t entity = (ecs_entity_t)luaL_checkinteger(L, 2);
+    if(ecs_is_alive(world, entity))
+    {
+        AddEntityToDestroyQueue(level, entity);
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+
+    lua_pushboolean(L, 0);
+    return 1;
+}
+
+int LuaRemoveComponent(lua_State* L)
+{
+    lua_getfield(L, 1, "world");
+    ecs_world_t* world = (ecs_world_t*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    if (!world) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_Integer entity;
+
+    lua_getfield(L, 1, "id");
+    if (!lua_isinteger(L, -1))
+    {
+        printf("Error al recuperar el id de la entidad en <RemoveComponent>\n");
+        lua_pushnil(L);
+        return 1;
+    }
+    entity = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+    const char* component = luaL_checkstring(L, 2);
+    if (strcmp(component, "SpriteRender") == 0){
+        if (ecs_has(world, entity, SpriteRender)) {
+            ecs_remove(world, entity, SpriteRender);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "Animation") == 0){
+        if (ecs_has(world, entity, AnimationController)) {
+            ecs_remove(world, entity, AnimationController);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "Camera2D") == 0){
+        if (ecs_has(world, entity, Camera2d)) {
+            ecs_remove(world, entity, Camera2d);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "Color") == 0){
+        if (ecs_has(world, entity, Dyeing)) {
+            ecs_remove(world, entity, Dyeing);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "MapRender") == 0){
+        if (ecs_has(world, entity, MapRender)) {
+            ecs_remove(world, entity, MapRender);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+        
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "LuaScript") == 0){
+        if (ecs_has(world, entity, LuaScript)) {
+            ecs_remove(world, entity, LuaScript);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "PythonScript") == 0){
+        // in dev...
+    }
+    else if (strcmp(component, "RectCollider") == 0){
+        if (ecs_has(world, entity, RectCollider)) {
+            ecs_remove(world, entity, RectCollider);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else if (strcmp(component, "CircleCollider") == 0){
+        if (ecs_has(world, entity, CircleCollider)) {
+            ecs_remove(world, entity, CircleCollider);
+            lua_pushboolean(L, 1);
+            return 1;
+        }
+
+        lua_pushnil(L);
+        return 1;
+    }
+    else {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    return 1;
+}
+
+int LuaCreate2DEntity(lua_State* L)
+{
+    ecs_world_t* world = (ecs_world_t*)lua_touserdata(L, lua_upvalueindex(1));
+    const char* name = luaL_checkstring(L, 1);
+    const char* tag = luaL_checkstring(L, 2);
+
+    ecs_entity_t entity = 0;
+
+    if (name) {
+        struct ecs_entity_desc_t desc = { 0 };
+        desc.name = name;
+
+        entity = ecs_entity_init(world, &desc);
+    }
+    else {
+        entity = ecs_new(world);
+    }
+
+    ecs_set(world, entity, Info, { name ? _strdup(name) : NULL, tag ? _strdup(tag) : NULL });
+    ecs_set(world, entity, Transform2D, { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f });
+
+    lua_pushnumber(L, entity);
     return 1;
 }
 
@@ -775,6 +1138,15 @@ int LuaGetEntityByTag(lua_State* L)
                     lua_pushcfunction(L, LuaPlayAnimation);
                     lua_setfield(L, -2, "PlayAnimation");
 
+                    lua_pushcfunction(L, LuaDestroyEntity);
+                    lua_setfield(L, -2, "Destroy");
+
+                    lua_pushcfunction(L, LuaAddComponent);
+                    lua_setfield(L, -2, "AddComponent");
+
+                    lua_pushcfunction(L, LuaRemoveComponent);
+                    lua_setfield(L, -2, "RemoveComponent");
+
                     lua_pushvalue(L, -1);
                     lua_setfield(L, -2, "__index");
                 }
@@ -789,6 +1161,23 @@ int LuaGetEntityByTag(lua_State* L)
 
     lua_pushnil(L);
     return 1;
+}
+
+int LuaQuitGame(lua_State* L)
+{
+    int exitCode = luaL_checknumber(L, 2);
+    game.isRunning = false;
+    game.exitCode = exitCode;
+    return 1;
+}
+
+void AddEntityToDestroyQueue(Level* level, ecs_entity_t entity)
+{
+    if (level->destroyQueueCount >= MAX_ENTITY_DESTROY_QUEUE)
+        return; // No hay espacio para destruir la entidad
+
+    level->destroyQueue[level->destroyQueueCount] = entity;
+    level->destroyQueueCount += 1;
 }
 
 void InitGame(GameConfig config, void (*LoadResources)(void))
@@ -821,6 +1210,8 @@ void InitGame(GameConfig config, void (*LoadResources)(void))
   }
 
   game.tagQuery = NULL;
+  game.isRunning = true;
+  game.exitCode = 0; // default exit code
 
   if(game.LoadResources) game.LoadResources();
 }
@@ -904,7 +1295,8 @@ void RunGame()
         currentLevel->InitEntities(&game, currentLevel);
     }
 
-    while(!WindowShouldClose())
+    // change to use "isRunning" game variable for application control with lua
+    while(!WindowShouldClose() && game.isRunning)
     {
     BeginDrawing();
     ClearBackground(game.config.windowColor);
@@ -914,10 +1306,21 @@ void RunGame()
     {
         Level* level = node->level;
         if(node == game.levelStack || level->updateInStack){
-        if(level->UpdateLevel != NULL) level->UpdateLevel(&game, level);
+            if(level->UpdateLevel != NULL) 
+            {
+                level->UpdateLevel(&game, level);
+            }
         }
         if(node == game.levelStack || level->renderInStack){
-        if(level->RenderLevel != NULL) level->RenderLevel(&game, level);
+            if(level->RenderLevel != NULL) 
+            {
+                level->RenderLevel(&game, level);
+            }
+        }
+        if (node == game.levelStack || level->updateInStack) {
+            if (level->FlushEntities != NULL) {
+                level->FlushEntities(level);
+            }
         }
         node = node->next;
     }
@@ -1162,6 +1565,7 @@ void PushLevel(const char *name, bool keepInMemory, bool renderInStack, bool upd
   level->UnloadLevel = NULL;
   level->UpdateLevel = UpdateLevel;
   level->RenderLevel = RenderLevel;
+  level->FlushEntities = FLushDestroyEntities;
   if(level->LoadLevel) level->LoadLevel(&game, level);
 }
 
@@ -1257,22 +1661,22 @@ void* GetComponent(Level *level, ecs_entity_t entity, const char *componentID)
   return NULL;
 }
 
-void DestroyEntity(Level *level, ecs_entity_t entity)
+void DestroyEntity(ecs_world_t* world, ecs_entity_t entity)
 {
-  LuaScript* lscript = (LuaScript*)ecs_get(level->world, entity, LuaScript);
+  LuaScript* lscript = (LuaScript*)ecs_get(world, entity, LuaScript);
   if(lscript) 
   {
     // ejecutar el {on_destroy} del script de lua.
-      LuaOnDestroy(lscript, entity, level);
+      if (lscript->isValid) { LuaOnDestroy(lscript, entity); }
   }
 
-  PythonScript* pscript = (PythonScript*)ecs_get(level->world, entity, PythonScript);
+  PythonScript* pscript = (PythonScript*)ecs_get(world, entity, PythonScript);
   if(pscript)
   {
     // ejecutar el {on_destroy} del script de python.
   }
 
-  ecs_delete(level->world, entity);
+  ecs_delete(world, entity);
 }
 
 ecs_entity_t AddEntity2DChild(Level *level, ecs_entity_t parent, const char *name, const char *tag)
@@ -1430,7 +1834,7 @@ void* AddComponent(Level *level, ecs_entity_t entity, const char *component, con
     ecs_set(level->world, entity, LuaScript, { _strdup(smodule) });
     LuaScript* script = (LuaScript*)ecs_get(level->world, entity, LuaScript);
     script->isValid = true;
-    InitLuaScript(script, entity, script->module, level->world, LuaGetComponent, LuaGetEntityByName, LuaGetEntityByTag, LuaPlayAnimation);
+    InitLuaScript(script, entity, script->module, level->world, level, LuaGetComponent, LuaGetEntityByName, LuaGetEntityByTag, LuaPlayAnimation, LuaDestroyEntity, LuaAddComponent, LuaRemoveComponent, LuaCreate2DEntity, LuaQuitGame);
     //RegisterLuaFunctions(script->L, level->world, LuaGetComponent);
     //AssignEntityMethods(script->L, entity, LuaGetComponent);
 
@@ -1534,7 +1938,6 @@ ecs_entity_t GetMainCamera(Level *level)
       }
     }
   }
-  //ecs_iter_fini(&it);
   ecs_query_fini(query);
 
   return camera;
@@ -1620,7 +2023,7 @@ void UpdateLevel(Game* gameInstance, Level *level)
         {
             LuaScript* script = ecs_get(level->world, ent, LuaScript);
             if (script) {
-                LuaOnEndAnimation(script, ent, level, component->currentAnimation);
+                if (script->isValid) { LuaOnEndAnimation(script, ent, level, component->currentAnimation); }
             }
           if(component->loop)
             component->currentFrame = component->fIndex;
@@ -1724,7 +2127,7 @@ void UpdateLevel(Game* gameInstance, Level *level)
               if(ecs_has(level->world, ent, LuaScript)){
                   /* Llamar a la funcion "on_collide" desde lua */ 
                   LuaScript* script = (LuaScript*)ecs_get(level->world, ent, LuaScript);
-                  LuaOnCollision(script, ent, iEnt, level);
+                  if (script->isValid) { LuaOnCollision(script, ent, iEnt, level); }
               }
               else if(ecs_has(level->world, ent, PythonScript)){ /* Llamar a la funcion "on_collide" desde python */ }
             }
@@ -1738,7 +2141,7 @@ void UpdateLevel(Game* gameInstance, Level *level)
               if(ecs_has(level->world, ent, LuaScript)){ 
                   /* Llamar a la funcion "on_collide" desde lua */ 
                   LuaScript* script = (LuaScript*)ecs_get(level->world, ent, LuaScript);
-                  LuaOnCollision(script, ent, iEnt, level);
+                  if (script->isValid) { LuaOnCollision(script, ent, iEnt, level); }
               }
               else if(ecs_has(level->world, ent, PythonScript)){ /* Llamar a la funcion "on_collide" desde python */ }
             }
@@ -1928,7 +2331,17 @@ void RenderLevel(Game* gameInstance, Level *level)
   // render UI
 }
 
-void GameDestroy()
+void FLushDestroyEntities(Level* level)
+{
+    for (int i = 0; i < level->destroyQueueCount; i++)
+    {
+        DestroyEntity(level->world, level->destroyQueue[i]);
+        level->destroyQueue[i] = 0;
+    }
+    level->destroyQueueCount = 0;
+}
+
+int GameDestroy()
 {
   // Unload level stack
   while(game.levelStack)
@@ -1961,4 +2374,6 @@ void GameDestroy()
 
   UnloadResourcesManager(&game.resManager);
   CloseWindow();
+
+  return game.exitCode;
 }
