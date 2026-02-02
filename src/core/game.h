@@ -357,6 +357,7 @@ int CheckLevel(Game* game, const char* name);
 * @return Retorna ecs_entity_t cuando se crear correctamente la entidad, caso contrario, retorna 0.
 */
 ecs_entity_t CreateBlankEntity(GameLevel* level, const char* name, const char* tag);
+ecs_entity_t CreatePrefab(GameLevel* level, const char* filename);
 
 void* GetComponent(GameLevel* level, ecs_entity_t entity, const char* cid);
 void DestroyEntity(Game* game, GameLevel* level, ecs_entity_t entity);

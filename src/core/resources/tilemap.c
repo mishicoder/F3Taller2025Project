@@ -4,7 +4,7 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 {
 	// Asigna bloque de memoria para el paquete.
 	TilesetPack* pack = (TilesetPack*)malloc(sizeof(TilesetPack));
-	// Verificar si la asignación ha sido correcta.
+	// Verificar si la asignaciï¿½n ha sido correcta.
 	if (pack == NULL)
 	{
 		// Muestra el error.
@@ -40,7 +40,7 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 			char* line = strdup(buffer);
 			if (line != NULL)
 			{
-				// si encuentra la palabra "@break" romperá el bucle
+				// si encuentra la palabra "@break" romperï¿½ el bucle
 				if (strcmp(line, "@break") == 0)
 				{
 					free(line);
@@ -67,7 +67,7 @@ TilesetPack* CreateTilesetsPack(const char* name, const char* filename)
 							}
 							else
 							{
-								printf("Imposible asignar memoria para el tileset. El tileset no será agregado.\n");
+								printf("Imposible asignar memoria para el tileset. El tileset no serï¿½ agregado.\n");
 								hasError += 1;
 							}
 						}
@@ -180,7 +180,7 @@ Tileset* GetTileset(TilesetPack* pack, unsigned int index)
 		if(pack->tilesets[i] != NULL)
 		{
 			if (index >= pack->tilesets[i]->initialIndex && index <= pack->tilesets[i]->finalIndex)
-			{;
+			{
 				return pack->tilesets[i];
 			}
 		}
@@ -310,7 +310,7 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 		return NULL;
 	}
 
-	// cargar el nodo raíz
+	// cargar el nodo raï¿½z
 	mxml_options_t* options = mxmlOptionsNew();
 	mxmlOptionsSetTypeValue(options, MXML_TYPE_OPAQUE);
 	mxml_node_t* tree = mxmlLoadFile(NULL, options, xmlFile);
@@ -418,7 +418,7 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 		{
 			for (int tx = 0; tx < tmap->mapWidth; tx++)
 			{
-				// Cero indica que el espacio está vacío.
+				// Cero indica que el espacio estï¿½ vacï¿½o.
 				if (tmap->layers[i]->data[tileIndex] != 0)
 				{
 					Tileset* tileset = GetTileset(pack, tmap->layers[i]->data[tileIndex]);
@@ -449,7 +449,7 @@ TileMap* CreateMap(const char* name, const char* filename, TilesetPack* pack)
 }
 
 /*
-EL ERROR ESTÁ EN QUE EL VALOR DE TILE_WIDTH Y TILE_HEIGHT DE TILESET ESTÁ EN VALOR 0.
+EL ERROR ESTï¿½ EN QUE EL VALOR DE TILE_WIDTH Y TILE_HEIGHT DE TILESET ESTï¿½ EN VALOR 0.
 */
 TiledLayer* CreateLayer(mxml_node_t* data, unsigned int mapWidth, unsigned int mapHeight)
 {

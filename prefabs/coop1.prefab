@@ -1,0 +1,37 @@
+@entity
+Info:
+    name: player
+    tag: player
+    parent: null
+components:
+  SpriteRender:
+    sprite: player
+    visible: true
+    opacity: 1.0
+    flip_x: false
+    flip_y: false
+
+@entity
+Info:
+    name: collider
+    tag: null
+    parent: player
+components:
+  RectCollider:
+    offset_x: 0
+    offset_y: 0
+    width: 45
+    height: 45
+    pass_through: true
+    static: true
+
+@entity
+Info:
+    name: particle
+    tag: particle
+    parent: collider
+components:
+  ParticeEmiter:
+    particle_sprite: fire
+    particle_count: 100
+    is_pool: true

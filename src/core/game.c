@@ -1994,6 +1994,7 @@ void UpdateLevel(Game* game, GameLevel* level)
 	ECS_COMPONENT(level->world, C_Camera2D);
 	ECS_COMPONENT(level->world, C_MapController);
 
+	// que hace esto aquí? xd
 	GameLevel* currentLevel = GetCurrentLevel(game);
 
 	if (currentLevel == NULL) return;

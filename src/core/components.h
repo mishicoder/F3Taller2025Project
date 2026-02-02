@@ -5,19 +5,19 @@
 #include <flecs.h>
 #include "gametypes.h"
 
-// definiciones útiles para la carga de entidades desde Tiled.
-#define C_INFO_ID             "info"
-#define C_CAMERA_2D_ID        "camera2d"
-#define C_RENDER_LAYER_ID     "layer"
-#define C_TRANSFORM_ID        "transform"
-#define C_SPRITE_RENDER_ID    "sprite"
-#define C_SPRITE_ANIMATION_ID "animation"
-#define C_COLOR_ID            "color"
-#define C_MAP_RENDER_ID       "map"
-#define C_MAP_CONTROLLER_ID   "mapController"
-#define C_BEHAVIOUR_ID        "script"
-#define C_RECT_COLLIDER_ID	  "rect"
-#define C_CIRCLE_COLLIDER_ID  "circle"
+// definiciones ï¿½tiles para la carga de entidades desde Tiled.
+#define C_INFO_ID             "Info"
+#define C_CAMERA_2D_ID        "Camera2d"
+#define C_RENDER_LAYER_ID     "RenderLayer"
+#define C_TRANSFORM_ID        "Transform"
+#define C_SPRITE_RENDER_ID    "SpriteRender"
+#define C_SPRITE_ANIMATION_ID "AnimationController"
+#define C_COLOR_ID            "Color"
+#define C_MAP_RENDER_ID       "MapRender"
+#define C_MAP_CONTROLLER_ID   "MapController"
+#define C_BEHAVIOUR_ID        "Script"
+#define C_RECT_COLLIDER_ID	  "RectCollider"
+#define C_CIRCLE_COLLIDER_ID  "CircleCollider"
 #define C_DAY_CYCLE_ID        "daycycle"
 #define C_COLLECTOR_ID        "collector"
 #define C_DIALOG_ID           "dialog"
@@ -36,7 +36,7 @@
 #define C_TREE_ID             "tree"
 #define C_ORE_ID              "ore"
 #define C_BUTTON_ID			  "button"
-#define C_PERSISTENT_ID		  "persistent"
+#define C_PERSISTENT_ID		  "Persistent"
 
 struct Game;
 struct Level;
@@ -48,34 +48,34 @@ struct Level;
 /**/
 typedef struct C_Persistent
 {
-	// indica si la entidad existirá en todos los niveles
+	// indica si la entidad existirï¿½ en todos los niveles
 	int forAll;
-	// lista de nombres en los que la entidad será persistente
+	// lista de nombres en los que la entidad serï¿½ persistente
 	char** levelNames;
 	// cantidad de elementos en la lista de niveles
 	int count;
 } C_Persistent;
 
 
-/* Componente para la gestión de cámaras en el juego. */
+/* Componente para la gestiï¿½n de cï¿½maras en el juego. */
 typedef struct C_Camera2D
 {
-	// Determina si la cámara es la principal.
+	// Determina si la cï¿½mara es la principal.
 	unsigned int isMain;
-	// Desplazamiento en x de la cámara.
+	// Desplazamiento en x de la cï¿½mara.
 	float offsetX;
-	// Desplazamiento en y de la cámara.
+	// Desplazamiento en y de la cï¿½mara.
 	float offsetY;
 
-	// Objetivo en x de la cámara.
+	// Objetivo en x de la cï¿½mara.
 	float targetX;
-	// Objetivo en y de la cámara.
+	// Objetivo en y de la cï¿½mara.
 	float targetY;
 
-	// Rotación de la cámara.
+	// Rotaciï¿½n de la cï¿½mara.
 	float rotation;
 
-	// Alejamiento de la cámara.
+	// Alejamiento de la cï¿½mara.
 	float zoom;
 }C_Camera2D;
 
@@ -95,7 +95,7 @@ typedef struct C_RenderLayer
 	int index;
 } C_RenderLayer;
 
-/* Gestiona la posición, escala y rotación de la entidad */
+/* Gestiona la posiciï¿½n, escala y rotaciï¿½n de la entidad */
 typedef struct C_Transform
 {
 	// posicion en el eje x
@@ -108,7 +108,7 @@ typedef struct C_Transform
 	// escala en alto de la entidad
 	float scaleY;
 
-	// rotación de la entidad (a favor de las agujas del reloj)
+	// rotaciï¿½n de la entidad (a favor de las agujas del reloj)
 	float rotation;
 
 	// posicion relativa (parents)
@@ -122,7 +122,7 @@ typedef struct C_Transform
 /* Permite a la entidad renderizar un sprite en el mundo. */
 typedef struct C_SpriteRender
 {
-	// Nombre del sprite que renderizará la entidad.
+	// Nombre del sprite que renderizarï¿½ la entidad.
 	const char* spriteName;
 	// Indica si el sprite es visible.
 	unsigned int visible;
@@ -159,13 +159,20 @@ typedef struct C_Color
 	unsigned int b;
 } C_Color;
 
-/* Permite a la entidad renderizar un mapa de tiles. */
+/* Permite a la entidad renderizar un mapa de tiles. 
+Â¿Hace falta un cambio?
+Ya que los mapas pueden tener capas de renderizado.
+Una funcionalidad a trabajar serÃ­a el poder renderizar las distintas capas.
+Creando una funciÃ³n que permita establecer una entidad padre y las capas serÃ­an
+las entidades hijas. (W.I.P)
+*/
 typedef struct C_MapRender
 {
 	// Nombre del mapa a renderizar.
 	const char* name;
 } C_MapRender;
 
+// VÃ¡lido para la nueva arquitectura?
 typedef struct C_MapController
 {
 	// reja de control
@@ -197,42 +204,42 @@ typedef struct C_Behaviour
 	// Comportamiento para el tema de colisiones
 	void(*OnCollision)(struct Game* game, struct GameLevel* level, ecs_entity_t entity, ecs_entity_t collide);
 
-	// handlers adicional (para liverar datos dinámicos almacenados en memoria)
+	// handlers adicional (para liverar datos dinï¿½micos almacenados en memoria)
 	void(*OnDestroyDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 	void(*OnUnloadDataHandler)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 } C_Behaviour;
 
-/* Permite que la entidad tenga colisión en el mundo. */
+/* Permite que la entidad tenga colisiï¿½n en el mundo. */
 typedef struct C_RectCollider
 {
-	// Posición del collider (se actualiza con el componente transform)
+	// Posiciï¿½n del collider (se actualiza con el componente transform)
 	float posX;
 	float posY;
-	// Desplazamiento en el eje x respecto a la posición de la entidad.
+	// Desplazamiento en el eje x respecto a la posiciï¿½n de la entidad.
 	float offsetX;
-	// Desplazamiento en el eje y respecto a la posición de la entidad.
+	// Desplazamiento en el eje y respecto a la posiciï¿½n de la entidad.
 	float offsetY;
-	// Ancho del rectángulo de colisión.
+	// Ancho del rectï¿½ngulo de colisiï¿½n.
 	unsigned int width;
-	// Alto del rectángulo de colisión.
+	// Alto del rectï¿½ngulo de colisiï¿½n.
 	unsigned int height;
-	// Determina si la caja de colisión es solida.
+	// Determina si la caja de colisiï¿½n es solida.
 	unsigned short isSolid;
 	int isStatic;
 } C_RectCollider;
 
 typedef struct C_CircleCollider 
 {
-	// Posición del collider
+	// Posiciï¿½n del collider
 	float posX;
 	float posY;
-	// Desplazamiento en el eje x respecto a la posición de la entidad.
+	// Desplazamiento en el eje x respecto a la posiciï¿½n de la entidad.
 	float offsetX;
-	// Desplazamiento en el eje y respecto a la posición de la entidad.
+	// Desplazamiento en el eje y respecto a la posiciï¿½n de la entidad.
 	float offsetY;
-	// Radio del círculo
+	// Radio del cï¿½rculo
 	float radius;
-	// Determina si el círculo de colisión es solido.
+	// Determina si el cï¿½rculo de colisiï¿½n es solido.
 	unsigned short isSolid;
 }C_CircleCollider;
 
@@ -253,25 +260,25 @@ typedef struct C_UIElement{
 typedef struct C_Button {
 	// Determina que tipo de boton es (1 texto | 2 sprite)
 	int type;
-	// Texto que renderiza el boton en caso sea de tipo 1, caso contrario, sería el nombre del sprite.
+	// Texto que renderiza el boton en caso sea de tipo 1, caso contrario, serï¿½a el nombre del sprite.
 	char* text;
 	// Ancho del boton (si es 0.0 al ser creado, toma el ancho del sprite o texto)
 	float widtth;
 	// Alto del boton (si es 0.0 al ser creado, toma el alto del sprite o texto)
 	float height;
 
-	// Determina si el boton está activo.
+	// Determina si el boton estï¿½ activo.
 	int isActive;
-	// Determina si el cursor está encima del botón (por defecto es cero).
+	// Determina si el cursor estï¿½ encima del botï¿½n (por defecto es cero).
 	int isHovered;
 
-	// funcion que se ejecuta cuando el cursor está sobre el boton
+	// funcion que se ejecuta cuando el cursor estï¿½ sobre el boton
 	void(*OnHover)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
-	// Se ejecuta cuando el usuario presiona el botón
+	// Se ejecuta cuando el usuario presiona el botï¿½n
 	void(*OnClick)(struct Game* gamee, struct GameLevel* level, ecs_entity_t entity);
-	// Se ejecuta cuando el mouse está sobre el elemento solo una vez
+	// Se ejecuta cuando el mouse estï¿½ sobre el elemento solo una vez
 	void(*OnMouseEnter)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
-	// Se ejecuta cuando el mouse ya no está sbore el elemento, una sola vez
+	// Se ejecuta cuando el mouse ya no estï¿½ sbore el elemento, una sola vez
 	void (*OnMouseExit)(struct Game* game, struct GameLevel* level, ecs_entity_t entity);
 } C_Button;
 
@@ -279,40 +286,40 @@ typedef struct C_Button {
 * componentes para eljuego
 **********************************************************/
 
-/* Controla el ciclo de día y noche. */
+/* Controla el ciclo de dï¿½a y noche. */
 typedef struct C_DayCicle
 {
 	// tiempo en segundos reales en que pasa un minuto en el juego
 	float minuteTime;
-	// tiempo en el que inicia un nuevo día
+	// tiempo en el que inicia un nuevo dï¿½a
 	int firstDayTime;
-	// Tiempo total que dura un día
+	// Tiempo total que dura un dï¿½a
 	unsigned int dayTime;
-	// Tiempo completo actual del día
+	// Tiempo completo actual del dï¿½a
 	unsigned int currentTime;
-	// Hora actual en el juego (por día)
+	// Hora actual en el juego (por dï¿½a)
 	unsigned int currentHour;
-	// Minuto actual en el juego (por día)
+	// Minuto actual en el juego (por dï¿½a)
 	unsigned int currentMinute;
 } C_DayCicle;
 
-/* Controla el rango de colección de objectos del juegador. */
+/* Controla el rango de colecciï¿½n de objectos del juegador. */
 typedef struct C_Collector
 {
 	// Desplazamiento en el eje de coordenadas x
 	float offsetX;
 	// Desplazamiento en el eje de coordenadas y
 	float offsetY;
-	// Radio de acción para recolectar los objectos.
+	// Radio de acciï¿½n para recolectar los objectos.
 	float radius;
 } C_Collector;
 
-/* Permite que un NPC tenga diálogos con lo que comunicarse con el jugador */
+/* Permite que un NPC tenga diï¿½logos con lo que comunicarse con el jugador */
 typedef struct C_Dialog
 {
-	// Diálogos en memoria
+	// Diï¿½logos en memoria
 	char** dialogs;
-	// Cantidad de diálogos cargados
+	// Cantidad de diï¿½logos cargados
 	unsigned int dialogCount;
 	// Maximo de interacciones que puede tener el npc
 	unsigned int maxInteractions;
@@ -321,24 +328,24 @@ typedef struct C_Dialog
 /* Permite que una entidad tenga un inventario */
 typedef struct C_Inventory
 {
-	// Cantidad máxima de slots que tiene el inventario.
+	// Cantidad mï¿½xima de slots que tiene el inventario.
 	unsigned int maxSlots;
 	// Slots del inventario
 	InventorySlot** slots;
 
 	/* No aplica para el inventario del jugador */
-	// Indica si el inventario está bloqueado por un cerrojo.
+	// Indica si el inventario estï¿½ bloqueado por un cerrojo.
 	unsigned int isLocked;
 	// Indica el tipo de llave que se necesita para que sea desbloqueado.
 	unsigned int keyType;
 } C_Inventory;
 
-/* Permite que el jugador tenga una barra de acción (inventario adicional) */
+/* Permite que el jugador tenga una barra de acciï¿½n (inventario adicional) */
 typedef struct C_HotBar
 {
-	// Cantidad de slots de la barra de acción.
+	// Cantidad de slots de la barra de acciï¿½n.
 	unsigned int maxSlots;
-	// Slots de la barra de acción.
+	// Slots de la barra de acciï¿½n.
 	InventorySlot** slots;
 	// Slot seleccionado
 	int selectedSlot;
@@ -347,35 +354,35 @@ typedef struct C_HotBar
 /* Componente que dota de movimiento al jugador */
 typedef struct C_Movement
 {
-	// Dirección en x de la entidad (puede ser 0, 1 o -1).
+	// Direcciï¿½n en x de la entidad (puede ser 0, 1 o -1).
 	signed int directionX;
-	// Dirección en y de la entidad (puede ser 0, 1 o -1).
+	// Direcciï¿½n en y de la entidad (puede ser 0, 1 o -1).
 	signed int directionY;
 	// Velocidad de movimiento del jugador.
 	float speed;
 } C_Movement;
 
-/* Componente que permite realizar una acción con un item en el inventario. */
+/* Componente que permite realizar una acciï¿½n con un item en el inventario. */
 typedef struct C_Action
 {
 	// Controlador de acciones (lo gestiona el usuario).
 	void (*OnAction)(InventorySlot* selectedSlot, ecs_entity_t player);
 } C_Action;
 
-/* Componente para las estadísticas del jugador */
+/* Componente para las estadï¿½sticas del jugador */
 typedef struct C_PlayerStats
 {
 	/*
-	// Nivel máximo de recolección.
+	// Nivel mï¿½ximo de recolecciï¿½n.
 	unsigned int maxCollectionLevel;
-	// Nivel de recolección actual.
+	// Nivel de recolecciï¿½n actual.
 	unsigned int collectionLevel;
-	// Experiencia de recolección actual.
+	// Experiencia de recolecciï¿½n actual.
 	float currentCollectionLevelExp;
-	// Experiencia de recolección necesaria para el siguiente nivel.
+	// Experiencia de recolecciï¿½n necesaria para el siguiente nivel.
 	float nextCollectionLevelExp;
 
-	// Nivel máximo de granjero.
+	// Nivel mï¿½ximo de granjero.
 	unsigned int maxFarmerLevel;
 	// Nivel de granjero actual.
 	unsigned int farmerLevel;
@@ -384,7 +391,7 @@ typedef struct C_PlayerStats
 	// Experiencia de granjero necesaria para el siguiente nivel.
 	float nextFarmerLevelExp;
 
-	// Nivel máximo de pesca.
+	// Nivel mï¿½ximo de pesca.
 	unsigned int maxFisingLevel;
 	// Nivel de pesca actual.
 	unsigned int fishingLevel;
@@ -393,7 +400,7 @@ typedef struct C_PlayerStats
 	// Experiencia de pesca necesaria para el siguiente nivel.
 	float nextFishingLevelExp;
 
-	// Nivel máximo de combate.
+	// Nivel mï¿½ximo de combate.
 	unsigned int maxCombatLevel;
 	// Nivel de combate actual.
 	unsigned int combatLevel;
@@ -408,14 +415,14 @@ typedef struct C_PlayerStats
 	// Determina si el jugador se encuentra durmiendo o no.
 	unsigned int isSleeping;
 
-	// Vida máxima del jugador (Solo funciona en las minas).
+	// Vida mï¿½xima del jugador (Solo funciona en las minas).
 	float maxHealth;
 	// Vida actual del jugador.
 	float currentHealth;
 
-	// Energía máxima del jugador (tanto para la granja como para la cueva).
+	// Energï¿½a mï¿½xima del jugador (tanto para la granja como para la cueva).
 	float maxStamina;
-	// Energía actual del jugador.
+	// Energï¿½a actual del jugador.
 	float currentStamina;
 } C_PlayerStats;
 
@@ -426,7 +433,7 @@ typedef struct C_WorldItem
 	unsigned int count;
 } C_WorldItem;
 
-/* Componente que indica que la entidad es una construcción */
+/* Componente que indica que la entidad es una construcciï¿½n */
 typedef struct C_Build
 {
 	BUILD_TYPE type;
@@ -445,11 +452,11 @@ typedef struct C_Builder
 	// cantidad de items
 	int buildingsCount;
 	int upgradesCount;
-	// Construcción en la que se encuentra trabajando.
+	// Construcciï¿½n en la que se encuentra trabajando.
 	BUILD_TYPE currentBuild;
-	// Dias que le toma una construcción o mejora.
+	// Dias que le toma una construcciï¿½n o mejora.
 	unsigned int daysToBuild;
-	// Día actual de construcción.
+	// Dï¿½a actual de construcciï¿½n.
 	unsigned int currentBuildDay;
 } C_Builder;
 
@@ -487,32 +494,32 @@ typedef struct C_Crop
 {
 	// Tipo de semilla.
 	CROP_TYPE seedType;
-	// Días que tarda en madurar.
+	// Dï¿½as que tarda en madurar.
 	unsigned int daysToMature;
-	// Día actual de maduración.
+	// Dï¿½a actual de maduraciï¿½n.
 	unsigned int currentCropDay;
-	// Indica si está lista para ser cosechada.
+	// Indica si estï¿½ lista para ser cosechada.
 	unsigned int readytoHarvest;
-	// Indica si está regada.
+	// Indica si estï¿½ regada.
 	unsigned int isWatered;
-	// Indica si está fertilizada.
+	// Indica si estï¿½ fertilizada.
 	unsigned int isFertilized;
 } C_Crop;
 
-/* Componente para los árboles */
+/* Componente para los ï¿½rboles */
 typedef struct C_Tree
 {
-	// Indica si está talado
+	// Indica si estï¿½ talado
 	unsigned int isCutDown;
-	// Indica la cantidad de días que le toma volver a crecer
+	// Indica la cantidad de dï¿½as que le toma volver a crecer
 	unsigned int daysToGrowBack;
-	// Indica si es de generación natural o semilla
+	// Indica si es de generaciï¿½n natural o semilla
 	unsigned int isNaturalGeneration;
-	// Indica la cantidad de días que le toma crecer siendo semilla
+	// Indica la cantidad de dï¿½as que le toma crecer siendo semilla
 	unsigned int dayToGrow;
-	// Indica el día de crecimiento actual
+	// Indica el dï¿½a de crecimiento actual
 	unsigned int currentGrowthDay;
-	// Indica el estado actual del árbol (para usarlo con SpriteRender)
+	// Indica el estado actual del ï¿½rbol (para usarlo con SpriteRender)
 	//unsigned int currentState;
 } C_Tree;
 

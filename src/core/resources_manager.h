@@ -1,6 +1,6 @@
 #pragma once
 #ifndef RESOURCES_H
-#define RESUURCES_H
+#define RESOURCES_H
 
 #include <stdio.h>
 #include <stdlib.h>
